@@ -52,7 +52,7 @@
       background: white;
       border-radius: 12px;
       box-shadow: 0 2px 12px rgba(0,0,0,0.06);
-      overflow: hidden;
+      overflow-x: auto;
     }
     table {
       width: 100%;
@@ -68,13 +68,14 @@
       text-transform: uppercase;
       letter-spacing: 0.05em;
       border-bottom: 2px solid #e5e7eb;
+      white-space: nowrap;
     }
     th.sticky { position: sticky; left: 0; background: #f8f9fa; z-index: 2; }
     th.date { min-width: 75px; }
     td {
       padding: 14px 12px;
       border-bottom: 1px solid #e5e7eb;
-      font-size: 14px;
+      font-size: 13px;
     }
     td.sticky { position: sticky; left: 0; background: white; z-index: 1; }
     td.name-cell { font-weight: 600; color: #111827; }
@@ -102,11 +103,6 @@
     td.total-number { background: #f8f9fa; color: #111827; }
 
     /* ACTIONS */
-    .actions {
-      display: flex;
-      gap: 8px;
-      align-items: center;
-    }
     .delete-btn {
       background: #fee2e2;
       color: #b91c1c;
@@ -191,154 +187,206 @@
             <th class="sticky" style="width: 60px;">Action</th>
           </tr>
         </thead>
-        <tbody>
-          <!-- Borrower rows go here -->
-          {% for borrower in borrowers %}
-          <tr class="borrower-row" data-borrower-id="{{ borrower.id }}">
-            <td class="sticky number-cell">{{ forloop.counter }}</td>
-            <td class="sticky name-cell editable-name">{{ borrower.name }}</td>
-            <td class="number-cell editable-amount">₹{{ borrower.amount_given|floatformat:0 }}</td>
-            <td class="number-cell total-paid">₹{{ borrower.total_paid|floatformat:2 }}</td>
-            <td class="number-cell balance">₹{{ borrower.balance|floatformat:2 }}</td>
-            {% for week in weeks %}
-            <td class="amount-cell" data-date="{{ week.date }}" data-borrower-id="{{ borrower.id }}">
-              {% if borrower.payments|get_item:week.date|stringformat:'s' != '0.0' %}
-                <span>₹{{ borrower.payments|get_item:week.date }}</span>
-              {% else %}
-                <span>—</span>
-              {% endif %}
-            </td>
-            {% endfor %}
-            <td class="sticky">
-              <button class="delete-btn" onclick="deleteBorrower({{ borrower.id }})">Delete</button>
-            </td>
-          </tr>
-          {% endfor %}
-
-          <!-- TOTAL ROW -->
-          <tr class="total-row">
-            <td class="sticky total-number" colspan="5">TOTAL COLLECTION</td>
-            {% for week in weeks %}
-            <td class="amount-cell total-amount" data-date="{{ week.date }}">
-              ₹{{ daily_totals|get_item:week.date|floatformat:0 }}
-            </td>
-            {% endfor %}
-            <td></td>
-          </tr>
-
-          <!-- ADD NEW BORROWER ROW -->
-          <tr class="add-row">
-            <td colspan="100">
-              <div class="add-form">
-                <input type="text" id="newName" placeholder="Borrower name" maxlength="50">
-                <input type="number" id="newAmount" placeholder="Amount" min="0" step="100">
-                <div></div>
-                <button class="btn-add" onclick="addBorrower()">+ Add Borrower</button>
-              </div>
-            </td>
-          </tr>
+        <tbody id="borrowersBody">
+          <!-- Populated by JavaScript -->
         </tbody>
       </table>
     </div>
   </div>
 
   <script>
-    // Custom filter for templates
-    const borrowerData = {{ borrowers|safe }};
+    // Data passed from Django view as JSON
+    const borrowersData = {{ borrowers|safe }};
+    const weeksData = {{ weeks|safe }};
+    const dailyTotalsData = {{ daily_totals|safe }};
     const groupId = {{ group.id }};
 
-    // Make cells editable
-    document.addEventListener('click', function(e) {
-      // Edit payment cells
-      if (e.target.closest('.amount-cell')) {
-        const cell = e.target.closest('.amount-cell');
-        if (cell.classList.contains('total-amount')) return;
-
-        const borrowerId = cell.dataset.borrowerId;
-        const date = cell.dataset.date;
-        const currentValue = cell.innerText.replace('₹', '').replace('—', '').trim();
-
-        const input = document.createElement('input');
-        input.type = 'number';
-        input.value = currentValue === '' ? '' : parseFloat(currentValue);
-        input.min = '0';
-        input.step = '100';
-        input.style.width = '100%';
-
-        cell.innerHTML = '';
-        cell.appendChild(input);
-        input.focus();
-        input.select();
-
-        // Save on blur or enter
-        const savePayment = function() {
-          const amount = parseFloat(input.value) || 0;
-          savePaymentData(borrowerId, date, amount);
-        };
-
-        input.onblur = savePayment;
-        input.onkeypress = function(e) {
-          if (e.key === 'Enter') savePayment();
-        };
-      }
-
-      // Edit name
-      if (e.target.closest('.editable-name')) {
-        const cell = e.target.closest('.editable-name');
-        const row = cell.closest('.borrower-row');
-        const borrowerId = row.dataset.borrowerId;
-        const currentValue = cell.innerText;
-
-        const input = document.createElement('input');
-        input.type = 'text';
-        input.value = currentValue;
-        input.maxLength = '50';
-
-        cell.innerHTML = '';
-        cell.appendChild(input);
-        input.focus();
-        input.select();
-
-        const saveName = function() {
-          const name = input.value.trim();
-          if (name) saveBorrowerData(borrowerId, { name: name });
-        };
-
-        input.onblur = saveName;
-        input.onkeypress = function(e) {
-          if (e.key === 'Enter') saveName();
-        };
-      }
-
-      // Edit amount given
-      if (e.target.closest('.editable-amount')) {
-        const cell = e.target.closest('.editable-amount');
-        const row = cell.closest('.borrower-row');
-        const borrowerId = row.dataset.borrowerId;
-        const currentValue = cell.innerText.replace('₹', '').trim();
-
-        const input = document.createElement('input');
-        input.type = 'number';
-        input.value = parseFloat(currentValue);
-        input.min = '0';
-        input.step = '100';
-
-        cell.innerHTML = '';
-        cell.appendChild(input);
-        input.focus();
-        input.select();
-
-        const saveAmount = function() {
-          const amount = parseFloat(input.value) || 0;
-          if (amount > 0) saveBorrowerData(borrowerId, { amount_given: amount });
-        };
-
-        input.onblur = saveAmount;
-        input.onkeypress = function(e) {
-          if (e.key === 'Enter') saveAmount();
-        };
-      }
+    // Initialize the table on page load
+    document.addEventListener('DOMContentLoaded', function() {
+      renderTable();
     });
+
+    function renderTable() {
+      const tbody = document.getElementById('borrowersBody');
+      tbody.innerHTML = '';
+
+      // Add borrower rows
+      borrowersData.forEach((borrower, index) => {
+        const row = document.createElement('tr');
+        row.className = 'borrower-row';
+        row.dataset.borrowerId = borrower.id;
+
+        let html = `
+          <td class="sticky number-cell">${index + 1}</td>
+          <td class="sticky name-cell editable-name">${borrower.name}</td>
+          <td class="number-cell editable-amount">₹${Math.round(borrower.amount_given)}</td>
+          <td class="number-cell total-paid">₹${borrower.total_paid.toFixed(2)}</td>
+          <td class="number-cell balance">₹${borrower.balance.toFixed(2)}</td>
+        `;
+
+        // Add payment cells for each week
+        weeksData.forEach(week => {
+          const paymentAmount = borrower.payments[week.date] || 0;
+          const displayValue = paymentAmount > 0 ? `₹${paymentAmount}` : '—';
+          html += `
+            <td class="amount-cell" data-date="${week.date}" data-borrower-id="${borrower.id}">
+              <span>${displayValue}</span>
+            </td>
+          `;
+        });
+
+        html += `
+          <td class="sticky">
+            <button class="delete-btn" onclick="deleteBorrower(${borrower.id})">Delete</button>
+          </td>
+        `;
+
+        row.innerHTML = html;
+        tbody.appendChild(row);
+      });
+
+      // Add total row
+      const totalRow = document.createElement('tr');
+      totalRow.className = 'total-row';
+      let totalHtml = `
+        <td class="sticky total-number" colspan="5">TOTAL COLLECTION</td>
+      `;
+
+      weeksData.forEach(week => {
+        const total = dailyTotalsData[week.date] || 0;
+        totalHtml += `
+          <td class="amount-cell total-amount" data-date="${week.date}">
+            ₹${Math.round(total)}
+          </td>
+        `;
+      });
+
+      totalHtml += '<td></td>';
+      totalRow.innerHTML = totalHtml;
+      tbody.appendChild(totalRow);
+
+      // Add new borrower row
+      const addRow = document.createElement('tr');
+      addRow.className = 'add-row';
+      addRow.innerHTML = `
+        <td colspan="100">
+          <div class="add-form">
+            <input type="text" id="newName" placeholder="Borrower name" maxlength="50">
+            <input type="number" id="newAmount" placeholder="Amount" min="0" step="100">
+            <div></div>
+            <button class="btn-add" onclick="addBorrower()">+ Add Borrower</button>
+          </div>
+        </td>
+      `;
+      tbody.appendChild(addRow);
+
+      // Attach event listeners
+      attachEventListeners();
+    }
+
+    function attachEventListeners() {
+      // Make payment cells editable
+      document.querySelectorAll('.amount-cell:not(.total-amount)').forEach(cell => {
+        cell.addEventListener('click', function(e) {
+          editPaymentCell(this);
+        });
+      });
+
+      // Make name editable
+      document.querySelectorAll('.editable-name').forEach(cell => {
+        cell.addEventListener('click', function(e) {
+          editNameCell(this);
+        });
+      });
+
+      // Make amount given editable
+      document.querySelectorAll('.editable-amount').forEach(cell => {
+        cell.addEventListener('click', function(e) {
+          editAmountCell(this);
+        });
+      });
+    }
+
+    function editPaymentCell(cell) {
+      const borrowerId = cell.dataset.borrowerId;
+      const date = cell.dataset.date;
+      const currentValue = cell.innerText.replace('₹', '').replace('—', '').trim();
+
+      const input = document.createElement('input');
+      input.type = 'number';
+      input.value = currentValue === '' ? '' : parseFloat(currentValue);
+      input.min = '0';
+      input.step = '100';
+      input.style.width = '100%';
+
+      cell.innerHTML = '';
+      cell.appendChild(input);
+      input.focus();
+      input.select();
+
+      const savePayment = function() {
+        const amount = parseFloat(input.value) || 0;
+        savePaymentData(borrowerId, date, amount);
+      };
+
+      input.onblur = savePayment;
+      input.onkeypress = function(e) {
+        if (e.key === 'Enter') savePayment();
+      };
+    }
+
+    function editNameCell(cell) {
+      const row = cell.closest('.borrower-row');
+      const borrowerId = row.dataset.borrowerId;
+      const currentValue = cell.innerText;
+
+      const input = document.createElement('input');
+      input.type = 'text';
+      input.value = currentValue;
+      input.maxLength = '50';
+
+      cell.innerHTML = '';
+      cell.appendChild(input);
+      input.focus();
+      input.select();
+
+      const saveName = function() {
+        const name = input.value.trim();
+        if (name) saveBorrowerData(borrowerId, { name: name });
+      };
+
+      input.onblur = saveName;
+      input.onkeypress = function(e) {
+        if (e.key === 'Enter') saveName();
+      };
+    }
+
+    function editAmountCell(cell) {
+      const row = cell.closest('.borrower-row');
+      const borrowerId = row.dataset.borrowerId;
+      const currentValue = cell.innerText.replace('₹', '').trim();
+
+      const input = document.createElement('input');
+      input.type = 'number';
+      input.value = parseFloat(currentValue);
+      input.min = '0';
+      input.step = '100';
+
+      cell.innerHTML = '';
+      cell.appendChild(input);
+      input.focus();
+      input.select();
+
+      const saveAmount = function() {
+        const amount = parseFloat(input.value) || 0;
+        if (amount > 0) saveBorrowerData(borrowerId, { amount_given: amount });
+      };
+
+      input.onblur = saveAmount;
+      input.onkeypress = function(e) {
+        if (e.key === 'Enter') saveAmount();
+      };
+    }
 
     // Save payment data to server
     function savePaymentData(borrowerId, date, amount) {
@@ -353,7 +401,7 @@
       .then(res => res.json())
       .then(data => {
         if (data.success) {
-          location.reload(); // Refresh to show updated totals
+          location.reload();
         }
       });
     }
@@ -435,14 +483,6 @@
       }
       return cookieValue;
     }
-  </script>
-
-  <!-- Template filter helper -->
-  <script>
-    // Add a get_item filter for Django templates in JavaScript
-    Object.prototype.get_item = function(key) {
-      return this[key];
-    };
   </script>
 
 </body>
