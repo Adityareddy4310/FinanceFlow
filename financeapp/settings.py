@@ -7,7 +7,7 @@ SECRET_KEY = 'django-insecure-change-this-in-production-use-random-string-here'
 
 DEBUG = True
 
-ALLOWED_HOSTS = ['*']
+ALLOWED_HOSTS = ['web-production-764bf.up.railway.app']
 
 INSTALLED_APPS = [
     'django.contrib.admin',
@@ -81,3 +81,7 @@ LOGIN_URL = '/login/'
 import os
 STATIC_ROOT = BASE_DIR / 'staticfiles'
 STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
+
+CSRF_TRUSTED_ORIGINS = [
+    "https://web-production-764bf.up.railway.app",
+]
