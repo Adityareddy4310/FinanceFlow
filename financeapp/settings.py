@@ -7,7 +7,8 @@ SECRET_KEY = 'django-insecure-change-this-in-production-use-random-string-here'
 
 DEBUG = True
 
-ALLOWED_HOSTS = ['web-production-764bf.up.railway.app']
+ALLOWED_HOSTS = ['*']
+CSRF_TRUSTED_ORIGINS = ['https://web-production-764bf.up.railway.app']
 
 INSTALLED_APPS = [
     'django.contrib.admin',
