@@ -185,7 +185,7 @@
     <div class="cards-grid">
 
       {% for group in finance_groups %}
-      <a href="#" class="card">
+      <a href="/group/{{ group.id }}/" class="card">
         <div class="card-icon {% if group.color == 'blue' %}icon-blue{% elif group.color == 'green' %}icon-green{% else %}icon-orange{% endif %}">
           {% if group.color == 'blue' %}💼{% elif group.color == 'green' %}📋{% else %}📁{% endif %}
         </div>
