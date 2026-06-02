@@ -4,7 +4,7 @@
     "builder": "NIXPACKS"
   },
   "deploy": {
-    "startCommand": "gunicorn financeapp.wsgi",
+    "startCommand": "python manage.py migrate && gunicorn financeapp.wsgi",
     "restartPolicyType": "ON_FAILURE"
   }
 }
