@@ -7,236 +7,296 @@
   <style>
     * { margin: 0; padding: 0; box-sizing: border-box; }
     body {
-      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
-      background: #f0f4f8;
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      background: #f5f5f5;
       min-height: 100vh;
     }
 
     /* TOP NAV */
     .navbar {
       background: white;
-      padding: 0 32px;
+      padding: 0 24px;
       height: 60px;
       display: flex;
       align-items: center;
       justify-content: space-between;
-      box-shadow: 0 1px 4px rgba(0,0,0,0.08);
+      box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+      border-bottom: 1px solid #e0e0e0;
     }
     .navbar-left { display: flex; align-items: center; gap: 16px; }
-    .back-btn {
-      background: none;
-      border: none;
-      font-size: 20px;
-      cursor: pointer;
-      color: #6b7280;
-    }
-    .navbar-title { font-size: 18px; font-weight: 700; color: #111827; }
-    .navbar-right { display: flex; align-items: center; gap: 16px; }
-    .logout-btn {
-      padding: 7px 16px;
-      background: #f3f4f6;
-      color: #374151;
-      border: none;
-      border-radius: 8px;
-      font-size: 13px;
-      cursor: pointer;
-      text-decoration: none;
-      font-weight: 500;
+    .back-btn { background: none; border: none; font-size: 20px; cursor: pointer; color: #666; }
+    .navbar-title { font-size: 18px; font-weight: 600; color: #333; }
+    .logout-btn { padding: 8px 16px; background: #f0f0f0; border: none; border-radius: 4px; cursor: pointer; font-weight: 500; font-size: 13px; }
+
+    /* MAIN CONTENT */
+    .main {
+      padding: 20px;
+      background: #f5f5f5;
     }
 
-    /* MAIN */
-    .main { padding: 24px; max-width: 100%; overflow: auto; }
-
-    /* TABLE */
-    .table-container {
+    /* SPREADSHEET */
+    .spreadsheet-wrapper {
       background: white;
-      border-radius: 12px;
-      box-shadow: 0 2px 12px rgba(0,0,0,0.06);
-      overflow-x: auto;
+      border-radius: 8px;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+      overflow: hidden;
     }
+
+    .spreadsheet {
+      overflow-x: auto;
+      overflow-y: auto;
+    }
+
     table {
       width: 100%;
       border-collapse: collapse;
+      font-size: 13px;
     }
+
+    /* HEADER */
     th {
-      background: #f8f9fa;
-      padding: 14px 12px;
+      background: #4472c4;
+      color: white;
+      padding: 12px 8px;
       text-align: left;
-      font-size: 12px;
-      font-weight: 700;
-      color: #6b7280;
-      text-transform: uppercase;
-      letter-spacing: 0.05em;
-      border-bottom: 2px solid #e5e7eb;
+      font-weight: 600;
+      border: 1px solid #3d5fa0;
       white-space: nowrap;
+      position: sticky;
+      top: 0;
+      z-index: 10;
     }
-    th.sticky { position: sticky; left: 0; background: #f8f9fa; z-index: 2; }
-    th.date { min-width: 75px; }
+
+    th.sticky-left {
+      position: sticky;
+      left: 0;
+      z-index: 11;
+      background: #4472c4;
+    }
+
+    /* CELLS */
     td {
-      padding: 14px 12px;
-      border-bottom: 1px solid #e5e7eb;
-      font-size: 13px;
-    }
-    td.sticky { position: sticky; left: 0; background: white; z-index: 1; }
-    td.name-cell { font-weight: 600; color: #111827; }
-    td.number-cell { text-align: right; color: #374151; }
-    td.amount-cell {
-      background: #f3f4f6;
-      text-align: center;
-      cursor: pointer;
-      transition: background 0.1s;
-    }
-    td.amount-cell:hover { background: #e5e7eb; }
-    td.amount-cell input {
-      width: 100%;
-      border: none;
+      padding: 10px 8px;
+      border: 1px solid #d9d9d9;
       background: white;
-      padding: 6px;
+    }
+
+    /* STICKY LEFT COLUMNS */
+    td.sticky-col {
+      position: sticky;
+      left: 0;
+      background: #f9f9f9;
+      font-weight: 500;
+      z-index: 5;
+    }
+
+    /* PAYMENT CELLS - clickable */
+    td.payment-cell {
       text-align: center;
-      font-size: 13px;
-      font-weight: 600;
-    }
-    td.amount-cell input:focus {
-      outline: 2px solid #1a56db;
-    }
-    td.total-row { background: #f8f9fa; font-weight: 600; }
-    td.total-number { background: #f8f9fa; color: #111827; }
-
-    /* ACTIONS */
-    .delete-btn {
-      background: #fee2e2;
-      color: #b91c1c;
-      border: none;
-      padding: 4px 8px;
-      border-radius: 4px;
-      font-size: 12px;
+      background: #fffbf0;
       cursor: pointer;
+      user-select: none;
+    }
+
+    td.payment-cell:hover {
+      background: #fff2cc;
+    }
+
+    td.payment-cell input {
+      width: 100%;
+      padding: 4px;
+      border: 2px solid #4472c4;
+      text-align: center;
       font-weight: 600;
     }
-    .delete-btn:hover { background: #fecaca; }
 
-    /* ADD NEW BORROWER */
-    .add-row {
-      background: #f8f9fa;
+    /* EDITABLE CELLS */
+    .editable {
+      cursor: pointer;
+      position: relative;
     }
-    .add-row td {
-      padding: 16px 12px;
-      border: none;
+
+    .editable:hover {
+      background: #fff2cc !important;
     }
-    .add-form {
-      display: grid;
-      grid-template-columns: 150px 120px 1fr auto;
-      gap: 12px;
-      align-items: center;
+
+    .editable input {
+      width: 100%;
+      padding: 4px;
+      border: 2px solid #4472c4;
+      font-weight: 500;
     }
-    .add-form input {
-      padding: 10px;
-      border: 1px solid #d1d5db;
-      border-radius: 6px;
-      font-size: 14px;
+
+    /* TOTAL ROW */
+    tr.total-row td {
+      background: #d9e1f2;
+      font-weight: 700;
+      color: #1f4e78;
     }
-    .add-form input:focus {
-      outline: 2px solid #1a56db;
-      border: none;
+
+    tr.total-row td.payment-cell {
+      background: #b4c7e7;
+      font-weight: 700;
     }
-    .btn-add {
-      background: #1a56db;
+
+    /* ACTION BUTTONS */
+    .delete-btn {
+      background: #c5504a;
       color: white;
       border: none;
-      padding: 10px 16px;
-      border-radius: 6px;
-      font-size: 13px;
-      font-weight: 600;
+      padding: 5px 10px;
+      border-radius: 3px;
       cursor: pointer;
+      font-size: 12px;
+      font-weight: 600;
     }
-    .btn-add:hover { background: #1648c0; }
 
-    /* RESPONSIVE */
-    @media (max-width: 768px) {
-      .add-form {
-        grid-template-columns: 1fr;
-      }
+    .delete-btn:hover {
+      background: #a03a34;
+    }
+
+    /* ADD NEW ROW */
+    .add-borrower-row td {
+      padding: 12px 8px;
+      background: #f0f0f0;
+      border: 1px solid #d9d9d9;
+    }
+
+    .add-form {
+      display: grid;
+      grid-template-columns: 120px 120px 1fr auto;
+      gap: 8px;
+      align-items: center;
+    }
+
+    .add-form input {
+      padding: 8px;
+      border: 1px solid #d9d9d9;
+      border-radius: 3px;
+      font-size: 13px;
+    }
+
+    .btn-add {
+      background: #70ad47;
+      color: white;
+      border: none;
+      padding: 8px 16px;
+      border-radius: 3px;
+      cursor: pointer;
+      font-weight: 600;
+      font-size: 13px;
+    }
+
+    .btn-add:hover {
+      background: #5a9236;
+    }
+
+    /* NUMBER CELLS */
+    td.number {
+      text-align: right;
+      font-weight: 500;
+    }
+
+    /* INFO MESSAGE */
+    .info-box {
+      background: #fff3cd;
+      border: 1px solid #ffc107;
+      padding: 12px;
+      border-radius: 4px;
+      margin-bottom: 16px;
+      color: #856404;
+      font-size: 13px;
     }
   </style>
 </head>
 <body>
 
+  <!-- NAVBAR -->
   <nav class="navbar">
     <div class="navbar-left">
-      <a href="/dashboard/" class="back-btn">← Back</a>
+      <a href="/dashboard/" class="back-btn">←</a>
       <div class="navbar-title">{{ group.name }}</div>
     </div>
-    <div class="navbar-right">
-      <a href="/logout/" class="logout-btn">Logout</a>
-    </div>
+    <a href="/logout/" class="logout-btn">Logout</a>
   </nav>
 
+  <!-- MAIN -->
   <div class="main">
-    <div class="table-container">
-      <table id="emiTable">
-        <thead>
-          <tr>
-            <th class="sticky">Sr.No</th>
-            <th class="sticky">Name</th>
-            <th class="sticky">Amount Given</th>
-            <th class="sticky">Amount Paid</th>
-            <th class="sticky">Balance</th>
-            {% for week in weeks %}
-            <th class="date">{{ week.display }}</th>
-            {% endfor %}
-            <th class="sticky" style="width: 60px;">Action</th>
-          </tr>
-        </thead>
-        <tbody id="borrowersBody">
-          <!-- Populated by JavaScript -->
-        </tbody>
-      </table>
+    <div class="info-box">
+      💡 Click on any payment cell to enter amount collected. Click name or amount to edit.
+    </div>
+
+    <!-- SPREADSHEET TABLE -->
+    <div class="spreadsheet-wrapper">
+      <div class="spreadsheet">
+        <table id="emiTable">
+          <thead>
+            <tr>
+              <th class="sticky-left" style="width: 50px;">Sr</th>
+              <th class="sticky-left" style="width: 120px;">Name</th>
+              <th class="sticky-left" style="width: 100px;">Amount</th>
+              <th class="sticky-left" style="width: 90px;">Paid</th>
+              <th class="sticky-left" style="width: 90px;">Balance</th>
+              {% for week in weeks %}
+              <th style="min-width: 75px; width: 75px;">{{ week.display }}</th>
+              {% endfor %}
+              <th class="sticky-left" style="width: 70px;">Action</th>
+            </tr>
+          </thead>
+          <tbody id="tableBody">
+            <!-- Rows will be added by JavaScript -->
+          </tbody>
+        </table>
+      </div>
     </div>
   </div>
 
+  <!-- PASS DATA TO JAVASCRIPT -->
   <script>
-    // Data passed from Django view as JSON
     const borrowersData = {{ borrowers|safe }};
     const weeksData = {{ weeks|safe }};
     const dailyTotalsData = {{ daily_totals|safe }};
     const groupId = {{ group.id }};
 
-    // Initialize the table on page load
-    document.addEventListener('DOMContentLoaded', function() {
+    console.log('Borrowers:', borrowersData);
+    console.log('Weeks:', weeksData);
+    console.log('Totals:', dailyTotalsData);
+
+    // Initialize when page loads
+    window.addEventListener('load', function() {
       renderTable();
     });
 
     function renderTable() {
-      const tbody = document.getElementById('borrowersBody');
+      const tbody = document.getElementById('tableBody');
       tbody.innerHTML = '';
 
-      // Add borrower rows
-      borrowersData.forEach((borrower, index) => {
+      // Add each borrower row
+      borrowersData.forEach((borrower, idx) => {
         const row = document.createElement('tr');
-        row.className = 'borrower-row';
         row.dataset.borrowerId = borrower.id;
 
         let html = `
-          <td class="sticky number-cell">${index + 1}</td>
-          <td class="sticky name-cell editable-name">${borrower.name}</td>
-          <td class="number-cell editable-amount">₹${Math.round(borrower.amount_given)}</td>
-          <td class="number-cell total-paid">₹${borrower.total_paid.toFixed(2)}</td>
-          <td class="number-cell balance">₹${borrower.balance.toFixed(2)}</td>
+          <td class="sticky-col" style="width: 50px;">${idx + 1}</td>
+          <td class="sticky-col editable" style="width: 120px;" onclick="editName(this, ${borrower.id})">${borrower.name}</td>
+          <td class="sticky-col editable number" style="width: 100px;" onclick="editAmount(this, ${borrower.id})">₹${Math.round(borrower.amount_given)}</td>
+          <td class="sticky-col number" style="width: 90px;">₹${borrower.total_paid.toFixed(2)}</td>
+          <td class="sticky-col number" style="width: 90px;">₹${borrower.balance.toFixed(2)}</td>
         `;
 
-        // Add payment cells for each week
+        // Payment cells for each week
         weeksData.forEach(week => {
-          const paymentAmount = borrower.payments[week.date] || 0;
-          const displayValue = paymentAmount > 0 ? `₹${paymentAmount}` : '—';
+          const amt = borrower.payments[week.date] || 0;
+          const display = amt > 0 ? `₹${amt}` : '';
           html += `
-            <td class="amount-cell" data-date="${week.date}" data-borrower-id="${borrower.id}">
-              <span>${displayValue}</span>
+            <td class="payment-cell" data-borrower="${borrower.id}" data-date="${week.date}" onclick="editPayment(this, ${borrower.id}, '${week.date}')" style="min-width: 75px; width: 75px;">
+              ${display}
             </td>
           `;
         });
 
         html += `
-          <td class="sticky">
+          <td class="sticky-col" style="width: 70px;">
             <button class="delete-btn" onclick="deleteBorrower(${borrower.id})">Delete</button>
           </td>
         `;
@@ -245,104 +305,82 @@
         tbody.appendChild(row);
       });
 
-      // Add total row
+      // TOTAL ROW
       const totalRow = document.createElement('tr');
       totalRow.className = 'total-row';
+
       let totalHtml = `
-        <td class="sticky total-number" colspan="5">TOTAL COLLECTION</td>
+        <td class="sticky-col" style="width: 50px;"></td>
+        <td class="sticky-col" colspan="4" style="width: auto;">TOTAL COLLECTION</td>
       `;
 
       weeksData.forEach(week => {
         const total = dailyTotalsData[week.date] || 0;
         totalHtml += `
-          <td class="amount-cell total-amount" data-date="${week.date}">
+          <td class="payment-cell" style="min-width: 75px; width: 75px;">
             ₹${Math.round(total)}
           </td>
         `;
       });
 
-      totalHtml += '<td></td>';
+      totalHtml += '<td class="sticky-col" style="width: 70px;"></td>';
       totalRow.innerHTML = totalHtml;
       tbody.appendChild(totalRow);
 
-      // Add new borrower row
+      // ADD NEW BORROWER ROW
       const addRow = document.createElement('tr');
-      addRow.className = 'add-row';
+      addRow.className = 'add-borrower-row';
       addRow.innerHTML = `
         <td colspan="100">
           <div class="add-form">
-            <input type="text" id="newName" placeholder="Borrower name" maxlength="50">
-            <input type="number" id="newAmount" placeholder="Amount" min="0" step="100">
+            <input type="text" id="newName" placeholder="Name" maxlength="50">
+            <input type="number" id="newAmount" placeholder="Amount" min="100" step="100">
             <div></div>
             <button class="btn-add" onclick="addBorrower()">+ Add Borrower</button>
           </div>
         </td>
       `;
       tbody.appendChild(addRow);
-
-      // Attach event listeners
-      attachEventListeners();
     }
 
-    function attachEventListeners() {
-      // Make payment cells editable
-      document.querySelectorAll('.amount-cell:not(.total-amount)').forEach(cell => {
-        cell.addEventListener('click', function(e) {
-          editPaymentCell(this);
-        });
-      });
-
-      // Make name editable
-      document.querySelectorAll('.editable-name').forEach(cell => {
-        cell.addEventListener('click', function(e) {
-          editNameCell(this);
-        });
-      });
-
-      // Make amount given editable
-      document.querySelectorAll('.editable-amount').forEach(cell => {
-        cell.addEventListener('click', function(e) {
-          editAmountCell(this);
-        });
-      });
-    }
-
-    function editPaymentCell(cell) {
-      const borrowerId = cell.dataset.borrowerId;
-      const date = cell.dataset.date;
-      const currentValue = cell.innerText.replace('₹', '').replace('—', '').trim();
-
+    // Edit payment
+    function editPayment(cell, borrowerId, date) {
+      const currentVal = cell.innerText.replace('₹', '').trim();
       const input = document.createElement('input');
       input.type = 'number';
-      input.value = currentValue === '' ? '' : parseFloat(currentValue);
+      input.value = currentVal ? parseFloat(currentVal) : '';
       input.min = '0';
       input.step = '100';
-      input.style.width = '100%';
 
       cell.innerHTML = '';
       cell.appendChild(input);
       input.focus();
       input.select();
 
-      const savePayment = function() {
+      const save = () => {
         const amount = parseFloat(input.value) || 0;
-        savePaymentData(borrowerId, date, amount);
+        fetch(`/api/borrower/${borrowerId}/update-payment/`, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'X-CSRFToken': getCookie('csrftoken'),
+          },
+          body: JSON.stringify({ date, amount }),
+        }).then(r => r.json()).then(d => {
+          if (d.success) location.reload();
+        });
       };
 
-      input.onblur = savePayment;
-      input.onkeypress = function(e) {
-        if (e.key === 'Enter') savePayment();
-      };
+      input.onblur = save;
+      input.onkeypress = e => { if (e.key === 'Enter') save(); };
     }
 
-    function editNameCell(cell) {
-      const row = cell.closest('.borrower-row');
-      const borrowerId = row.dataset.borrowerId;
-      const currentValue = cell.innerText;
-
+    // Edit name
+    function editName(cell, borrowerId) {
+      const currentVal = cell.innerText;
       const input = document.createElement('input');
       input.type = 'text';
-      input.value = currentValue;
+      input.value = currentVal;
       input.maxLength = '50';
 
       cell.innerHTML = '';
@@ -350,25 +388,32 @@
       input.focus();
       input.select();
 
-      const saveName = function() {
+      const save = () => {
         const name = input.value.trim();
-        if (name) saveBorrowerData(borrowerId, { name: name });
+        if (name) {
+          fetch(`/api/borrower/${borrowerId}/update/`, {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+              'X-CSRFToken': getCookie('csrftoken'),
+            },
+            body: JSON.stringify({ name }),
+          }).then(r => r.json()).then(d => {
+            if (d.success) location.reload();
+          });
+        }
       };
 
-      input.onblur = saveName;
-      input.onkeypress = function(e) {
-        if (e.key === 'Enter') saveName();
-      };
+      input.onblur = save;
+      input.onkeypress = e => { if (e.key === 'Enter') save(); };
     }
 
-    function editAmountCell(cell) {
-      const row = cell.closest('.borrower-row');
-      const borrowerId = row.dataset.borrowerId;
-      const currentValue = cell.innerText.replace('₹', '').trim();
-
+    // Edit amount given
+    function editAmount(cell, borrowerId) {
+      const currentVal = cell.innerText.replace('₹', '').trim();
       const input = document.createElement('input');
       input.type = 'number';
-      input.value = parseFloat(currentValue);
+      input.value = parseFloat(currentVal);
       input.min = '0';
       input.step = '100';
 
@@ -377,69 +422,24 @@
       input.focus();
       input.select();
 
-      const saveAmount = function() {
+      const save = () => {
         const amount = parseFloat(input.value) || 0;
-        if (amount > 0) saveBorrowerData(borrowerId, { amount_given: amount });
+        if (amount > 0) {
+          fetch(`/api/borrower/${borrowerId}/update/`, {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+              'X-CSRFToken': getCookie('csrftoken'),
+            },
+            body: JSON.stringify({ amount_given: amount }),
+          }).then(r => r.json()).then(d => {
+            if (d.success) location.reload();
+          });
+        }
       };
 
-      input.onblur = saveAmount;
-      input.onkeypress = function(e) {
-        if (e.key === 'Enter') saveAmount();
-      };
-    }
-
-    // Save payment data to server
-    function savePaymentData(borrowerId, date, amount) {
-      fetch(`/api/borrower/${borrowerId}/update-payment/`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'X-CSRFToken': getCookie('csrftoken'),
-        },
-        body: JSON.stringify({ date: date, amount: amount }),
-      })
-      .then(res => res.json())
-      .then(data => {
-        if (data.success) {
-          location.reload();
-        }
-      });
-    }
-
-    // Save borrower name/amount data
-    function saveBorrowerData(borrowerId, updates) {
-      fetch(`/api/borrower/${borrowerId}/update/`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'X-CSRFToken': getCookie('csrftoken'),
-        },
-        body: JSON.stringify(updates),
-      })
-      .then(res => res.json())
-      .then(data => {
-        if (data.success) {
-          location.reload();
-        }
-      });
-    }
-
-    // Delete borrower
-    function deleteBorrower(borrowerId) {
-      if (confirm('Delete this borrower? This cannot be undone.')) {
-        fetch(`/api/borrower/${borrowerId}/delete/`, {
-          method: 'POST',
-          headers: {
-            'X-CSRFToken': getCookie('csrftoken'),
-          },
-        })
-        .then(res => res.json())
-        .then(data => {
-          if (data.success) {
-            location.reload();
-          }
-        });
-      }
+      input.onblur = save;
+      input.onkeypress = e => { if (e.key === 'Enter') save(); };
     }
 
     // Add new borrower
@@ -458,14 +458,24 @@
           'Content-Type': 'application/json',
           'X-CSRFToken': getCookie('csrftoken'),
         },
-        body: JSON.stringify({ name: name, amount_given: amount }),
-      })
-      .then(res => res.json())
-      .then(data => {
-        if (data.success) {
-          location.reload();
-        }
+        body: JSON.stringify({ name, amount_given: amount }),
+      }).then(r => r.json()).then(d => {
+        if (d.success) location.reload();
       });
+    }
+
+    // Delete borrower
+    function deleteBorrower(borrowerId) {
+      if (confirm('Delete this borrower?')) {
+        fetch(`/api/borrower/${borrowerId}/delete/`, {
+          method: 'POST',
+          headers: {
+            'X-CSRFToken': getCookie('csrftoken'),
+          },
+        }).then(r => r.json()).then(d => {
+          if (d.success) location.reload();
+        });
+      }
     }
 
     // Get CSRF token
