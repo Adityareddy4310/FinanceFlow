@@ -12,6 +12,8 @@
     .navbar-left { display: flex; align-items: center; gap: 16px; }
     .back-btn { background: none; border: none; font-size: 20px; cursor: pointer; color: #666; }
     .navbar-title { font-size: 18px; font-weight: 600; color: #333; }
+    .navbar-right { display: flex; align-items: center; gap: 16px; }
+    .month-label { font-size: 14px; color: #666; font-weight: 500; }
     .logout-btn { padding: 8px 16px; background: #f0f0f0; border: none; border-radius: 4px; cursor: pointer; font-weight: 500; font-size: 13px; }
 
     .main { padding: 20px; background: #f5f5f5; }
@@ -23,29 +25,29 @@
     .spreadsheet-wrapper { background: white; border-radius: 8px; box-shadow: 0 2px 8px rgba(0,0,0,0.1); overflow: hidden; }
     .spreadsheet { overflow-x: auto; overflow-y: auto; }
 
-    table { width: 100%; border-collapse: collapse; font-size: 13px; }
+    table { width: 100%; border-collapse: collapse; font-size: 12px; }
 
-    th { background: #4472c4; color: white; padding: 12px 8px; text-align: left; font-weight: 600; border: 1px solid #3d5fa0; white-space: nowrap; position: sticky; top: 0; z-index: 10; }
-    th.sticky-left { position: sticky; left: 0; z-index: 11; background: #4472c4; }
+    th { background: #4472c4; color: white; padding: 10px 6px; text-align: center; font-weight: 600; border: 1px solid #3d5fa0; white-space: nowrap; position: sticky; top: 0; z-index: 10; font-size: 11px; }
+    th.sticky-left { position: sticky; left: 0; z-index: 11; background: #4472c4; text-align: left; }
 
-    td { padding: 10px 8px; border: 1px solid #d9d9d9; background: white; }
+    td { padding: 8px 6px; border: 1px solid #d9d9d9; background: white; font-size: 12px; }
     td.sticky-col { position: sticky; left: 0; background: #f9f9f9; font-weight: 500; z-index: 5; }
 
     td.payment-cell { text-align: center; background: #fffbf0; cursor: pointer; user-select: none; }
     td.payment-cell:hover { background: #fff2cc; }
-    td.payment-cell input { width: 100%; padding: 4px; border: 2px solid #4472c4; text-align: center; font-weight: 600; }
+    td.payment-cell input { width: 100%; padding: 3px; border: 2px solid #4472c4; text-align: center; font-weight: 600; font-size: 11px; }
 
     .editable { cursor: pointer; }
     .editable:hover { background: #fff2cc !important; }
-    .editable input { width: 100%; padding: 4px; border: 2px solid #4472c4; font-weight: 500; }
+    .editable input { width: 100%; padding: 3px; border: 2px solid #4472c4; font-weight: 500; font-size: 11px; }
 
     tr.total-row td { background: #d9e1f2; font-weight: 700; color: #1f4e78; }
     tr.total-row td.payment-cell { background: #b4c7e7; }
 
-    .delete-btn { background: #c5504a; color: white; border: none; padding: 5px 10px; border-radius: 3px; cursor: pointer; font-size: 12px; font-weight: 600; }
+    .delete-btn { background: #c5504a; color: white; border: none; padding: 4px 8px; border-radius: 3px; cursor: pointer; font-size: 11px; font-weight: 600; }
     .delete-btn:hover { background: #a03a34; }
 
-    .add-borrower-row td { padding: 12px 8px; background: #f0f0f0; border: 1px solid #d9d9d9; }
+    .add-borrower-row td { padding: 10px 6px; background: #f0f0f0; border: 1px solid #d9d9d9; }
     .add-form { display: grid; grid-template-columns: 100px 100px 100px 1fr auto; gap: 8px; align-items: center; }
     .add-form input { padding: 8px; border: 1px solid #d9d9d9; border-radius: 3px; font-size: 13px; }
 
@@ -61,13 +63,16 @@
     <div class="navbar-left">
       <a href="/dashboard/" class="back-btn">←</a>
       <div class="navbar-title">{{ group.name }}</div>
+      <div class="month-label">{{ month_name }}</div>
     </div>
-    <a href="/logout/" class="logout-btn">Logout</a>
+    <div class="navbar-right">
+      <a href="/logout/" class="logout-btn">Logout</a>
+    </div>
   </nav>
 
   <div class="main">
     <div class="info-box">
-      💡 <strong>Loan Date</strong> = When loan was given. | <strong>Paid</strong> = Already collected before. | Click payment cells to edit.
+      💡 <strong>Daily Collections for {{ month_name }}</strong> | Click payment cells to enter daily collection. Paid column updates automatically.
     </div>
 
     <div class="total-info">
@@ -80,16 +85,16 @@
         <table id="emiTable">
           <thead>
             <tr>
-              <th class="sticky-left" style="width: 40px;">Sr</th>
-              <th class="sticky-left" style="width: 110px;">Name</th>
-              <th class="sticky-left" style="width: 90px;">Loan Date</th>
-              <th class="sticky-left" style="width: 90px;">Amount</th>
-              <th class="sticky-left" style="width: 80px;"><strong>Paid</strong></th>
-              <th class="sticky-left" style="width: 80px;">Balance</th>
-              {% for week in weeks %}
-              <th style="min-width: 70px; width: 70px;">{{ week.display }}</th>
+              <th class="sticky-left" style="width: 35px;">Sr</th>
+              <th class="sticky-left" style="width: 100px;">Name</th>
+              <th class="sticky-left" style="width: 85px;">Loan Date</th>
+              <th class="sticky-left" style="width: 85px;">Amount</th>
+              <th class="sticky-left" style="width: 75px;"><strong>Paid*</strong></th>
+              <th class="sticky-left" style="width: 75px;">Balance</th>
+              {% for day in days %}
+              <th style="min-width: 50px; width: 50px;">{{ day.display }}</th>
               {% endfor %}
-              <th class="sticky-left" style="width: 60px;">Action</th>
+              <th class="sticky-left" style="width: 55px;">Action</th>
             </tr>
           </thead>
           <tbody id="tableBody">
@@ -101,12 +106,12 @@
 
   <script>
     const borrowersData = {{ borrowers|safe }};
-    const weeksData = {{ weeks|safe }};
+    const daysData = {{ days|safe }};
     const dailyTotalsData = {{ daily_totals|safe }};
     const groupId = {{ group.id }};
 
     console.log('Borrowers:', borrowersData);
-    console.log('Weeks:', weeksData);
+    console.log('Days:', daysData);
 
     window.addEventListener('load', function() {
       console.log('Page loaded, rendering table...');
@@ -128,33 +133,26 @@
           row.dataset.borrowerId = borrower.id;
 
           let html = `
-            <td class="sticky-col" style="width: 40px;">${idx + 1}</td>
-            <td class="sticky-col editable" style="width: 110px;" onclick="editName(this, ${borrower.id})">${borrower.name}</td>
-            <td class="sticky-col" style="width: 90px; font-size: 12px; color: #666;">${borrower.loan_date}</td>
-            <td class="sticky-col editable number" style="width: 90px;" onclick="editAmount(this, ${borrower.id})">₹${Math.round(borrower.amount_given)}</td>
-            <td class="sticky-col editable number" style="width: 80px; background: #fff0f5;" onclick="editAmountPaid(this, ${borrower.id})">₹${Math.round(borrower.amount_paid)}</td>
-            <td class="sticky-col number" style="width: 80px;">₹${borrower.balance.toFixed(2)}</td>
+            <td class="sticky-col" style="width: 35px;">${idx + 1}</td>
+            <td class="sticky-col editable" style="width: 100px;" onclick="editName(this, ${borrower.id})">${borrower.name}</td>
+            <td class="sticky-col" style="width: 85px; font-size: 11px; color: #666;">${borrower.loan_date}</td>
+            <td class="sticky-col editable number" style="width: 85px;" onclick="editAmount(this, ${borrower.id})">₹${Math.round(borrower.amount_given)}</td>
+            <td class="sticky-col editable number" style="width: 75px; background: #fff0f5;" onclick="editAmountPaid(this, ${borrower.id})">₹${Math.round(borrower.amount_paid)}</td>
+            <td class="sticky-col number" style="width: 75px;">₹${borrower.balance.toFixed(2)}</td>
           `;
 
-          weeksData.forEach(week => {
-            const loanDate = new Date(borrower.loan_date);
-            const weekDate = new Date(week.date);
-            
-            if (weekDate >= loanDate) {
-              const amt = borrower.payments[week.date] || 0;
-              const display = amt > 0 ? `₹${amt}` : '0';
-              html += `
-                <td class="payment-cell" data-borrower="${borrower.id}" data-date="${week.date}" onclick="editPayment(this, ${borrower.id}, '${week.date}')" style="min-width: 70px; width: 70px;">
-                  ${display}
-                </td>
-              `;
-            } else {
-              html += `<td style="min-width: 70px; width: 70px; background: #f9f9f9; color: #999; text-align: center; font-weight: 600;">0</td>`;
-            }
+          daysData.forEach(day => {
+            const amt = borrower.payments[day.date] || 0;
+            const display = amt > 0 ? `₹${amt}` : '0';
+            html += `
+              <td class="payment-cell" data-borrower="${borrower.id}" data-date="${day.date}" onclick="editPayment(this, ${borrower.id}, '${day.date}')" style="min-width: 50px; width: 50px;">
+                ${display}
+              </td>
+            `;
           });
 
           html += `
-            <td class="sticky-col" style="width: 60px;">
+            <td class="sticky-col" style="width: 55px;">
               <button class="delete-btn" onclick="deleteBorrower(${borrower.id})">Delete</button>
             </td>
           `;
@@ -167,21 +165,21 @@
         totalRow.className = 'total-row';
 
         let totalHtml = `
-          <td class="sticky-col" style="width: 40px;"></td>
+          <td class="sticky-col" style="width: 35px;"></td>
           <td class="sticky-col" colspan="5" style="width: auto;">TOTAL COLLECTION</td>
         `;
 
-        weeksData.forEach(week => {
-          const total = dailyTotalsData[week.date] || 0;
+        daysData.forEach(day => {
+          const total = dailyTotalsData[day.date] || 0;
           const display = total > 0 ? `₹${Math.round(total)}` : '0';
           totalHtml += `
-            <td class="payment-cell" style="min-width: 70px; width: 70px;">
+            <td class="payment-cell" style="min-width: 50px; width: 50px;">
               ${display}
             </td>
           `;
         });
 
-        totalHtml += '<td class="sticky-col" style="width: 60px;"></td>';
+        totalHtml += '<td class="sticky-col" style="width: 55px;"></td>';
         totalRow.innerHTML = totalHtml;
         tbody.appendChild(totalRow);
 
@@ -233,7 +231,6 @@
           },
           body: JSON.stringify({ date, amount }),
         }).then(r => r.json()).then(d => {
-          console.log('Payment update response:', d);
           if (d.success) {
             location.reload();
           } else {
@@ -277,10 +274,7 @@
           } else {
             alert('Error: ' + d.error);
           }
-        }).catch(e => {
-          console.error('Error:', e);
-          alert('Error saving amount');
-        });
+        }).catch(e => { console.error('Error:', e); });
       };
 
       input.onblur = save;
@@ -359,8 +353,6 @@
       const amount = parseFloat(document.getElementById('newAmount').value) || 0;
       const loanDate = document.getElementById('newLoanDate').value;
 
-      console.log('Adding borrower:', { name, amount, loanDate });
-
       if (!name || amount <= 0) {
         alert('Please enter valid name and amount');
         return;
@@ -379,7 +371,6 @@
         },
         body: JSON.stringify({ name, amount_given: amount, date_of_loan: loanDate }),
       }).then(r => r.json()).then(d => {
-        console.log('Add borrower response:', d);
         if (d.success) {
           location.reload();
         } else {

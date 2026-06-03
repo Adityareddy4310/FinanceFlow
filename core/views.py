@@ -78,24 +78,36 @@ def group_detail(request, group_id):
     group = get_object_or_404(FinanceGroup, id=group_id, user=request.user)
     borrowers = group.borrowers.all()
 
+    # Get current month's first and last date
     today = datetime.now().date()
-    weeks = []
-    for i in range(20):
-        dt = today + timedelta(weeks=i)
-        weeks.append({
-            'date': dt.isoformat(),
-            'display': dt.strftime('%d/%m/%Y')
+    first_day = today.replace(day=1)
+    
+    # Get last day of current month
+    if today.month == 12:
+        last_day = today.replace(year=today.year + 1, month=1, day=1) - timedelta(days=1)
+    else:
+        last_day = today.replace(month=today.month + 1, day=1) - timedelta(days=1)
+    
+    # Generate all days of current month
+    days = []
+    current = first_day
+    while current <= last_day:
+        days.append({
+            'date': current.isoformat(),
+            'display': current.strftime('%d/%m')
         })
+        current += timedelta(days=1)
 
+    # Prepare borrower data with payments
     borrower_data = []
     for borrower in borrowers:
         payments = {}
-        for week in weeks:
+        for day in days:
             payment = WeeklyPayment.objects.filter(
                 borrower=borrower,
-                payment_date=week['date']
+                payment_date=day['date']
             ).first()
-            payments[week['date']] = float(payment.amount_paid) if payment else 0
+            payments[day['date']] = float(payment.amount_paid) if payment else 0
 
         borrower_data.append({
             'id': borrower.id,
@@ -108,27 +120,29 @@ def group_detail(request, group_id):
             'payments': payments
         })
 
+    # Calculate daily totals
     daily_totals = {}
-    for week in weeks:
+    for day in days:
         total = 0
         for borrower in borrowers:
-            week_date = week['date']
             payment = WeeklyPayment.objects.filter(
                 borrower=borrower,
-                payment_date=week_date
+                payment_date=day['date']
             ).first()
             if payment:
                 total += float(payment.amount_paid)
-        daily_totals[week['date']] = total
+        daily_totals[day['date']] = total
 
     total_to_collect = sum(b['balance'] for b in borrower_data)
+    month_name = today.strftime('%B %Y')
 
     return render(request, 'core/group_detail.html', {
         'group': group,
         'borrowers': borrower_data,
-        'weeks': weeks,
+        'days': days,
         'daily_totals': daily_totals,
         'total_to_collect': total_to_collect,
+        'month_name': month_name,
     })
 
 
@@ -158,13 +172,23 @@ def add_borrower(request, group_id):
             date_of_loan=date_of_loan
         )
 
-        for i in range(20):
-            dt = date_of_loan + timedelta(weeks=i)
+        # Create daily payment records for current month only
+        today = datetime.now().date()
+        first_day = today.replace(day=1)
+        
+        if today.month == 12:
+            last_day = today.replace(year=today.year + 1, month=1, day=1) - timedelta(days=1)
+        else:
+            last_day = today.replace(month=today.month + 1, day=1) - timedelta(days=1)
+        
+        current = first_day
+        while current <= last_day:
             WeeklyPayment.objects.get_or_create(
                 borrower=borrower,
-                payment_date=dt,
+                payment_date=current,
                 defaults={'amount_paid': 0}
             )
+            current += timedelta(days=1)
 
         return JsonResponse({
             'success': True,
