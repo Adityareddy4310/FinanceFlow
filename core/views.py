@@ -100,7 +100,7 @@ def group_detail(request, group_id):
     for i in range(20):
         date = today + timedelta(weeks=i)
         weeks.append({
-            'date': date,
+            'date': date.isoformat(),  # Convert to ISO string format
             'display': date.strftime('%d/%m/%Y')
         })
 
@@ -111,9 +111,9 @@ def group_detail(request, group_id):
         for week in weeks:
             payment = WeeklyPayment.objects.filter(
                 borrower=borrower,
-                payment_date=week['date']
+                payment_date=week['date']  # Now using ISO string
             ).first()
-            payments[week['date'].isoformat()] = float(payment.amount_paid) if payment else 0
+            payments[week['date']] = float(payment.amount_paid) if payment else 0
 
         borrower_data.append({
             'id': borrower.id,
@@ -131,11 +131,11 @@ def group_detail(request, group_id):
         for borrower in borrowers:
             payment = WeeklyPayment.objects.filter(
                 borrower=borrower,
-                payment_date=week['date']
+                payment_date=week['date']  # Now using ISO string
             ).first()
             if payment:
                 total += float(payment.amount_paid)
-        daily_totals[week['date'].isoformat()] = total
+        daily_totals[week['date']] = total
 
     return render(request, 'core/group_detail.html', {
         'group': group,
@@ -200,12 +200,16 @@ def delete_borrower(request, borrower_id):
 @require_http_methods(["POST"])
 def update_payment(request, borrower_id):
     """Update payment for a specific date"""
+    from datetime import datetime as dt
     borrower = get_object_or_404(Borrower, id=borrower_id, finance_group__user=request.user)
     
     try:
         data = json.loads(request.body)
-        payment_date = data.get('date')
+        payment_date_str = data.get('date')  # ISO format string like '2026-06-02'
         amount = float(data.get('amount', 0))
+
+        # Convert ISO string to date object
+        payment_date = dt.fromisoformat(payment_date_str).date()
 
         payment, created = WeeklyPayment.objects.get_or_create(
             borrower=borrower,
