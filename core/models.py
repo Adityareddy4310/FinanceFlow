@@ -1,14 +1,13 @@
-# from django.db import models
 from django.db import models
 from django.contrib.auth.models import User
+from datetime import date
 
 
 class FinanceGroup(models.Model):
-    """Each finance group belongs to a user (e.g., Vizag Finance, Eluru Finance)"""
     user = models.ForeignKey(User, on_delete=models.CASCADE)
-    name = models.CharField(max_length=100)  # e.g., "Vizag Finance"
-    day = models.CharField(max_length=20)     # e.g., "Sunday"
-    location = models.CharField(max_length=100)  # e.g., "Vizag"
+    name = models.CharField(max_length=100)
+    day = models.CharField(max_length=20)
+    location = models.CharField(max_length=100)
     created_at = models.DateTimeField(auto_now_add=True)
 
     def __str__(self):
@@ -19,10 +18,11 @@ class FinanceGroup(models.Model):
 
 
 class Borrower(models.Model):
-    """Each borrower belongs to a finance group"""
     finance_group = models.ForeignKey(FinanceGroup, on_delete=models.CASCADE, related_name='borrowers')
     name = models.CharField(max_length=100)
-    amount_given = models.DecimalField(max_digits=10, decimal_places=2)  # Principal amount
+    amount_given = models.DecimalField(max_digits=10, decimal_places=2)
+    amount_paid = models.DecimalField(max_digits=10, decimal_places=2, default=0)
+    date_of_loan = models.DateField(default=date.today)
     created_at = models.DateTimeField(auto_now_add=True)
 
     def __str__(self):
@@ -33,21 +33,18 @@ class Borrower(models.Model):
 
     @property
     def total_paid(self):
-        """Calculate total amount paid so far"""
-        payments = self.weekly_payments.all()
-        total = sum(float(p.amount_paid) for p in payments)
-        return total
+        weekly_payments = self.weekly_payments.all()
+        weekly_total = sum(float(p.amount_paid) for p in weekly_payments)
+        return float(self.amount_paid) + weekly_total
 
     @property
     def balance(self):
-        """Calculate remaining balance"""
         return float(self.amount_given) - self.total_paid
 
 
 class WeeklyPayment(models.Model):
-    """Each payment record for a borrower on a specific date"""
     borrower = models.ForeignKey(Borrower, on_delete=models.CASCADE, related_name='weekly_payments')
-    payment_date = models.DateField()  # e.g., 2026-02-06
+    payment_date = models.DateField()
     amount_paid = models.DecimalField(max_digits=10, decimal_places=2, default=0)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
@@ -57,4 +54,4 @@ class WeeklyPayment(models.Model):
 
     class Meta:
         ordering = ['payment_date']
-        unique_together = ('borrower', 'payment_date')  # One payment per borrower per date
+        unique_together = ('borrower', 'payment_date')

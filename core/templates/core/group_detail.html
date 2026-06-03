@@ -6,212 +6,57 @@
   <title>{{ group.name }} — Finance App</title>
   <style>
     * { margin: 0; padding: 0; box-sizing: border-box; }
-    body {
-      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-      background: #f5f5f5;
-      min-height: 100vh;
-    }
+    body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background: #f5f5f5; min-height: 100vh; }
 
-    /* TOP NAV */
-    .navbar {
-      background: white;
-      padding: 0 24px;
-      height: 60px;
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      box-shadow: 0 1px 3px rgba(0,0,0,0.1);
-      border-bottom: 1px solid #e0e0e0;
-    }
+    .navbar { background: white; padding: 0 24px; height: 60px; display: flex; align-items: center; justify-content: space-between; box-shadow: 0 1px 3px rgba(0,0,0,0.1); }
     .navbar-left { display: flex; align-items: center; gap: 16px; }
     .back-btn { background: none; border: none; font-size: 20px; cursor: pointer; color: #666; }
     .navbar-title { font-size: 18px; font-weight: 600; color: #333; }
     .logout-btn { padding: 8px 16px; background: #f0f0f0; border: none; border-radius: 4px; cursor: pointer; font-weight: 500; font-size: 13px; }
 
-    /* MAIN CONTENT */
-    .main {
-      padding: 20px;
-      background: #f5f5f5;
-    }
+    .main { padding: 20px; background: #f5f5f5; }
+    .info-box { background: #fff3cd; border: 1px solid #ffc107; padding: 12px; border-radius: 4px; margin-bottom: 16px; color: #856404; font-size: 13px; }
+    .total-info { background: #e7f3ff; border: 1px solid #4472c4; padding: 16px; border-radius: 8px; margin-bottom: 16px; }
+    .total-info-value { font-size: 24px; font-weight: 700; color: #1f4e78; }
+    .total-info-label { font-size: 12px; color: #2e5090; margin-top: 4px; }
 
-    /* SPREADSHEET */
-    .spreadsheet-wrapper {
-      background: white;
-      border-radius: 8px;
-      box-shadow: 0 2px 8px rgba(0,0,0,0.1);
-      overflow: hidden;
-    }
+    .spreadsheet-wrapper { background: white; border-radius: 8px; box-shadow: 0 2px 8px rgba(0,0,0,0.1); overflow: hidden; }
+    .spreadsheet { overflow-x: auto; overflow-y: auto; }
 
-    .spreadsheet {
-      overflow-x: auto;
-      overflow-y: auto;
-    }
+    table { width: 100%; border-collapse: collapse; font-size: 13px; }
 
-    table {
-      width: 100%;
-      border-collapse: collapse;
-      font-size: 13px;
-    }
+    th { background: #4472c4; color: white; padding: 12px 8px; text-align: left; font-weight: 600; border: 1px solid #3d5fa0; white-space: nowrap; position: sticky; top: 0; z-index: 10; }
+    th.sticky-left { position: sticky; left: 0; z-index: 11; background: #4472c4; }
 
-    /* HEADER */
-    th {
-      background: #4472c4;
-      color: white;
-      padding: 12px 8px;
-      text-align: left;
-      font-weight: 600;
-      border: 1px solid #3d5fa0;
-      white-space: nowrap;
-      position: sticky;
-      top: 0;
-      z-index: 10;
-    }
+    td { padding: 10px 8px; border: 1px solid #d9d9d9; background: white; }
+    td.sticky-col { position: sticky; left: 0; background: #f9f9f9; font-weight: 500; z-index: 5; }
 
-    th.sticky-left {
-      position: sticky;
-      left: 0;
-      z-index: 11;
-      background: #4472c4;
-    }
+    td.payment-cell { text-align: center; background: #fffbf0; cursor: pointer; user-select: none; }
+    td.payment-cell:hover { background: #fff2cc; }
+    td.payment-cell input { width: 100%; padding: 4px; border: 2px solid #4472c4; text-align: center; font-weight: 600; }
 
-    /* CELLS */
-    td {
-      padding: 10px 8px;
-      border: 1px solid #d9d9d9;
-      background: white;
-    }
+    .editable { cursor: pointer; }
+    .editable:hover { background: #fff2cc !important; }
+    .editable input { width: 100%; padding: 4px; border: 2px solid #4472c4; font-weight: 500; }
 
-    /* STICKY LEFT COLUMNS */
-    td.sticky-col {
-      position: sticky;
-      left: 0;
-      background: #f9f9f9;
-      font-weight: 500;
-      z-index: 5;
-    }
+    tr.total-row td { background: #d9e1f2; font-weight: 700; color: #1f4e78; }
+    tr.total-row td.payment-cell { background: #b4c7e7; }
 
-    /* PAYMENT CELLS - clickable */
-    td.payment-cell {
-      text-align: center;
-      background: #fffbf0;
-      cursor: pointer;
-      user-select: none;
-    }
+    .delete-btn { background: #c5504a; color: white; border: none; padding: 5px 10px; border-radius: 3px; cursor: pointer; font-size: 12px; font-weight: 600; }
+    .delete-btn:hover { background: #a03a34; }
 
-    td.payment-cell:hover {
-      background: #fff2cc;
-    }
+    .add-borrower-row td { padding: 12px 8px; background: #f0f0f0; border: 1px solid #d9d9d9; }
+    .add-form { display: grid; grid-template-columns: 100px 100px 100px 1fr auto; gap: 8px; align-items: center; }
+    .add-form input { padding: 8px; border: 1px solid #d9d9d9; border-radius: 3px; font-size: 13px; }
 
-    td.payment-cell input {
-      width: 100%;
-      padding: 4px;
-      border: 2px solid #4472c4;
-      text-align: center;
-      font-weight: 600;
-    }
+    .btn-add { background: #70ad47; color: white; border: none; padding: 8px 16px; border-radius: 3px; cursor: pointer; font-weight: 600; font-size: 13px; }
+    .btn-add:hover { background: #5a9236; }
 
-    /* EDITABLE CELLS */
-    .editable {
-      cursor: pointer;
-      position: relative;
-    }
-
-    .editable:hover {
-      background: #fff2cc !important;
-    }
-
-    .editable input {
-      width: 100%;
-      padding: 4px;
-      border: 2px solid #4472c4;
-      font-weight: 500;
-    }
-
-    /* TOTAL ROW */
-    tr.total-row td {
-      background: #d9e1f2;
-      font-weight: 700;
-      color: #1f4e78;
-    }
-
-    tr.total-row td.payment-cell {
-      background: #b4c7e7;
-      font-weight: 700;
-    }
-
-    /* ACTION BUTTONS */
-    .delete-btn {
-      background: #c5504a;
-      color: white;
-      border: none;
-      padding: 5px 10px;
-      border-radius: 3px;
-      cursor: pointer;
-      font-size: 12px;
-      font-weight: 600;
-    }
-
-    .delete-btn:hover {
-      background: #a03a34;
-    }
-
-    /* ADD NEW ROW */
-    .add-borrower-row td {
-      padding: 12px 8px;
-      background: #f0f0f0;
-      border: 1px solid #d9d9d9;
-    }
-
-    .add-form {
-      display: grid;
-      grid-template-columns: 120px 120px 1fr auto;
-      gap: 8px;
-      align-items: center;
-    }
-
-    .add-form input {
-      padding: 8px;
-      border: 1px solid #d9d9d9;
-      border-radius: 3px;
-      font-size: 13px;
-    }
-
-    .btn-add {
-      background: #70ad47;
-      color: white;
-      border: none;
-      padding: 8px 16px;
-      border-radius: 3px;
-      cursor: pointer;
-      font-weight: 600;
-      font-size: 13px;
-    }
-
-    .btn-add:hover {
-      background: #5a9236;
-    }
-
-    /* NUMBER CELLS */
-    td.number {
-      text-align: right;
-      font-weight: 500;
-    }
-
-    /* INFO MESSAGE */
-    .info-box {
-      background: #fff3cd;
-      border: 1px solid #ffc107;
-      padding: 12px;
-      border-radius: 4px;
-      margin-bottom: 16px;
-      color: #856404;
-      font-size: 13px;
-    }
+    td.number { text-align: right; font-weight: 500; }
   </style>
 </head>
 <body>
 
-  <!-- NAVBAR -->
   <nav class="navbar">
     <div class="navbar-left">
       <a href="/dashboard/" class="back-btn">←</a>
@@ -220,38 +65,40 @@
     <a href="/logout/" class="logout-btn">Logout</a>
   </nav>
 
-  <!-- MAIN -->
   <div class="main">
     <div class="info-box">
-      💡 Click on any payment cell to enter amount collected. Click name or amount to edit.
+      💡 <strong>Loan Date</strong> = When loan was given. | <strong>Paid</strong> = Already collected before. | Click payment cells to edit.
     </div>
 
-    <!-- SPREADSHEET TABLE -->
+    <div class="total-info">
+      <div class="total-info-value">₹{{ total_to_collect|floatformat:0 }}</div>
+      <div class="total-info-label">Total Amount to Collect (All Borrowers)</div>
+    </div>
+
     <div class="spreadsheet-wrapper">
       <div class="spreadsheet">
         <table id="emiTable">
           <thead>
             <tr>
-              <th class="sticky-left" style="width: 50px;">Sr</th>
-              <th class="sticky-left" style="width: 120px;">Name</th>
-              <th class="sticky-left" style="width: 100px;">Amount</th>
-              <th class="sticky-left" style="width: 90px;">Paid</th>
-              <th class="sticky-left" style="width: 90px;">Balance</th>
+              <th class="sticky-left" style="width: 40px;">Sr</th>
+              <th class="sticky-left" style="width: 110px;">Name</th>
+              <th class="sticky-left" style="width: 90px;">Loan Date</th>
+              <th class="sticky-left" style="width: 90px;">Amount</th>
+              <th class="sticky-left" style="width: 80px;"><strong>Paid</strong></th>
+              <th class="sticky-left" style="width: 80px;">Balance</th>
               {% for week in weeks %}
-              <th style="min-width: 75px; width: 75px;">{{ week.display }}</th>
+              <th style="min-width: 70px; width: 70px;">{{ week.display }}</th>
               {% endfor %}
-              <th class="sticky-left" style="width: 70px;">Action</th>
+              <th class="sticky-left" style="width: 60px;">Action</th>
             </tr>
           </thead>
           <tbody id="tableBody">
-            <!-- Rows will be added by JavaScript -->
           </tbody>
         </table>
       </div>
     </div>
   </div>
 
-  <!-- PASS DATA TO JAVASCRIPT -->
   <script>
     const borrowersData = {{ borrowers|safe }};
     const weeksData = {{ weeks|safe }};
@@ -260,95 +107,114 @@
 
     console.log('Borrowers:', borrowersData);
     console.log('Weeks:', weeksData);
-    console.log('Totals:', dailyTotalsData);
 
-    // Initialize when page loads
     window.addEventListener('load', function() {
+      console.log('Page loaded, rendering table...');
       renderTable();
     });
 
     function renderTable() {
-      const tbody = document.getElementById('tableBody');
-      tbody.innerHTML = '';
+      try {
+        const tbody = document.getElementById('tableBody');
+        if (!tbody) {
+          console.error('tableBody not found');
+          return;
+        }
+        
+        tbody.innerHTML = '';
 
-      // Add each borrower row
-      borrowersData.forEach((borrower, idx) => {
-        const row = document.createElement('tr');
-        row.dataset.borrowerId = borrower.id;
+        borrowersData.forEach((borrower, idx) => {
+          const row = document.createElement('tr');
+          row.dataset.borrowerId = borrower.id;
 
-        let html = `
-          <td class="sticky-col" style="width: 50px;">${idx + 1}</td>
-          <td class="sticky-col editable" style="width: 120px;" onclick="editName(this, ${borrower.id})">${borrower.name}</td>
-          <td class="sticky-col editable number" style="width: 100px;" onclick="editAmount(this, ${borrower.id})">₹${Math.round(borrower.amount_given)}</td>
-          <td class="sticky-col number" style="width: 90px;">₹${borrower.total_paid.toFixed(2)}</td>
-          <td class="sticky-col number" style="width: 90px;">₹${borrower.balance.toFixed(2)}</td>
+          let html = `
+            <td class="sticky-col" style="width: 40px;">${idx + 1}</td>
+            <td class="sticky-col editable" style="width: 110px;" onclick="editName(this, ${borrower.id})">${borrower.name}</td>
+            <td class="sticky-col" style="width: 90px; font-size: 12px; color: #666;">${borrower.loan_date}</td>
+            <td class="sticky-col editable number" style="width: 90px;" onclick="editAmount(this, ${borrower.id})">₹${Math.round(borrower.amount_given)}</td>
+            <td class="sticky-col editable number" style="width: 80px; background: #fff0f5;" onclick="editAmountPaid(this, ${borrower.id})">₹${Math.round(borrower.amount_paid)}</td>
+            <td class="sticky-col number" style="width: 80px;">₹${borrower.balance.toFixed(2)}</td>
+          `;
+
+          weeksData.forEach(week => {
+            const loanDate = new Date(borrower.loan_date);
+            const weekDate = new Date(week.date);
+            
+            if (weekDate >= loanDate) {
+              const amt = borrower.payments[week.date] || 0;
+              const display = amt > 0 ? `₹${amt}` : '0';
+              html += `
+                <td class="payment-cell" data-borrower="${borrower.id}" data-date="${week.date}" onclick="editPayment(this, ${borrower.id}, '${week.date}')" style="min-width: 70px; width: 70px;">
+                  ${display}
+                </td>
+              `;
+            } else {
+              html += `<td style="min-width: 70px; width: 70px; background: #f9f9f9; color: #999; text-align: center; font-weight: 600;">0</td>`;
+            }
+          });
+
+          html += `
+            <td class="sticky-col" style="width: 60px;">
+              <button class="delete-btn" onclick="deleteBorrower(${borrower.id})">Delete</button>
+            </td>
+          `;
+
+          row.innerHTML = html;
+          tbody.appendChild(row);
+        });
+
+        const totalRow = document.createElement('tr');
+        totalRow.className = 'total-row';
+
+        let totalHtml = `
+          <td class="sticky-col" style="width: 40px;"></td>
+          <td class="sticky-col" colspan="5" style="width: auto;">TOTAL COLLECTION</td>
         `;
 
-        // Payment cells for each week
         weeksData.forEach(week => {
-          const amt = borrower.payments[week.date] || 0;
-          const display = amt > 0 ? `₹${amt}` : '';
-          html += `
-            <td class="payment-cell" data-borrower="${borrower.id}" data-date="${week.date}" onclick="editPayment(this, ${borrower.id}, '${week.date}')" style="min-width: 75px; width: 75px;">
+          const total = dailyTotalsData[week.date] || 0;
+          const display = total > 0 ? `₹${Math.round(total)}` : '0';
+          totalHtml += `
+            <td class="payment-cell" style="min-width: 70px; width: 70px;">
               ${display}
             </td>
           `;
         });
 
-        html += `
-          <td class="sticky-col" style="width: 70px;">
-            <button class="delete-btn" onclick="deleteBorrower(${borrower.id})">Delete</button>
+        totalHtml += '<td class="sticky-col" style="width: 60px;"></td>';
+        totalRow.innerHTML = totalHtml;
+        tbody.appendChild(totalRow);
+
+        const addRow = document.createElement('tr');
+        addRow.className = 'add-borrower-row';
+        
+        const today = new Date();
+        const todayISO = today.toISOString().split('T')[0];
+        
+        addRow.innerHTML = `
+          <td colspan="100">
+            <div class="add-form">
+              <input type="text" id="newName" placeholder="Name" maxlength="50">
+              <input type="number" id="newAmount" placeholder="Amount" min="100" step="100">
+              <input type="date" id="newLoanDate" value="${todayISO}">
+              <div></div>
+              <button class="btn-add" onclick="addBorrower()">+ Add</button>
+            </div>
           </td>
         `;
+        tbody.appendChild(addRow);
 
-        row.innerHTML = html;
-        tbody.appendChild(row);
-      });
-
-      // TOTAL ROW
-      const totalRow = document.createElement('tr');
-      totalRow.className = 'total-row';
-
-      let totalHtml = `
-        <td class="sticky-col" style="width: 50px;"></td>
-        <td class="sticky-col" colspan="4" style="width: auto;">TOTAL COLLECTION</td>
-      `;
-
-      weeksData.forEach(week => {
-        const total = dailyTotalsData[week.date] || 0;
-        totalHtml += `
-          <td class="payment-cell" style="min-width: 75px; width: 75px;">
-            ₹${Math.round(total)}
-          </td>
-        `;
-      });
-
-      totalHtml += '<td class="sticky-col" style="width: 70px;"></td>';
-      totalRow.innerHTML = totalHtml;
-      tbody.appendChild(totalRow);
-
-      // ADD NEW BORROWER ROW
-      const addRow = document.createElement('tr');
-      addRow.className = 'add-borrower-row';
-      addRow.innerHTML = `
-        <td colspan="100">
-          <div class="add-form">
-            <input type="text" id="newName" placeholder="Name" maxlength="50">
-            <input type="number" id="newAmount" placeholder="Amount" min="100" step="100">
-            <div></div>
-            <button class="btn-add" onclick="addBorrower()">+ Add Borrower</button>
-          </div>
-        </td>
-      `;
-      tbody.appendChild(addRow);
+        console.log('Table rendered successfully');
+      } catch (error) {
+        console.error('Error rendering table:', error);
+      }
     }
 
-    // Edit payment
     function editPayment(cell, borrowerId, date) {
-      const currentVal = cell.innerText.replace('₹', '').trim();
+      const currentVal = cell.innerText.replace('₹', '').trim().replace('0', '');
       const input = document.createElement('input');
       input.type = 'number';
-      input.value = currentVal ? parseFloat(currentVal) : '';
+      input.value = currentVal;
       input.min = '0';
       input.step = '100';
 
@@ -367,7 +233,15 @@
           },
           body: JSON.stringify({ date, amount }),
         }).then(r => r.json()).then(d => {
-          if (d.success) location.reload();
+          console.log('Payment update response:', d);
+          if (d.success) {
+            location.reload();
+          } else {
+            alert('Error: ' + d.error);
+          }
+        }).catch(e => {
+          console.error('Error:', e);
+          alert('Error saving payment');
         });
       };
 
@@ -375,7 +249,44 @@
       input.onkeypress = e => { if (e.key === 'Enter') save(); };
     }
 
-    // Edit name
+    function editAmountPaid(cell, borrowerId) {
+      const currentVal = cell.innerText.replace('₹', '').trim();
+      const input = document.createElement('input');
+      input.type = 'number';
+      input.value = currentVal ? parseFloat(currentVal) : 0;
+      input.min = '0';
+      input.step = '100';
+
+      cell.innerHTML = '';
+      cell.appendChild(input);
+      input.focus();
+      input.select();
+
+      const save = () => {
+        const amount = parseFloat(input.value) || 0;
+        fetch(`/api/borrower/${borrowerId}/update-amount-paid/`, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'X-CSRFToken': getCookie('csrftoken'),
+          },
+          body: JSON.stringify({ amount }),
+        }).then(r => r.json()).then(d => {
+          if (d.success) {
+            location.reload();
+          } else {
+            alert('Error: ' + d.error);
+          }
+        }).catch(e => {
+          console.error('Error:', e);
+          alert('Error saving amount');
+        });
+      };
+
+      input.onblur = save;
+      input.onkeypress = e => { if (e.key === 'Enter') save(); };
+    }
+
     function editName(cell, borrowerId) {
       const currentVal = cell.innerText;
       const input = document.createElement('input');
@@ -400,7 +311,8 @@
             body: JSON.stringify({ name }),
           }).then(r => r.json()).then(d => {
             if (d.success) location.reload();
-          });
+            else alert('Error: ' + d.error);
+          }).catch(e => { console.error('Error:', e); });
         }
       };
 
@@ -408,7 +320,6 @@
       input.onkeypress = e => { if (e.key === 'Enter') save(); };
     }
 
-    // Edit amount given
     function editAmount(cell, borrowerId) {
       const currentVal = cell.innerText.replace('₹', '').trim();
       const input = document.createElement('input');
@@ -434,7 +345,8 @@
             body: JSON.stringify({ amount_given: amount }),
           }).then(r => r.json()).then(d => {
             if (d.success) location.reload();
-          });
+            else alert('Error: ' + d.error);
+          }).catch(e => { console.error('Error:', e); });
         }
       };
 
@@ -442,13 +354,20 @@
       input.onkeypress = e => { if (e.key === 'Enter') save(); };
     }
 
-    // Add new borrower
     function addBorrower() {
       const name = document.getElementById('newName').value.trim();
       const amount = parseFloat(document.getElementById('newAmount').value) || 0;
+      const loanDate = document.getElementById('newLoanDate').value;
+
+      console.log('Adding borrower:', { name, amount, loanDate });
 
       if (!name || amount <= 0) {
         alert('Please enter valid name and amount');
+        return;
+      }
+
+      if (!loanDate) {
+        alert('Please select loan date');
         return;
       }
 
@@ -458,13 +377,20 @@
           'Content-Type': 'application/json',
           'X-CSRFToken': getCookie('csrftoken'),
         },
-        body: JSON.stringify({ name, amount_given: amount }),
+        body: JSON.stringify({ name, amount_given: amount, date_of_loan: loanDate }),
       }).then(r => r.json()).then(d => {
-        if (d.success) location.reload();
+        console.log('Add borrower response:', d);
+        if (d.success) {
+          location.reload();
+        } else {
+          alert('Error: ' + d.error);
+        }
+      }).catch(e => {
+        console.error('Error:', e);
+        alert('Error adding borrower');
       });
     }
 
-    // Delete borrower
     function deleteBorrower(borrowerId) {
       if (confirm('Delete this borrower?')) {
         fetch(`/api/borrower/${borrowerId}/delete/`, {
@@ -474,11 +400,11 @@
           },
         }).then(r => r.json()).then(d => {
           if (d.success) location.reload();
-        });
+          else alert('Error: ' + d.error);
+        }).catch(e => { console.error('Error:', e); });
       }
     }
 
-    // Get CSRF token
     function getCookie(name) {
       let cookieValue = null;
       if (document.cookie && document.cookie !== '') {

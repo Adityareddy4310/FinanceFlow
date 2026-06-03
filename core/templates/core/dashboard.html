@@ -197,8 +197,8 @@
             <div class="stat-label">Borrowers</div>
           </div>
           <div class="stat">
-            <div class="stat-value">₹{{ group.total_given|floatformat:0 }}</div>
-            <div class="stat-label">Total Given</div>
+            <div class="stat-value">₹{{ group.total_balance|floatformat:0 }}</div>
+            <div class="stat-label">To Collect</div>
           </div>
         </div>
         {% if group.pending_emis > 0 %}
