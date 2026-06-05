@@ -37,34 +37,24 @@ def dashboard(request):
     groups = FinanceGroup.objects.filter(user=request.user)
     
     if not groups.exists():
-        FinanceGroup.objects.create(user=request.user, name='Vizag Finance', day='Sunday', location='Vizag')
-        FinanceGroup.objects.create(user=request.user, name='Eluru Finance', day='Monday', location='Eluru')
+        # Create default groups WITHOUT pre-creating blank slots
+        FinanceGroup.objects.create(user=request.user, name='Vizag Finance', day='Sunday Collection - Vizag', location='Vizag')
+        FinanceGroup.objects.create(user=request.user, name='Eluru Finance', day='Monday Collection - Eluru', location='Eluru')
         groups = FinanceGroup.objects.filter(user=request.user)
 
     finance_groups = []
     for group in groups:
-        borrower_count = group.borrowers.count()
-        total_given = sum(float(b.amount_given) for b in group.borrowers.all())
-        total_balance = sum(float(b.amount_given) - b.total_paid for b in group.borrowers.all())
-        
-        pending = WeeklyPayment.objects.filter(
-            borrower__finance_group=group,
-            payment_date__lte=datetime.now().date(),
-            amount_paid=0
-        ).count()
-        
-        color = 'blue' if 'Vizag' in group.name else 'green'
+        # Only count actual borrowers (name is not empty)
+        active_borrowers = group.borrowers.filter(name__gt='').count()
+        total_balance = sum(float(b.balance) for b in group.borrowers.filter(name__gt=''))
         
         finance_groups.append({
             'id': group.id,
             'name': group.name,
             'day': group.day,
             'location': group.location,
-            'total_borrowers': borrower_count,
-            'total_given': int(total_given),
+            'active_borrowers': active_borrowers,
             'total_balance': int(total_balance),
-            'pending_emis': pending,
-            'color': color,
         })
 
     return render(request, 'core/dashboard.html', {
@@ -74,21 +64,49 @@ def dashboard(request):
 
 
 @login_required
+@require_http_methods(["POST"])
+def edit_finance_group(request, group_id):
+    """Edit finance group name and day"""
+    group = get_object_or_404(FinanceGroup, id=group_id, user=request.user)
+    
+    try:
+        data = json.loads(request.body)
+        name = data.get('name', '').strip()
+        day = data.get('day', '').strip()
+        
+        if name:
+            group.name = name
+        if day:
+            group.day = day
+        
+        group.save()
+        
+        return JsonResponse({
+            'success': True,
+            'group': {
+                'id': group.id,
+                'name': group.name,
+                'day': group.day,
+            }
+        })
+    except Exception as e:
+        return JsonResponse({'error': str(e)}, status=400)
+
+
+@login_required
 def group_detail(request, group_id):
     group = get_object_or_404(FinanceGroup, id=group_id, user=request.user)
-    borrowers = group.borrowers.all()
+    # Get only active borrowers (those with names)
+    all_borrowers = list(group.borrowers.filter(name__gt=''))
 
-    # Get current month's first and last date
     today = datetime.now().date()
     first_day = today.replace(day=1)
     
-    # Get last day of current month
     if today.month == 12:
         last_day = today.replace(year=today.year + 1, month=1, day=1) - timedelta(days=1)
     else:
         last_day = today.replace(month=today.month + 1, day=1) - timedelta(days=1)
     
-    # Generate all days of current month
     days = []
     current = first_day
     while current <= last_day:
@@ -98,9 +116,8 @@ def group_detail(request, group_id):
         })
         current += timedelta(days=1)
 
-    # Prepare borrower data with payments
     borrower_data = []
-    for borrower in borrowers:
+    for borrower in all_borrowers:
         payments = {}
         for day in days:
             payment = WeeklyPayment.objects.filter(
@@ -111,20 +128,20 @@ def group_detail(request, group_id):
 
         borrower_data.append({
             'id': borrower.id,
+            'serial': borrower.serial_number,
             'name': borrower.name,
             'amount_given': float(borrower.amount_given),
             'amount_paid': float(borrower.amount_paid),
             'total_paid': borrower.total_paid,
             'balance': borrower.balance,
-            'loan_date': borrower.date_of_loan.isoformat(),
+            'loan_date': borrower.date_of_loan.isoformat() if borrower.date_of_loan else '',
             'payments': payments
         })
 
-    # Calculate daily totals
     daily_totals = {}
     for day in days:
         total = 0
-        for borrower in borrowers:
+        for borrower in all_borrowers:
             payment = WeeklyPayment.objects.filter(
                 borrower=borrower,
                 payment_date=day['date']
@@ -149,30 +166,55 @@ def group_detail(request, group_id):
 @login_required
 @require_http_methods(["POST"])
 def add_borrower(request, group_id):
+    """Create or update borrower with any serial number"""
     group = get_object_or_404(FinanceGroup, id=group_id, user=request.user)
     
     try:
         data = json.loads(request.body)
+        serial_number = int(data.get('serial_number', 0))
         name = data.get('name', '').strip()
         amount_given = float(data.get('amount_given', 0))
         date_of_loan_str = data.get('date_of_loan')
 
-        if not name or amount_given <= 0:
-            return JsonResponse({'error': 'Invalid name or amount'}, status=400)
+        if serial_number <= 0:
+            return JsonResponse({'error': 'Serial number must be > 0'}, status=400)
 
-        if date_of_loan_str:
-            date_of_loan = datetime.fromisoformat(date_of_loan_str).date()
+        if not name:
+            return JsonResponse({'error': 'Name is required'}, status=400)
+
+        if amount_given <= 0:
+            return JsonResponse({'error': 'Amount must be > 0'}, status=400)
+
+        # Check if borrower already exists with this serial
+        existing = Borrower.objects.filter(finance_group=group, serial_number=serial_number).first()
+        
+        if existing and existing.name:
+            return JsonResponse({'error': f'Serial #{serial_number} already has borrower: {existing.name}'}, status=400)
+
+        if existing:
+            # Update existing blank slot
+            borrower = existing
+            borrower.name = name
+            borrower.amount_given = amount_given
+            borrower.amount_paid = 0
         else:
-            date_of_loan = date.today()
+            # Create new borrower
+            borrower = Borrower.objects.create(
+                finance_group=group,
+                serial_number=serial_number,
+                name=name,
+                amount_given=amount_given,
+                amount_paid=0
+            )
+        
+        if date_of_loan_str:
+            borrower.date_of_loan = datetime.fromisoformat(date_of_loan_str).date()
+        else:
+            borrower.date_of_loan = date.today()
+        
+        borrower.save()
 
-        borrower = Borrower.objects.create(
-            finance_group=group,
-            name=name,
-            amount_given=amount_given,
-            date_of_loan=date_of_loan
-        )
-
-        # Create daily payment records for current month only
+        # Create daily payment records for current month
         today = datetime.now().date()
         first_day = today.replace(day=1)
         
@@ -194,8 +236,8 @@ def add_borrower(request, group_id):
             'success': True,
             'borrower': {
                 'id': borrower.id,
+                'serial': borrower.serial_number,
                 'name': borrower.name,
-                'amount_given': float(borrower.amount_given),
             }
         })
     except Exception as e:
@@ -205,8 +247,11 @@ def add_borrower(request, group_id):
 @login_required
 @require_http_methods(["POST"])
 def delete_borrower(request, borrower_id):
+    """Delete a borrower completely"""
     borrower = get_object_or_404(Borrower, id=borrower_id, finance_group__user=request.user)
+    borrower_id = borrower.id
     borrower.delete()
+    
     return JsonResponse({'success': True})
 
 
@@ -275,6 +320,9 @@ def update_borrower(request, borrower_id):
         
         if 'amount_given' in data:
             borrower.amount_given = float(data['amount_given'])
+        
+        if 'date_of_loan' in data and data['date_of_loan']:
+            borrower.date_of_loan = datetime.fromisoformat(data['date_of_loan']).date()
         
         borrower.save()
         

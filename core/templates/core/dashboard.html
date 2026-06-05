@@ -1,222 +1,181 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Dashboard — Finance App</title>
-  <style>
-    * { margin: 0; padding: 0; box-sizing: border-box; }
-    body {
-      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
-      background: #f0f4f8;
-      min-height: 100vh;
-    }
-
-    /* TOP NAV BAR */
-    .navbar {
-      background: white;
-      padding: 0 32px;
-      height: 60px;
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      box-shadow: 0 1px 4px rgba(0,0,0,0.08);
-    }
-    .navbar-brand { font-size: 20px; font-weight: 700; color: #1a56db; }
-    .navbar-right { display: flex; align-items: center; gap: 16px; }
-    .user-name { font-size: 14px; color: #374151; font-weight: 500; }
-    .logout-btn {
-      padding: 7px 16px;
-      background: #f3f4f6;
-      color: #374151;
-      border: none;
-      border-radius: 8px;
-      font-size: 13px;
-      cursor: pointer;
-      text-decoration: none;
-      font-weight: 500;
-    }
-    .logout-btn:hover { background: #e5e7eb; }
-
-    /* MAIN CONTENT */
-    .main {
-      max-width: 960px;
-      margin: 0 auto;
-      padding: 36px 24px;
-    }
-    .welcome {
-      margin-bottom: 28px;
-    }
-    .welcome h2 {
-      font-size: 24px;
-      font-weight: 700;
-      color: #111827;
-    }
-    .welcome p {
-      color: #6b7280;
-      margin-top: 4px;
-      font-size: 15px;
-    }
-
-    /* CARDS GRID */
-    .cards-grid {
-      display: grid;
-      grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
-      gap: 20px;
-    }
-    .card {
-      background: white;
-      border-radius: 16px;
-      padding: 24px;
-      box-shadow: 0 2px 12px rgba(0,0,0,0.06);
-      cursor: pointer;
-      transition: transform 0.15s, box-shadow 0.15s;
-      text-decoration: none;
-      display: block;
-      border: 2px solid transparent;
-    }
-    .card:hover {
-      transform: translateY(-3px);
-      box-shadow: 0 8px 24px rgba(0,0,0,0.10);
-      border-color: #1a56db;
-    }
-    .card-icon {
-      width: 52px;
-      height: 52px;
-      border-radius: 14px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      font-size: 24px;
-      margin-bottom: 16px;
-    }
-    .icon-blue { background: #eff6ff; }
-    .icon-green { background: #f0fdf4; }
-    .icon-orange { background: #fff7ed; }
-    .card-title {
-      font-size: 17px;
-      font-weight: 700;
-      color: #111827;
-      margin-bottom: 4px;
-    }
-    .card-sub {
-      font-size: 13px;
-      color: #6b7280;
-      margin-bottom: 18px;
-    }
-    .card-stats {
-      display: flex;
-      gap: 16px;
-    }
-    .stat {
-      flex: 1;
-    }
-    .stat-value {
-      font-size: 20px;
-      font-weight: 700;
-      color: #111827;
-    }
-    .stat-label {
-      font-size: 11px;
-      color: #9ca3af;
-      text-transform: uppercase;
-      letter-spacing: 0.05em;
-      margin-top: 2px;
-    }
-    .pending-badge {
-      display: inline-block;
-      background: #fee2e2;
-      color: #b91c1c;
-      font-size: 11px;
-      font-weight: 600;
-      padding: 3px 8px;
-      border-radius: 20px;
-      margin-top: 14px;
-    }
-    .pending-ok {
-      background: #dcfce7;
-      color: #15803d;
-    }
-
-    /* ADD NEW GROUP CARD */
-    .card-add {
-      background: transparent;
-      border: 2px dashed #d1d5db;
-      border-radius: 16px;
-      padding: 24px;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      justify-content: center;
-      cursor: pointer;
-      min-height: 200px;
-      transition: border-color 0.15s;
-      text-decoration: none;
-    }
-    .card-add:hover { border-color: #1a56db; }
-    .card-add span {
-      font-size: 32px;
-      color: #d1d5db;
-      margin-bottom: 10px;
-    }
-    .card-add p {
-      font-size: 14px;
-      color: #9ca3af;
-      font-weight: 500;
-    }
-  </style>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard - Finance App</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: 'Segoe UI', Tahoma, Geneva, sans-serif; background: #f5f5f5; min-height: 100vh; }
+        
+        .navbar { background: white; padding: 0 24px; height: 60px; display: flex; align-items: center; justify-content: space-between; box-shadow: 0 1px 3px rgba(0,0,0,0.1); }
+        .navbar-title { font-size: 20px; font-weight: 700; color: #333; }
+        .logout-btn { padding: 8px 16px; background: #f0f0f0; border: none; border-radius: 4px; cursor: pointer; font-weight: 500; }
+        
+        .main { padding: 24px; }
+        .header { margin-bottom: 24px; }
+        .header h1 { font-size: 28px; color: #333; margin-bottom: 8px; }
+        .header p { color: #666; }
+        
+        .cards { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 20px; }
+        
+        .card { background: white; border-radius: 8px; box-shadow: 0 2px 8px rgba(0,0,0,0.1); overflow: hidden; cursor: pointer; transition: transform 0.2s, box-shadow 0.2s; }
+        .card:hover { transform: translateY(-4px); box-shadow: 0 4px 12px rgba(0,0,0,0.15); }
+        
+        .card-header { padding: 16px; background: linear-gradient(135deg, #4472c4 0%, #2d5aa8 100%); color: white; }
+        .card-header h2 { font-size: 18px; margin-bottom: 4px; }
+        .card-header p { font-size: 12px; opacity: 0.9; }
+        
+        .card-body { padding: 16px; }
+        .stat { display: flex; justify-content: space-between; margin-bottom: 12px; padding-bottom: 12px; border-bottom: 1px solid #f0f0f0; }
+        .stat-label { color: #666; font-size: 13px; }
+        .stat-value { font-weight: 700; color: #333; font-size: 14px; }
+        
+        .card-footer { padding: 12px 16px; background: #f9f9f9; border-top: 1px solid #f0f0f0; display: flex; gap: 8px; }
+        .btn { padding: 8px 12px; border: none; border-radius: 4px; cursor: pointer; font-size: 13px; font-weight: 600; transition: background 0.2s; }
+        .btn-open { background: #4472c4; color: white; flex: 1; }
+        .btn-open:hover { background: #2d5aa8; }
+        .btn-edit { background: #f0f0f0; color: #333; }
+        .btn-edit:hover { background: #e0e0e0; }
+        
+        .modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); z-index: 1000; }
+        .modal.active { display: flex; align-items: center; justify-content: center; }
+        
+        .modal-content { background: white; padding: 24px; border-radius: 8px; width: 90%; max-width: 400px; box-shadow: 0 4px 20px rgba(0,0,0,0.2); }
+        .modal-header { font-size: 18px; font-weight: 700; color: #333; margin-bottom: 16px; }
+        
+        .form-group { margin-bottom: 16px; }
+        .form-group label { display: block; font-size: 13px; font-weight: 600; color: #333; margin-bottom: 6px; }
+        .form-group input { width: 100%; padding: 10px; border: 1px solid #d9d9d9; border-radius: 4px; font-size: 13px; }
+        .form-group input:focus { outline: none; border-color: #4472c4; box-shadow: 0 0 0 3px rgba(68, 114, 196, 0.1); }
+        
+        .modal-footer { display: flex; gap: 8px; margin-top: 20px; }
+        .btn-save { background: #70ad47; color: white; padding: 10px 16px; flex: 1; }
+        .btn-save:hover { background: #5a9236; }
+        .btn-cancel { background: #f0f0f0; color: #333; padding: 10px 16px; flex: 1; }
+        .btn-cancel:hover { background: #e0e0e0; }
+    </style>
 </head>
 <body>
 
-  <nav class="navbar">
-    <div class="navbar-brand">Finance App</div>
-    <div class="navbar-right">
-      <span class="user-name">Hello, {{ user.username }}</span>
-      <a href="/logout/" class="logout-btn">Logout</a>
-    </div>
-  </nav>
+    <nav class="navbar">
+        <div class="navbar-title">💼 Finance Manager</div>
+        <a href="/logout/" class="logout-btn">Logout</a>
+    </nav>
 
-  <div class="main">
-    <div class="welcome">
-      <h2>Your Finance Groups</h2>
-      <p>Click on a group to view borrowers and EMI details</p>
-    </div>
-
-    <div class="cards-grid">
-
-      {% for group in finance_groups %}
-      <a href="/group/{{ group.id }}/" class="card">
-        <div class="card-icon {% if group.color == 'blue' %}icon-blue{% elif group.color == 'green' %}icon-green{% else %}icon-orange{% endif %}">
-          {% if group.color == 'blue' %}💼{% elif group.color == 'green' %}📋{% else %}📁{% endif %}
+    <div class="main">
+        <div class="header">
+            <h1>Welcome, {{ user.username }}!</h1>
+            <p>Manage your finance groups and collections</p>
         </div>
-        <div class="card-title">{{ group.name }}</div>
-        <div class="card-sub">{{ group.day }} collection &middot; {{ group.location }}</div>
-        <div class="card-stats">
-          <div class="stat">
-            <div class="stat-value">{{ group.total_borrowers }}</div>
-            <div class="stat-label">Borrowers</div>
-          </div>
-          <div class="stat">
-            <div class="stat-value">₹{{ group.total_balance|floatformat:0 }}</div>
-            <div class="stat-label">To Collect</div>
-          </div>
+
+        <div class="cards">
+            {% for group in finance_groups %}
+            <div class="card">
+                <div class="card-header">
+                    <h2>{{ group.name }}</h2>
+                    <p>{{ group.day }}</p>
+                </div>
+                <div class="card-body">
+                    <div class="stat">
+                        <span class="stat-label">Active Borrowers</span>
+                        <span class="stat-value">{{ group.active_borrowers }}</span>
+                    </div>
+                    <div class="stat">
+                        <span class="stat-label">Amount to Collect</span>
+                        <span class="stat-value">₹{{ group.total_balance }}</span>
+                    </div>
+                </div>
+                <div class="card-footer">
+                    <a href="/group/{{ group.id }}/" class="btn btn-open">Open →</a>
+                    <button class="btn btn-edit" onclick="openEditModal({{ group.id }}, '{{ group.name }}', '{{ group.day }}')">Edit</button>
+                </div>
+            </div>
+            {% endfor %}
         </div>
-        {% if group.pending_emis > 0 %}
-          <span class="pending-badge">{{ group.pending_emis }} EMI pending</span>
-        {% else %}
-          <span class="pending-badge pending-ok">All EMIs collected</span>
-        {% endif %}
-      </a>
-      {% endfor %}
-
-      <!-- Add new group placeholder -->
-      <a href="#" class="card-add">
-        <span>+</span>
-        <p>Add new finance group</p>
-      </a>
-
     </div>
-  </div>
+
+    <!-- Edit Modal -->
+    <div class="modal" id="editModal">
+        <div class="modal-content">
+            <div class="modal-header">Edit Finance Group</div>
+            <div class="form-group">
+                <label>Finance Name</label>
+                <input type="text" id="editName" placeholder="e.g., Vizag Finance">
+            </div>
+            <div class="form-group">
+                <label>Collection Day</label>
+                <input type="text" id="editDay" placeholder="e.g., Sunday Collection - Vizag">
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-save" onclick="saveEdit()">Save</button>
+                <button class="btn btn-cancel" onclick="closeEditModal()">Cancel</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let currentGroupId = null;
+
+        function openEditModal(groupId, name, day) {
+            currentGroupId = groupId;
+            document.getElementById('editName').value = name;
+            document.getElementById('editDay').value = day;
+            document.getElementById('editModal').classList.add('active');
+        }
+
+        function closeEditModal() {
+            document.getElementById('editModal').classList.remove('active');
+            currentGroupId = null;
+        }
+
+        function saveEdit() {
+            const name = document.getElementById('editName').value.trim();
+            const day = document.getElementById('editDay').value.trim();
+
+            if (!name || !day) {
+                alert('Please fill all fields');
+                return;
+            }
+
+            fetch(`/api/group/${currentGroupId}/edit/`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRFToken': getCookie('csrftoken'),
+                },
+                body: JSON.stringify({ name, day }),
+            }).then(r => r.json()).then(d => {
+                if (d.success) {
+                    location.reload();
+                } else {
+                    alert('Error: ' + d.error);
+                }
+            });
+        }
+
+        function getCookie(name) {
+            let cookieValue = null;
+            if (document.cookie && document.cookie !== '') {
+                const cookies = document.cookie.split(';');
+                for (let i = 0; i < cookies.length; i++) {
+                    const cookie = cookies[i].trim();
+                    if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                        cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                        break;
+                    }
+                }
+            }
+            return cookieValue;
+        }
+
+        document.addEventListener('click', function(e) {
+            const modal = document.getElementById('editModal');
+            if (e.target === modal) {
+                closeEditModal();
+            }
+        });
+    </script>
 
 </body>
 </html>

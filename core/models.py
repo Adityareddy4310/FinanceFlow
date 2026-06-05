@@ -6,7 +6,7 @@ from datetime import date
 class FinanceGroup(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE)
     name = models.CharField(max_length=100)
-    day = models.CharField(max_length=20)
+    day = models.CharField(max_length=50)
     location = models.CharField(max_length=100)
     created_at = models.DateTimeField(auto_now_add=True)
 
@@ -19,26 +19,38 @@ class FinanceGroup(models.Model):
 
 class Borrower(models.Model):
     finance_group = models.ForeignKey(FinanceGroup, on_delete=models.CASCADE, related_name='borrowers')
-    name = models.CharField(max_length=100)
-    amount_given = models.DecimalField(max_digits=10, decimal_places=2)
+    serial_number = models.IntegerField()
+    name = models.CharField(max_length=100, blank=True, default='')
+    amount_given = models.DecimalField(max_digits=10, decimal_places=2, default=0)
     amount_paid = models.DecimalField(max_digits=10, decimal_places=2, default=0)
-    date_of_loan = models.DateField(default=date.today)
+    date_of_loan = models.DateField(null=True, blank=True)
     created_at = models.DateTimeField(auto_now_add=True)
 
     def __str__(self):
-        return f"{self.name} - {self.finance_group.name}"
+        if self.name:
+            return f"#{self.serial_number}. {self.name}"
+        return f"#{self.serial_number}. [Empty]"
 
     class Meta:
-        ordering = ['created_at']
+        ordering = ['serial_number']
+        unique_together = ('finance_group', 'serial_number')
+
+    @property
+    def is_empty(self):
+        return not self.name
 
     @property
     def total_paid(self):
+        if self.is_empty:
+            return 0
         weekly_payments = self.weekly_payments.all()
         weekly_total = sum(float(p.amount_paid) for p in weekly_payments)
         return float(self.amount_paid) + weekly_total
 
     @property
     def balance(self):
+        if self.is_empty:
+            return 0
         return float(self.amount_given) - self.total_paid
 
 

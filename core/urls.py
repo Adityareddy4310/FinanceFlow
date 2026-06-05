@@ -11,6 +11,7 @@ urlpatterns = [
     path('group/<int:group_id>/', views.group_detail, name='group_detail'),
     
     # API Endpoints
+    path('api/group/<int:group_id>/edit/', views.edit_finance_group, name='edit_finance_group'),
     path('api/group/<int:group_id>/add-borrower/', views.add_borrower, name='add_borrower'),
     path('api/borrower/<int:borrower_id>/delete/', views.delete_borrower, name='delete_borrower'),
     path('api/borrower/<int:borrower_id>/update-payment/', views.update_payment, name='update_payment'),

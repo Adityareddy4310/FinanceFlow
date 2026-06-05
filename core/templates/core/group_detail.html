@@ -6,13 +6,12 @@
   <title>{{ group.name }} — Finance App</title>
   <style>
     * { margin: 0; padding: 0; box-sizing: border-box; }
-    body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background: #f5f5f5; min-height: 100vh; }
+    body { font-family: 'Segoe UI', Tahoma, Geneva, sans-serif; background: #f5f5f5; min-height: 100vh; }
 
     .navbar { background: white; padding: 0 24px; height: 60px; display: flex; align-items: center; justify-content: space-between; box-shadow: 0 1px 3px rgba(0,0,0,0.1); }
     .navbar-left { display: flex; align-items: center; gap: 16px; }
     .back-btn { background: none; border: none; font-size: 20px; cursor: pointer; color: #666; }
     .navbar-title { font-size: 18px; font-weight: 600; color: #333; }
-    .navbar-right { display: flex; align-items: center; gap: 16px; }
     .month-label { font-size: 14px; color: #666; font-weight: 500; }
     .logout-btn { padding: 8px 16px; background: #f0f0f0; border: none; border-radius: 4px; cursor: pointer; font-weight: 500; font-size: 13px; }
 
@@ -22,8 +21,17 @@
     .total-info-value { font-size: 24px; font-weight: 700; color: #1f4e78; }
     .total-info-label { font-size: 12px; color: #2e5090; margin-top: 4px; }
 
-    .spreadsheet-wrapper { background: white; border-radius: 8px; box-shadow: 0 2px 8px rgba(0,0,0,0.1); overflow: hidden; }
-    .spreadsheet { overflow-x: auto; overflow-y: auto; }
+    .add-section { background: white; border-radius: 8px; padding: 20px; box-shadow: 0 2px 8px rgba(0,0,0,0.1); margin-bottom: 20px; border-left: 5px solid #70ad47; }
+    .add-title { font-size: 16px; font-weight: 700; color: #333; margin-bottom: 16px; }
+    .add-form { display: grid; grid-template-columns: 80px 120px 100px 100px 1fr auto; gap: 12px; align-items: end; }
+    .add-form label { display: block; font-size: 11px; font-weight: 600; color: #666; margin-bottom: 4px; }
+    .add-form input { padding: 10px; border: 1px solid #d9d9d9; border-radius: 4px; font-size: 13px; }
+    .add-form input:focus { outline: none; border-color: #4472c4; box-shadow: 0 0 0 3px rgba(68,114,196,0.1); }
+    .btn-add { background: #70ad47; color: white; border: none; padding: 10px 20px; border-radius: 4px; cursor: pointer; font-weight: 600; font-size: 13px; }
+    .btn-add:hover { background: #5a9236; }
+
+    .spreadsheet-wrapper { background: white; border-radius: 8px; box-shadow: 0 2px 8px rgba(0,0,0,0.1); overflow: hidden; margin-bottom: 20px; }
+    .spreadsheet { overflow-x: auto; overflow-y: auto; max-height: 600px; }
 
     table { width: 100%; border-collapse: collapse; font-size: 12px; }
 
@@ -33,7 +41,7 @@
     td { padding: 8px 6px; border: 1px solid #d9d9d9; background: white; font-size: 12px; }
     td.sticky-col { position: sticky; left: 0; background: #f9f9f9; font-weight: 500; z-index: 5; }
 
-    td.payment-cell { text-align: center; background: #fffbf0; cursor: pointer; user-select: none; }
+    td.payment-cell { text-align: center; background: #fffbf0; cursor: pointer; }
     td.payment-cell:hover { background: #fff2cc; }
     td.payment-cell input { width: 100%; padding: 3px; border: 2px solid #4472c4; text-align: center; font-weight: 600; font-size: 11px; }
 
@@ -44,17 +52,12 @@
     tr.total-row td { background: #d9e1f2; font-weight: 700; color: #1f4e78; }
     tr.total-row td.payment-cell { background: #b4c7e7; }
 
-    .delete-btn { background: #c5504a; color: white; border: none; padding: 4px 8px; border-radius: 3px; cursor: pointer; font-size: 11px; font-weight: 600; }
-    .delete-btn:hover { background: #a03a34; }
-
-    .add-borrower-row td { padding: 10px 6px; background: #f0f0f0; border: 1px solid #d9d9d9; }
-    .add-form { display: grid; grid-template-columns: 100px 100px 100px 1fr auto; gap: 8px; align-items: center; }
-    .add-form input { padding: 8px; border: 1px solid #d9d9d9; border-radius: 3px; font-size: 13px; }
-
-    .btn-add { background: #70ad47; color: white; border: none; padding: 8px 16px; border-radius: 3px; cursor: pointer; font-weight: 600; font-size: 13px; }
-    .btn-add:hover { background: #5a9236; }
+    .btn-delete { background: #dc3545; color: white; border: none; padding: 4px 8px; border-radius: 3px; cursor: pointer; font-size: 11px; font-weight: 600; }
+    .btn-delete:hover { background: #c82333; }
 
     td.number { text-align: right; font-weight: 500; }
+
+    .no-data { text-align: center; padding: 40px; color: #999; }
   </style>
 </head>
 <body>
@@ -65,31 +68,56 @@
       <div class="navbar-title">{{ group.name }}</div>
       <div class="month-label">{{ month_name }}</div>
     </div>
-    <div class="navbar-right">
-      <a href="/logout/" class="logout-btn">Logout</a>
-    </div>
+    <a href="/logout/" class="logout-btn">Logout</a>
   </nav>
 
   <div class="main">
     <div class="info-box">
-      💡 <strong>Daily Collections for {{ month_name }}</strong> | Click payment cells to enter daily collection. Paid column updates automatically.
+      💡 <strong>Add Borrowers:</strong> Enter Serial #, Name, Loan Date, Amount. Serial numbers can be any number (1, 5, 100, 500, 1000+).
     </div>
 
     <div class="total-info">
       <div class="total-info-value">₹{{ total_to_collect|floatformat:0 }}</div>
-      <div class="total-info-label">Total Amount to Collect (All Borrowers)</div>
+      <div class="total-info-label">Total to Collect (Active Only)</div>
     </div>
 
+    <!-- ADD BORROWER FORM -->
+    <div class="add-section">
+      <div class="add-title">➕ Add New Borrower</div>
+      <div class="add-form">
+        <div>
+          <label>Serial #</label>
+          <input type="number" id="newSerial" placeholder="e.g., 1, 100, 500" min="1">
+        </div>
+        <div>
+          <label>Name</label>
+          <input type="text" id="newName" placeholder="Borrower name" maxlength="50">
+        </div>
+        <div>
+          <label>Loan Date</label>
+          <input type="date" id="newLoanDate">
+        </div>
+        <div>
+          <label>Amount</label>
+          <input type="number" id="newAmount" placeholder="Amount" min="1" step="100">
+        </div>
+        <div></div>
+        <button class="btn-add" onclick="addBorrower()">Add Borrower</button>
+      </div>
+    </div>
+
+    <!-- BORROWERS TABLE -->
     <div class="spreadsheet-wrapper">
       <div class="spreadsheet">
+        {% if borrowers %}
         <table id="emiTable">
           <thead>
             <tr>
-              <th class="sticky-left" style="width: 35px;">Sr</th>
+              <th class="sticky-left" style="width: 40px;">Sr#</th>
               <th class="sticky-left" style="width: 100px;">Name</th>
               <th class="sticky-left" style="width: 85px;">Loan Date</th>
               <th class="sticky-left" style="width: 85px;">Amount</th>
-              <th class="sticky-left" style="width: 75px;"><strong>Paid*</strong></th>
+              <th class="sticky-left" style="width: 75px;">Paid</th>
               <th class="sticky-left" style="width: 75px;">Balance</th>
               {% for day in days %}
               <th style="min-width: 50px; width: 50px;">{{ day.display }}</th>
@@ -100,6 +128,11 @@
           <tbody id="tableBody">
           </tbody>
         </table>
+        {% else %}
+        <div class="no-data">
+          <p>No borrowers yet. Use the form above to add your first borrower.</p>
+        </div>
+        {% endif %}
       </div>
     </div>
   </div>
@@ -110,52 +143,42 @@
     const dailyTotalsData = {{ daily_totals|safe }};
     const groupId = {{ group.id }};
 
-    console.log('Borrowers:', borrowersData);
-    console.log('Days:', daysData);
-
     window.addEventListener('load', function() {
-      console.log('Page loaded, rendering table...');
       renderTable();
+      setDefaultDate();
     });
 
+    function setDefaultDate() {
+      const today = new Date();
+      const todayISO = today.toISOString().split('T')[0];
+      document.getElementById('newLoanDate').value = todayISO;
+    }
+
     function renderTable() {
+      if (borrowersData.length === 0) return;
+
       try {
         const tbody = document.getElementById('tableBody');
-        if (!tbody) {
-          console.error('tableBody not found');
-          return;
-        }
-        
         tbody.innerHTML = '';
 
-        borrowersData.forEach((borrower, idx) => {
+        borrowersData.forEach((borrower) => {
           const row = document.createElement('tr');
           row.dataset.borrowerId = borrower.id;
 
-          let html = `
-            <td class="sticky-col" style="width: 35px;">${idx + 1}</td>
-            <td class="sticky-col editable" style="width: 100px;" onclick="editName(this, ${borrower.id})">${borrower.name}</td>
-            <td class="sticky-col" style="width: 85px; font-size: 11px; color: #666;">${borrower.loan_date}</td>
-            <td class="sticky-col editable number" style="width: 85px;" onclick="editAmount(this, ${borrower.id})">₹${Math.round(borrower.amount_given)}</td>
-            <td class="sticky-col editable number" style="width: 75px; background: #fff0f5;" onclick="editAmountPaid(this, ${borrower.id})">₹${Math.round(borrower.amount_paid)}</td>
-            <td class="sticky-col number" style="width: 75px;">₹${borrower.balance.toFixed(2)}</td>
-          `;
+          let html = `<td class="sticky-col" style="width: 40px;">${borrower.serial}</td>`;
+          html += `<td class="sticky-col editable" style="width: 100px;" onclick="editField(this, ${borrower.id}, 'name')">${borrower.name}</td>`;
+          html += `<td class="sticky-col editable" style="width: 85px;" onclick="editField(this, ${borrower.id}, 'date')">${borrower.loan_date || '-'}</td>`;
+          html += `<td class="sticky-col editable number" style="width: 85px;" onclick="editField(this, ${borrower.id}, 'amount')">₹${Math.round(borrower.amount_given)}</td>`;
+          html += `<td class="sticky-col editable number" style="width: 75px; background: #fff0f5;" onclick="editField(this, ${borrower.id}, 'paid')">₹${Math.round(borrower.amount_paid)}</td>`;
+          html += `<td class="sticky-col number" style="width: 75px;">₹${borrower.balance.toFixed(2)}</td>`;
 
           daysData.forEach(day => {
             const amt = borrower.payments[day.date] || 0;
             const display = amt > 0 ? `₹${amt}` : '0';
-            html += `
-              <td class="payment-cell" data-borrower="${borrower.id}" data-date="${day.date}" onclick="editPayment(this, ${borrower.id}, '${day.date}')" style="min-width: 50px; width: 50px;">
-                ${display}
-              </td>
-            `;
+            html += `<td class="payment-cell" onclick="editPayment(this, ${borrower.id}, '${day.date}')" style="min-width: 50px; width: 50px;">${display}</td>`;
           });
 
-          html += `
-            <td class="sticky-col" style="width: 55px;">
-              <button class="delete-btn" onclick="deleteBorrower(${borrower.id})">Delete</button>
-            </td>
-          `;
+          html += `<td class="sticky-col" style="width: 55px;"><button class="btn-delete" onclick="deleteBorrower(${borrower.id})">Delete</button></td>`;
 
           row.innerHTML = html;
           tbody.appendChild(row);
@@ -163,46 +186,17 @@
 
         const totalRow = document.createElement('tr');
         totalRow.className = 'total-row';
-
-        let totalHtml = `
-          <td class="sticky-col" style="width: 35px;"></td>
-          <td class="sticky-col" colspan="5" style="width: auto;">TOTAL COLLECTION</td>
-        `;
+        let totalHtml = `<td colspan="6" style="text-align: right; padding-right: 12px;">DAILY TOTAL</td>`;
 
         daysData.forEach(day => {
           const total = dailyTotalsData[day.date] || 0;
           const display = total > 0 ? `₹${Math.round(total)}` : '0';
-          totalHtml += `
-            <td class="payment-cell" style="min-width: 50px; width: 50px;">
-              ${display}
-            </td>
-          `;
+          totalHtml += `<td class="payment-cell" style="min-width: 50px; width: 50px;">${display}</td>`;
         });
-
-        totalHtml += '<td class="sticky-col" style="width: 55px;"></td>';
+        totalHtml += '<td></td>';
         totalRow.innerHTML = totalHtml;
         tbody.appendChild(totalRow);
 
-        const addRow = document.createElement('tr');
-        addRow.className = 'add-borrower-row';
-        
-        const today = new Date();
-        const todayISO = today.toISOString().split('T')[0];
-        
-        addRow.innerHTML = `
-          <td colspan="100">
-            <div class="add-form">
-              <input type="text" id="newName" placeholder="Name" maxlength="50">
-              <input type="number" id="newAmount" placeholder="Amount" min="100" step="100">
-              <input type="date" id="newLoanDate" value="${todayISO}">
-              <div></div>
-              <button class="btn-add" onclick="addBorrower()">+ Add</button>
-            </div>
-          </td>
-        `;
-        tbody.appendChild(addRow);
-
-        console.log('Table rendered successfully');
       } catch (error) {
         console.error('Error rendering table:', error);
       }
@@ -231,14 +225,8 @@
           },
           body: JSON.stringify({ date, amount }),
         }).then(r => r.json()).then(d => {
-          if (d.success) {
-            location.reload();
-          } else {
-            alert('Error: ' + d.error);
-          }
-        }).catch(e => {
-          console.error('Error:', e);
-          alert('Error saving payment');
+          if (d.success) location.reload();
+          else alert('Error: ' + d.error);
         });
       };
 
@@ -246,13 +234,22 @@
       input.onkeypress = e => { if (e.key === 'Enter') save(); };
     }
 
-    function editAmountPaid(cell, borrowerId) {
+    function editField(cell, borrowerId, fieldType) {
       const currentVal = cell.innerText.replace('₹', '').trim();
+      let inputType = 'text';
+      let value = currentVal;
+
+      if (fieldType === 'date') {
+        inputType = 'date';
+      } else if (fieldType === 'amount' || fieldType === 'paid') {
+        inputType = 'number';
+        value = parseFloat(currentVal) || 0;
+      }
+
       const input = document.createElement('input');
-      input.type = 'number';
-      input.value = currentVal ? parseFloat(currentVal) : 0;
-      input.min = '0';
-      input.step = '100';
+      input.type = inputType;
+      input.value = value;
+      if (inputType === 'number') input.min = '0';
 
       cell.innerHTML = '';
       cell.appendChild(input);
@@ -260,88 +257,42 @@
       input.select();
 
       const save = () => {
-        const amount = parseFloat(input.value) || 0;
-        fetch(`/api/borrower/${borrowerId}/update-amount-paid/`, {
+        const newVal = input.value.trim();
+        let payload = {};
+
+        if (fieldType === 'name') {
+          payload = { name: newVal };
+        } else if (fieldType === 'date') {
+          payload = { date_of_loan: newVal };
+        } else if (fieldType === 'amount') {
+          payload = { amount_given: parseFloat(newVal) };
+        } else if (fieldType === 'paid') {
+          payload = { amount: parseFloat(newVal) };
+          fetch(`/api/borrower/${borrowerId}/update-amount-paid/`, {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+              'X-CSRFToken': getCookie('csrftoken'),
+            },
+            body: JSON.stringify(payload),
+          }).then(r => r.json()).then(d => {
+            if (d.success) location.reload();
+            else alert('Error: ' + d.error);
+          });
+          return;
+        }
+
+        fetch(`/api/borrower/${borrowerId}/update/`, {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',
             'X-CSRFToken': getCookie('csrftoken'),
           },
-          body: JSON.stringify({ amount }),
+          body: JSON.stringify(payload),
         }).then(r => r.json()).then(d => {
-          if (d.success) {
-            location.reload();
-          } else {
-            alert('Error: ' + d.error);
-          }
-        }).catch(e => { console.error('Error:', e); });
-      };
-
-      input.onblur = save;
-      input.onkeypress = e => { if (e.key === 'Enter') save(); };
-    }
-
-    function editName(cell, borrowerId) {
-      const currentVal = cell.innerText;
-      const input = document.createElement('input');
-      input.type = 'text';
-      input.value = currentVal;
-      input.maxLength = '50';
-
-      cell.innerHTML = '';
-      cell.appendChild(input);
-      input.focus();
-      input.select();
-
-      const save = () => {
-        const name = input.value.trim();
-        if (name) {
-          fetch(`/api/borrower/${borrowerId}/update/`, {
-            method: 'POST',
-            headers: {
-              'Content-Type': 'application/json',
-              'X-CSRFToken': getCookie('csrftoken'),
-            },
-            body: JSON.stringify({ name }),
-          }).then(r => r.json()).then(d => {
-            if (d.success) location.reload();
-            else alert('Error: ' + d.error);
-          }).catch(e => { console.error('Error:', e); });
-        }
-      };
-
-      input.onblur = save;
-      input.onkeypress = e => { if (e.key === 'Enter') save(); };
-    }
-
-    function editAmount(cell, borrowerId) {
-      const currentVal = cell.innerText.replace('₹', '').trim();
-      const input = document.createElement('input');
-      input.type = 'number';
-      input.value = parseFloat(currentVal);
-      input.min = '0';
-      input.step = '100';
-
-      cell.innerHTML = '';
-      cell.appendChild(input);
-      input.focus();
-      input.select();
-
-      const save = () => {
-        const amount = parseFloat(input.value) || 0;
-        if (amount > 0) {
-          fetch(`/api/borrower/${borrowerId}/update/`, {
-            method: 'POST',
-            headers: {
-              'Content-Type': 'application/json',
-              'X-CSRFToken': getCookie('csrftoken'),
-            },
-            body: JSON.stringify({ amount_given: amount }),
-          }).then(r => r.json()).then(d => {
-            if (d.success) location.reload();
-            else alert('Error: ' + d.error);
-          }).catch(e => { console.error('Error:', e); });
-        }
+          if (d.success) location.reload();
+          else alert('Error: ' + d.error);
+        });
       };
 
       input.onblur = save;
@@ -349,17 +300,25 @@
     }
 
     function addBorrower() {
+      const serial = parseInt(document.getElementById('newSerial').value);
       const name = document.getElementById('newName').value.trim();
       const amount = parseFloat(document.getElementById('newAmount').value) || 0;
       const loanDate = document.getElementById('newLoanDate').value;
 
-      if (!name || amount <= 0) {
-        alert('Please enter valid name and amount');
+      if (!serial || serial < 1) {
+        alert('Serial # must be > 0');
         return;
       }
-
+      if (!name) {
+        alert('Name required');
+        return;
+      }
+      if (amount <= 0) {
+        alert('Amount must be > 0');
+        return;
+      }
       if (!loanDate) {
-        alert('Please select loan date');
+        alert('Loan date required');
         return;
       }
 
@@ -369,16 +328,13 @@
           'Content-Type': 'application/json',
           'X-CSRFToken': getCookie('csrftoken'),
         },
-        body: JSON.stringify({ name, amount_given: amount, date_of_loan: loanDate }),
+        body: JSON.stringify({ serial_number: serial, name, amount_given: amount, date_of_loan: loanDate }),
       }).then(r => r.json()).then(d => {
         if (d.success) {
           location.reload();
         } else {
           alert('Error: ' + d.error);
         }
-      }).catch(e => {
-        console.error('Error:', e);
-        alert('Error adding borrower');
       });
     }
 
@@ -392,7 +348,7 @@
         }).then(r => r.json()).then(d => {
           if (d.success) location.reload();
           else alert('Error: ' + d.error);
-        }).catch(e => { console.error('Error:', e); });
+        });
       }
     }
 
