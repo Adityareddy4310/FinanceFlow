@@ -1,10 +1,8 @@
 {
-  "$schema": "https://railway.app/railway.schema.json",
   "build": {
-    "builder": "NIXPACKS"
+    "builder": "heroku.buildpacks"
   },
   "deploy": {
-    "startCommand": "python manage.py migrate && gunicorn financeapp.wsgi",
-    "restartPolicyType": "ON_FAILURE"
+    "startCommand": "python manage.py migrate && gunicorn financeapp.wsgi"
   }
 }
