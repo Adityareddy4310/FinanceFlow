@@ -16,22 +16,30 @@
     .logout-btn { padding: 8px 16px; background: #f0f0f0; border: none; border-radius: 4px; cursor: pointer; font-weight: 500; font-size: 13px; }
 
     .main { padding: 20px; background: #f5f5f5; }
-    .info-box { background: #fff3cd; border: 1px solid #ffc107; padding: 12px; border-radius: 4px; margin-bottom: 16px; color: #856404; font-size: 13px; }
     .total-info { background: #e7f3ff; border: 1px solid #4472c4; padding: 16px; border-radius: 8px; margin-bottom: 16px; }
     .total-info-value { font-size: 24px; font-weight: 700; color: #1f4e78; }
     .total-info-label { font-size: 12px; color: #2e5090; margin-top: 4px; }
 
-    .add-section { background: white; border-radius: 8px; padding: 20px; box-shadow: 0 2px 8px rgba(0,0,0,0.1); margin-bottom: 20px; border-left: 5px solid #70ad47; }
+    .add-section { background: white; border-radius: 8px; padding: 20px; box-shadow: 0 2px 8px rgba(0,0,0,0.1); margin: 20px 0 20px; border-left: 5px solid #70ad47; position: relative; z-index: 20; }
     .add-title { font-size: 16px; font-weight: 700; color: #333; margin-bottom: 16px; }
-    .add-form { display: grid; grid-template-columns: 80px 120px 100px 100px 1fr auto; gap: 12px; align-items: end; }
+    .add-form { display: grid; grid-template-columns: repeat(4, minmax(140px, 1fr)) auto; gap: 16px; align-items: end; width: 100%; }
+    .add-form > div { min-width: 0; }
     .add-form label { display: block; font-size: 11px; font-weight: 600; color: #666; margin-bottom: 4px; }
-    .add-form input { padding: 10px; border: 1px solid #d9d9d9; border-radius: 4px; font-size: 13px; }
+    .add-form input { width: 100%; min-width: 0; padding: 10px; border: 1px solid #d9d9d9; border-radius: 4px; font-size: 13px; }
+    .add-form .btn-add { height: 38px; white-space: nowrap; }
+    @media (max-width: 900px) {
+      .add-form { grid-template-columns: repeat(2, minmax(140px, 1fr)); }
+      .add-form .btn-add { width: 100%; }
+    }
+    @media (max-width: 500px) {
+      .add-form { grid-template-columns: 1fr; }
+    }
     .add-form input:focus { outline: none; border-color: #4472c4; box-shadow: 0 0 0 3px rgba(68,114,196,0.1); }
     .btn-add { background: #70ad47; color: white; border: none; padding: 10px 20px; border-radius: 4px; cursor: pointer; font-weight: 600; font-size: 13px; }
     .btn-add:hover { background: #5a9236; }
 
-    .spreadsheet-wrapper { background: white; border-radius: 8px; box-shadow: 0 2px 8px rgba(0,0,0,0.1); overflow: hidden; margin-bottom: 20px; }
-    .spreadsheet { overflow-x: auto; overflow-y: auto; max-height: 600px; }
+    .spreadsheet-wrapper { background: white; border-radius: 8px; box-shadow: 0 2px 8px rgba(0,0,0,0.1); overflow: hidden; margin-bottom: 32px; }
+    .spreadsheet { overflow-x: auto; overflow-y: auto; max-height: 450px; }
 
     table { width: 100%; border-collapse: collapse; font-size: 12px; }
 
@@ -72,16 +80,42 @@
   </nav>
 
   <div class="main">
-    <div class="info-box">
-      💡 <strong>Add Borrowers:</strong> Enter Serial #, Name, Loan Date, Amount. Serial numbers can be any number (1, 5, 100, 500, 1000+).
-    </div>
 
     <div class="total-info">
       <div class="total-info-value">₹{{ total_to_collect|floatformat:0 }}</div>
       <div class="total-info-label">Total to Collect (Active Only)</div>
     </div>
 
-    <!-- ADD BORROWER FORM -->
+    <!-- BORROWERS TABLE -->
+    <div class="spreadsheet-wrapper">
+      <div class="spreadsheet">
+        {% if borrowers %}
+        <table id="emiTable">
+          <thead>
+            <tr>
+              <th class="sticky-left" style="width: 40px;">Sr#</th>
+              <th class="sticky-left" style="width: 100px;">Name</th>
+              <th class="sticky-left" style="width: 85px;">Loan Date</th>
+              <th class="sticky-left" style="width: 85px;">Amount</th>
+              <th class="sticky-left" style="width: 75px;">Paid</th>
+              <th class="sticky-left" style="width: 75px;">Balance</th>
+              {% for day in days %}
+              <th style="min-width: 50px; width: 50px;">{{ day.display }}</th>
+              {% endfor %}
+              <th class="sticky-left" style="width: 55px;">Action</th>
+            </tr>
+          </thead>
+          <tbody id="tableBody"></tbody>
+        </table>
+        {% else %}
+        <div class="no-data">
+          <p>No borrowers yet. Use the form below to add your first borrower.</p>
+        </div>
+        {% endif %}
+      </div>
+    </div>
+
+    <!-- ADD BORROWER FORM (bottom as requested) -->
     <div class="add-section">
       <div class="add-title">➕ Add New Borrower</div>
       <div class="add-form">
@@ -106,35 +140,6 @@
       </div>
     </div>
 
-    <!-- BORROWERS TABLE -->
-    <div class="spreadsheet-wrapper">
-      <div class="spreadsheet">
-        {% if borrowers %}
-        <table id="emiTable">
-          <thead>
-            <tr>
-              <th class="sticky-left" style="width: 40px;">Sr#</th>
-              <th class="sticky-left" style="width: 100px;">Name</th>
-              <th class="sticky-left" style="width: 85px;">Loan Date</th>
-              <th class="sticky-left" style="width: 85px;">Amount</th>
-              <th class="sticky-left" style="width: 75px;">Paid</th>
-              <th class="sticky-left" style="width: 75px;">Balance</th>
-              {% for day in days %}
-              <th style="min-width: 50px; width: 50px;">{{ day.display }}</th>
-              {% endfor %}
-              <th class="sticky-left" style="width: 55px;">Action</th>
-            </tr>
-          </thead>
-          <tbody id="tableBody">
-          </tbody>
-        </table>
-        {% else %}
-        <div class="no-data">
-          <p>No borrowers yet. Use the form above to add your first borrower.</p>
-        </div>
-        {% endif %}
-      </div>
-    </div>
   </div>
 
   <script>
@@ -143,7 +148,7 @@
     const dailyTotalsData = {{ daily_totals|safe }};
     const groupId = {{ group.id }};
 
-    window.addEventListener('load', function() {
+    window.addEventListener('load', function () {
       renderTable();
       setDefaultDate();
     });
@@ -151,7 +156,8 @@
     function setDefaultDate() {
       const today = new Date();
       const todayISO = today.toISOString().split('T')[0];
-      document.getElementById('newLoanDate').value = todayISO;
+      const dateEl = document.getElementById('newLoanDate');
+      if (dateEl) dateEl.value = todayISO;
     }
 
     function renderTable() {
@@ -165,20 +171,20 @@
           const row = document.createElement('tr');
           row.dataset.borrowerId = borrower.id;
 
-          let html = `<td class="sticky-col" style="width: 40px;">${borrower.serial}</td>`;
-          html += `<td class="sticky-col editable" style="width: 100px;" onclick="editField(this, ${borrower.id}, 'name')">${borrower.name}</td>`;
-          html += `<td class="sticky-col editable" style="width: 85px;" onclick="editField(this, ${borrower.id}, 'date')">${borrower.loan_date || '-'}</td>`;
-          html += `<td class="sticky-col editable number" style="width: 85px;" onclick="editField(this, ${borrower.id}, 'amount')">₹${Math.round(borrower.amount_given)}</td>`;
-          html += `<td class="sticky-col editable number" style="width: 75px; background: #fff0f5;" onclick="editField(this, ${borrower.id}, 'paid')">₹${Math.round(borrower.amount_paid)}</td>`;
-          html += `<td class="sticky-col number" style="width: 75px;">₹${borrower.balance.toFixed(2)}</td>`;
+          let html = '<td class="sticky-col" style="width: 40px;">' + borrower.serial + '</td>';
+          html += '<td class="sticky-col editable" style="width: 100px;" onclick="editField(this, ' + borrower.id + ', \'name\')">' + (borrower.name || '') + '</td>';
+          html += '<td class="sticky-col editable" style="width: 85px;" onclick="editField(this, ' + borrower.id + ', \'date\')">' + (borrower.loan_date || '-') + '</td>';
+          html += '<td class="sticky-col editable number" style="width: 85px;" onclick="editField(this, ' + borrower.id + ', \'amount\')">₹' + Math.round(borrower.amount_given) + '</td>';
+          html += '<td class="sticky-col editable number" style="width: 75px; background: #fff0f5;" onclick="editField(this, ' + borrower.id + ', \'paid\')">₹' + Math.round(borrower.amount_paid) + '</td>';
+          html += '<td class="sticky-col number" style="width: 75px;">₹' + borrower.balance.toFixed(2) + '</td>';
 
           daysData.forEach(day => {
-            const amt = borrower.payments[day.date] || 0;
-            const display = amt > 0 ? `₹${amt}` : '0';
-            html += `<td class="payment-cell" onclick="editPayment(this, ${borrower.id}, '${day.date}')" style="min-width: 50px; width: 50px;">${display}</td>`;
+            const amt = (borrower.payments && borrower.payments[day.date]) ? borrower.payments[day.date] : 0;
+            const display = amt > 0 ? ('₹' + amt) : '0';
+            html += '<td class="payment-cell" onclick="editPayment(this, ' + borrower.id + ', \'' + day.date + '\')" style="min-width: 50px; width: 50px;">' + display + '</td>';
           });
 
-          html += `<td class="sticky-col" style="width: 55px;"><button class="btn-delete" onclick="deleteBorrower(${borrower.id})">Delete</button></td>`;
+          html += '<td class="sticky-col" style="width: 55px;"><button class="btn-delete" onclick="deleteBorrower(' + borrower.id + ')">Delete</button></td>';
 
           row.innerHTML = html;
           tbody.appendChild(row);
@@ -186,13 +192,16 @@
 
         const totalRow = document.createElement('tr');
         totalRow.className = 'total-row';
-        let totalHtml = `<td colspan="6" style="text-align: right; padding-right: 12px;">DAILY TOTAL</td>`;
+
+        // DAILY TOTAL -> TOTAL COLLECTION (requested)
+        let totalHtml = '<td colspan="6" style="text-align: right; padding-right: 12px;">TOTAL COLLECTION</td>';
 
         daysData.forEach(day => {
           const total = dailyTotalsData[day.date] || 0;
-          const display = total > 0 ? `₹${Math.round(total)}` : '0';
-          totalHtml += `<td class="payment-cell" style="min-width: 50px; width: 50px;">${display}</td>`;
+          const display = total > 0 ? ('₹' + Math.round(total)) : '0';
+          totalHtml += '<td class="payment-cell" style="min-width: 50px; width: 50px;">' + display + '</td>';
         });
+
         totalHtml += '<td></td>';
         totalRow.innerHTML = totalHtml;
         tbody.appendChild(totalRow);
@@ -217,7 +226,7 @@
 
       const save = () => {
         const amount = parseFloat(input.value) || 0;
-        fetch(`/api/borrower/${borrowerId}/update-payment/`, {
+        fetch('/api/borrower/' + borrowerId + '/update-payment/', {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',
@@ -268,7 +277,7 @@
           payload = { amount_given: parseFloat(newVal) };
         } else if (fieldType === 'paid') {
           payload = { amount: parseFloat(newVal) };
-          fetch(`/api/borrower/${borrowerId}/update-amount-paid/`, {
+          fetch('/api/borrower/' + borrowerId + '/update-amount-paid/', {
             method: 'POST',
             headers: {
               'Content-Type': 'application/json',
@@ -282,7 +291,7 @@
           return;
         }
 
-        fetch(`/api/borrower/${borrowerId}/update/`, {
+        fetch('/api/borrower/' + borrowerId + '/update/', {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',
@@ -305,51 +314,41 @@
       const amount = parseFloat(document.getElementById('newAmount').value) || 0;
       const loanDate = document.getElementById('newLoanDate').value;
 
-      if (!serial || serial < 1) {
-        alert('Serial # must be > 0');
-        return;
-      }
-      if (!name) {
-        alert('Name required');
-        return;
-      }
-      if (amount <= 0) {
-        alert('Amount must be > 0');
-        return;
-      }
-      if (!loanDate) {
-        alert('Loan date required');
-        return;
-      }
+      if (!serial || serial < 1) return alert('Serial # must be > 0');
+      if (!name) return alert('Name required');
+      if (amount <= 0) return alert('Amount must be > 0');
+      if (!loanDate) return alert('Loan date required');
 
-      fetch(`/api/group/${groupId}/add-borrower/`, {
+      fetch('/api/group/' + groupId + '/add-borrower/', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
           'X-CSRFToken': getCookie('csrftoken'),
         },
-        body: JSON.stringify({ serial_number: serial, name, amount_given: amount, date_of_loan: loanDate }),
+        body: JSON.stringify({
+          serial_number: serial,
+          name,
+          amount_given: amount,
+          date_of_loan: loanDate,
+        }),
       }).then(r => r.json()).then(d => {
-        if (d.success) {
-          location.reload();
-        } else {
-          alert('Error: ' + d.error);
-        }
+        if (d.success) location.reload();
+        else alert('Error: ' + d.error);
       });
     }
 
     function deleteBorrower(borrowerId) {
-      if (confirm('Delete this borrower?')) {
-        fetch(`/api/borrower/${borrowerId}/delete/`, {
-          method: 'POST',
-          headers: {
-            'X-CSRFToken': getCookie('csrftoken'),
-          },
-        }).then(r => r.json()).then(d => {
-          if (d.success) location.reload();
-          else alert('Error: ' + d.error);
-        });
-      }
+      if (!confirm('Delete this borrower?')) return;
+
+      fetch('/api/borrower/' + borrowerId + '/delete/', {
+        method: 'POST',
+        headers: {
+          'X-CSRFToken': getCookie('csrftoken'),
+        },
+      }).then(r => r.json()).then(d => {
+        if (d.success) location.reload();
+        else alert('Error: ' + d.error);
+      });
     }
 
     function getCookie(name) {
