@@ -227,15 +227,28 @@ def add_borrower(request, group_id):
         else:
             last_day = today.replace(month=today.month + 1, day=1) - timedelta(days=1)
         
+        # current = first_day
+        # while current <= last_day:
+        #     WeeklyPayment.objects.get_or_create(
+        #         borrower=borrower,
+        #         payment_date=current,
+        #         defaults={'amount_paid': 0}
+        #     )
+        #     current += timedelta(days=1)
+# NEW - FAST (creates all records at once)
         current = first_day
+        payments_to_create = []
         while current <= last_day:
-            WeeklyPayment.objects.get_or_create(
-                borrower=borrower,
-                payment_date=current,
-                defaults={'amount_paid': 0}
+            payments_to_create.append(
+                WeeklyPayment(
+                    borrower=borrower,
+                    payment_date=current,
+                    amount_paid=0
+                )
             )
             current += timedelta(days=1)
 
+        WeeklyPayment.objects.bulk_create(payments_to_create, ignore_conflicts=True)       
         return JsonResponse({
             'success': True,
             'borrower': {
