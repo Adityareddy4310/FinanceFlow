@@ -1,14 +1,16 @@
 from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib.auth import login
-from django.contrib.auth.forms import UserCreationForm
 from django.contrib.auth.decorators import login_required
+from django.contrib.auth.views import PasswordResetView, PasswordResetConfirmView
 from django.http import JsonResponse
 from django.views.decorators.http import require_http_methods
-from django.db.models import Prefetch
+from django.db.models import Q, Prefetch
 from datetime import datetime, timedelta, date
+from django.urls import reverse_lazy
 import json
 
 from .models import FinanceGroup, Borrower, WeeklyPayment
+from .forms import CustomUserCreationForm
 
 
 def home(request):
@@ -18,24 +20,61 @@ def home(request):
 
 
 def signup(request):
+    """Signup with email and phone"""
     if request.user.is_authenticated:
         return redirect('dashboard')
 
     if request.method == 'POST':
-        form = UserCreationForm(request.POST)
+        form = CustomUserCreationForm(request.POST)
         if form.is_valid():
             user = form.save()
             login(request, user)
             return redirect('dashboard')
     else:
-        form = UserCreationForm()
+        form = CustomUserCreationForm()
 
     return render(request, 'registration/signup.html', {'form': form})
 
 
+class CustomPasswordResetView(PasswordResetView):
+    """Password reset view with email"""
+    template_name = 'registration/password_reset.html'
+    email_template_name = 'registration/password_reset_email.html'
+    subject_template_name = 'registration/password_reset_subject.txt'
+    success_url = reverse_lazy('password_reset_done')
+    
+    def form_valid(self, form):
+        """Send password reset email"""
+        opts = {
+            'use_https': self.request.is_secure(),
+            'email_template_name': self.email_template_name,
+            'subject_template_name': self.subject_template_name,
+            'request': self.request,
+            'html_email_template_name': None,
+        }
+        form.save(**opts)
+        return super().form_valid(form)
+
+
+def password_reset_done(request):
+    """Password reset email sent confirmation"""
+    return render(request, 'registration/password_reset_done.html')
+
+
+class CustomPasswordResetConfirmView(PasswordResetConfirmView):
+    """Password reset confirm view"""
+    template_name = 'registration/password_reset_confirm.html'
+    success_url = reverse_lazy('password_reset_complete')
+
+
+def password_reset_complete(request):
+    """Password reset complete"""
+    return render(request, 'registration/password_reset_complete.html')
+
+
 @login_required
 def dashboard(request):
-    # OPTIMIZED: Use select_related to reduce queries
+    """Dashboard with finance groups"""
     groups = FinanceGroup.objects.filter(user=request.user).prefetch_related('borrowers')
     
     if not groups.exists():
@@ -45,7 +84,7 @@ def dashboard(request):
 
     finance_groups = []
     for group in groups:
-        active_borrowers = [b for b in group.borrowers.all() if b.name]  # Filter in Python, not DB
+        active_borrowers = [b for b in group.borrowers.all() if b.name]
         total_balance = sum(float(b.balance) for b in active_borrowers)
         
         finance_groups.append({
@@ -95,18 +134,26 @@ def edit_finance_group(request, group_id):
 
 @login_required
 def group_detail(request, group_id):
-    # OPTIMIZED: Cache borrowers and payments
+    """Group detail with search support"""
     group = get_object_or_404(FinanceGroup, id=group_id, user=request.user)
     
-    # Get all borrowers with their payments in one query
-    borrowers_with_payments = Borrower.objects.filter(
+    # Get search query
+    search_query = request.GET.get('search', '').strip()
+    
+    # Get borrowers with optional search filter
+    borrowers_query = Borrower.objects.filter(
         finance_group=group, 
         name__gt=''
-    ).prefetch_related(
-        'weekly_payments'
-    ).order_by('serial_number')
+    ).prefetch_related('weekly_payments')
     
-    all_borrowers = list(borrowers_with_payments)
+    # Apply search filter
+    if search_query:
+        borrowers_query = borrowers_query.filter(
+            Q(name__icontains=search_query) |
+            Q(serial_number__icontains=search_query)
+        )
+    
+    all_borrowers = list(borrowers_query.order_by('serial_number'))
 
     today = datetime.now().date()
     first_day = today.replace(day=1)
@@ -125,12 +172,10 @@ def group_detail(request, group_id):
         })
         current += timedelta(days=1)
 
-    # Build payments dict from prefetched data (no extra queries!)
     borrower_data = []
     daily_totals = {day['date']: 0 for day in days}
     
     for borrower in all_borrowers:
-        # Build payments dict from prefetched weekly_payments
         payments = {day['date']: 0 for day in days}
         
         for payment in borrower.weekly_payments.all():
@@ -161,13 +206,44 @@ def group_detail(request, group_id):
         'daily_totals': daily_totals,
         'total_to_collect': total_to_collect,
         'month_name': month_name,
+        'search_query': search_query,
     })
+
+
+@login_required
+def search_borrowers(request, group_id):
+    """AJAX search endpoint for borrowers"""
+    group = get_object_or_404(FinanceGroup, id=group_id, user=request.user)
+    search_query = request.GET.get('q', '').strip()
+    
+    if len(search_query) < 1:
+        return JsonResponse({'results': []})
+    
+    borrowers = Borrower.objects.filter(
+        finance_group=group,
+        name__gt=''
+    ).filter(
+        Q(name__icontains=search_query) |
+        Q(serial_number__icontains=search_query)
+    )[:10]  # Limit to 10 results
+    
+    results = []
+    for borrower in borrowers:
+        results.append({
+            'id': borrower.id,
+            'serial': borrower.serial_number,
+            'name': borrower.name,
+            'amount_given': float(borrower.amount_given),
+            'balance': borrower.balance,
+        })
+    
+    return JsonResponse({'results': results})
 
 
 @login_required
 @require_http_methods(["POST"])
 def add_borrower(request, group_id):
-    """Create new borrower - SUPER OPTIMIZED"""
+    """Create new borrower"""
     group = get_object_or_404(FinanceGroup, id=group_id, user=request.user)
     
     try:
@@ -191,7 +267,7 @@ def add_borrower(request, group_id):
         
         if existing and existing.name:
             return JsonResponse({
-                'error': f'Serial #{serial_number} already exists with borrower: {existing.name}'
+                'error': f'Serial #{serial_number} already exists'
             }, status=400)
 
         if existing:
@@ -208,7 +284,6 @@ def add_borrower(request, group_id):
         borrower.date_of_loan = datetime.fromisoformat(date_of_loan_str).date() if date_of_loan_str else date.today()
         borrower.save()
 
-        # Create payment records
         today = datetime.now().date()
         first_day = today.replace(day=1)
         
@@ -255,7 +330,7 @@ def delete_borrower(request, borrower_id):
 @login_required
 @require_http_methods(["POST"])
 def update_payment(request, borrower_id):
-    """Update payment - OPTIMIZED"""
+    """Update payment"""
     borrower = get_object_or_404(Borrower, id=borrower_id, finance_group__user=request.user)
     
     try:

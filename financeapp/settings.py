@@ -96,3 +96,19 @@ CSRF_TRUSTED_ORIGINS = [
     'https://financeapp-bgp8.onrender.com',
     'http://localhost:8000',
 ]
+# Email Configuration (Gmail SMTP)
+EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
+EMAIL_HOST = 'smtp.gmail.com'
+EMAIL_PORT = 587
+EMAIL_USE_TLS = True
+EMAIL_HOST_USER = 'adityareddykovvuri4310@gmail.com'  # Change this
+EMAIL_HOST_PASSWORD = 'jqag dpzl abty leen'  # Use Gmail App Password, not regular password
+DEFAULT_FROM_EMAIL = 'your-email@gmail.com'
+
+# Password Reset
+PASSWORD_RESET_TIMEOUT = 3600  # 1 hour
+
+# Allow password reset from any email
+AUTH_PASSWORD_VALIDATORS = [
+    # ... keep existing ...
+]

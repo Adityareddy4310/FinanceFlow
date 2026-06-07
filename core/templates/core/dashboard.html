@@ -3,102 +3,557 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Dashboard - Finance App</title>
+    <title>Dashboard - Finance Manager</title>
     <style>
-        * { margin: 0; padding: 0; box-sizing: border-box; }
-        body { font-family: 'Segoe UI', Tahoma, Geneva, sans-serif; background: #f5f5f5; min-height: 100vh; }
-        
-        .navbar { background: white; padding: 0 24px; height: 60px; display: flex; align-items: center; justify-content: space-between; box-shadow: 0 1px 3px rgba(0,0,0,0.1); }
-        .navbar-title { font-size: 20px; font-weight: 700; color: #333; }
-        .logout-btn { padding: 8px 16px; background: #f0f0f0; border: none; border-radius: 4px; cursor: pointer; font-weight: 500; }
-        
-        .main { padding: 24px; }
-        .header { margin-bottom: 24px; }
-        .header h1 { font-size: 28px; color: #333; margin-bottom: 8px; }
-        .header p { color: #666; }
-        
-        .cards { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 20px; }
-        
-        .card { background: white; border-radius: 8px; box-shadow: 0 2px 8px rgba(0,0,0,0.1); overflow: hidden; cursor: pointer; transition: transform 0.2s, box-shadow 0.2s; }
-        .card:hover { transform: translateY(-4px); box-shadow: 0 4px 12px rgba(0,0,0,0.15); }
-        
-        .card-header { padding: 16px; background: linear-gradient(135deg, #4472c4 0%, #2d5aa8 100%); color: white; }
-        .card-header h2 { font-size: 18px; margin-bottom: 4px; }
-        .card-header p { font-size: 12px; opacity: 0.9; }
-        
-        .card-body { padding: 16px; }
-        .stat { display: flex; justify-content: space-between; margin-bottom: 12px; padding-bottom: 12px; border-bottom: 1px solid #f0f0f0; }
-        .stat-label { color: #666; font-size: 13px; }
-        .stat-value { font-weight: 700; color: #333; font-size: 14px; }
-        
-        .card-footer { padding: 12px 16px; background: #f9f9f9; border-top: 1px solid #f0f0f0; display: flex; gap: 8px; }
-        .btn { padding: 8px 12px; border: none; border-radius: 4px; cursor: pointer; font-size: 13px; font-weight: 600; transition: background 0.2s; }
-        .btn-open { background: #4472c4; color: white; flex: 1; }
-        .btn-open:hover { background: #2d5aa8; }
-        .btn-edit { background: #f0f0f0; color: #333; }
-        .btn-edit:hover { background: #e0e0e0; }
-        
-        .modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); z-index: 1000; }
-        .modal.active { display: flex; align-items: center; justify-content: center; }
-        
-        .modal-content { background: white; padding: 24px; border-radius: 8px; width: 90%; max-width: 400px; box-shadow: 0 4px 20px rgba(0,0,0,0.2); }
-        .modal-header { font-size: 18px; font-weight: 700; color: #333; margin-bottom: 16px; }
-        
-        .form-group { margin-bottom: 16px; }
-        .form-group label { display: block; font-size: 13px; font-weight: 600; color: #333; margin-bottom: 6px; }
-        .form-group input { width: 100%; padding: 10px; border: 1px solid #d9d9d9; border-radius: 4px; font-size: 13px; }
-        .form-group input:focus { outline: none; border-color: #4472c4; box-shadow: 0 0 0 3px rgba(68, 114, 196, 0.1); }
-        
-        .modal-footer { display: flex; gap: 8px; margin-top: 20px; }
-        .btn-save { background: #70ad47; color: white; padding: 10px 16px; flex: 1; }
-        .btn-save:hover { background: #5a9236; }
-        .btn-cancel { background: #f0f0f0; color: #333; padding: 10px 16px; flex: 1; }
-        .btn-cancel:hover { background: #e0e0e0; }
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen', 'Ubuntu', sans-serif;
+            background: linear-gradient(135deg, #0f172a 0%, #1a1f3a 100%);
+            min-height: 100vh;
+            color: #333;
+        }
+
+        /* SMOOTH TRANSITIONS */
+        * {
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        /* TOP NAVIGATION - MODERN */
+        .navbar {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            padding: 16px 40px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            box-shadow: 0 4px 30px rgba(0, 0, 0, 0.1);
+            position: sticky;
+            top: 0;
+            z-index: 1000;
+            border-bottom: 1px solid rgba(0, 0, 0, 0.05);
+        }
+
+        .navbar-brand {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            font-size: 24px;
+            font-weight: 700;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .navbar-right {
+            display: flex;
+            align-items: center;
+            gap: 20px;
+        }
+
+        .user-section {
+            position: relative;
+        }
+
+        .user-avatar {
+            width: 44px;
+            height: 44px;
+            border-radius: 12px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: 700;
+            cursor: pointer;
+            box-shadow: 0 4px 15px rgba(102, 126, 234, 0.3);
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        .user-avatar:hover {
+            transform: translateY(-2px) scale(1.05);
+            box-shadow: 0 8px 25px rgba(102, 126, 234, 0.4);
+        }
+
+        .dropdown-menu {
+            position: absolute;
+            top: 100%;
+            right: 0;
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.15);
+            margin-top: 10px;
+            min-width: 180px;
+            opacity: 0;
+            visibility: hidden;
+            transform: translateY(-10px);
+            pointer-events: none;
+        }
+
+        .user-avatar:hover ~ .dropdown-menu,
+        .dropdown-menu:hover {
+            opacity: 1;
+            visibility: visible;
+            transform: translateY(0);
+            pointer-events: auto;
+        }
+
+        .dropdown-menu a {
+            display: block;
+            padding: 12px 16px;
+            color: #333;
+            text-decoration: none;
+            font-size: 13px;
+            border-bottom: 1px solid #f0f0f0;
+            transition: all 0.2s;
+        }
+
+        .dropdown-menu a:last-child {
+            border-bottom: none;
+        }
+
+        .dropdown-menu a:hover {
+            background: linear-gradient(135deg, #667eea15 0%, #764ba215 100%);
+            color: #667eea;
+            padding-left: 20px;
+        }
+
+        .logout-btn {
+            background: linear-gradient(135deg, #ff6b6b 0%, #ee5a6f 100%);
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: 600;
+            font-size: 13px;
+            box-shadow: 0 4px 15px rgba(255, 107, 107, 0.3);
+            transition: all 0.3s;
+        }
+
+        .logout-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(255, 107, 107, 0.4);
+        }
+
+        /* MAIN CONTENT */
+        .main-content {
+            padding: 40px;
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+
+        .welcome-section {
+            margin-bottom: 40px;
+            animation: fadeInDown 0.6s ease-out;
+        }
+
+        @keyframes fadeInDown {
+            from {
+                opacity: 0;
+                transform: translateY(-20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .welcome-title {
+            font-size: 32px;
+            font-weight: 700;
+            color: white;
+            margin-bottom: 8px;
+        }
+
+        .welcome-subtitle {
+            font-size: 15px;
+            color: rgba(255, 255, 255, 0.7);
+        }
+
+        /* CARDS GRID */
+        .cards-container {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(340px, 1fr));
+            gap: 28px;
+            animation: fadeInUp 0.6s ease-out 0.2s both;
+        }
+
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        /* FINANCE CARD - ENTERPRISE STYLE */
+        .finance-card {
+            background: white;
+            border-radius: 16px;
+            overflow: hidden;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            cursor: pointer;
+            position: relative;
+            border: 1px solid rgba(0, 0, 0, 0.03);
+        }
+
+        .finance-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 3px;
+            background: linear-gradient(90deg, #667eea 0%, #764ba2 100%);
+            opacity: 0;
+            transition: opacity 0.3s;
+        }
+
+        .finance-card:hover {
+            transform: translateY(-12px);
+            box-shadow: 0 20px 40px rgba(102, 126, 234, 0.2);
+        }
+
+        .finance-card:hover::before {
+            opacity: 1;
+        }
+
+        .card-header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 28px;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .card-header::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            right: -50%;
+            width: 200%;
+            height: 200%;
+            background: radial-gradient(circle, rgba(255, 255, 255, 0.1) 0%, transparent 70%);
+            animation: pulse 8s ease-in-out infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% {
+                transform: translate(0, 0);
+            }
+            50% {
+                transform: translate(20px, 20px);
+            }
+        }
+
+        .card-header-content {
+            position: relative;
+            z-index: 1;
+        }
+
+        .card-title {
+            font-size: 20px;
+            font-weight: 700;
+            margin-bottom: 5px;
+        }
+
+        .card-day {
+            font-size: 13px;
+            opacity: 0.9;
+        }
+
+        .card-body {
+            padding: 28px;
+            background: linear-gradient(180deg, #ffffff 0%, #f9f9f9 100%);
+        }
+
+        .stat {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 16px 0;
+            border-bottom: 1px solid #f0f0f0;
+            transition: all 0.3s;
+        }
+
+        .stat:last-child {
+            border-bottom: none;
+        }
+
+        .stat:hover {
+            padding-left: 8px;
+        }
+
+        .stat-label {
+            color: #666;
+            font-size: 13px;
+            font-weight: 500;
+        }
+
+        .stat-value {
+            color: #333;
+            font-size: 16px;
+            font-weight: 700;
+        }
+
+        .stat-value.amount {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            font-size: 18px;
+        }
+
+        .card-footer {
+            display: flex;
+            gap: 12px;
+            padding: 16px 28px;
+            background: #f9f9f9;
+            border-top: 1px solid #f0f0f0;
+        }
+
+        .btn {
+            flex: 1;
+            padding: 12px;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: 600;
+            font-size: 13px;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            text-decoration: none;
+            text-align: center;
+            display: block;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            box-shadow: 0 4px 15px rgba(102, 126, 234, 0.3);
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(102, 126, 234, 0.4);
+        }
+
+        .btn-secondary {
+            background: #f0f0f0;
+            color: #333;
+            border: 1px solid #e0e0e0;
+        }
+
+        .btn-secondary:hover {
+            background: #e8e8e8;
+            border-color: #d0d0d0;
+        }
+
+        /* MODAL */
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.6);
+            backdrop-filter: blur(5px);
+            z-index: 2000;
+            align-items: center;
+            justify-content: center;
+            animation: fadeIn 0.3s ease-out;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+
+        .modal.active {
+            display: flex;
+        }
+
+        .modal-content {
+            background: white;
+            padding: 40px;
+            border-radius: 16px;
+            width: 90%;
+            max-width: 420px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+            animation: slideInUp 0.3s ease-out;
+        }
+
+        @keyframes slideInUp {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .modal-title {
+            font-size: 22px;
+            font-weight: 700;
+            color: #333;
+            margin-bottom: 24px;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        .form-group label {
+            display: block;
+            color: #333;
+            font-weight: 600;
+            font-size: 13px;
+            margin-bottom: 8px;
+        }
+
+        .form-group input {
+            width: 100%;
+            padding: 12px;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            font-size: 14px;
+            transition: all 0.3s;
+        }
+
+        .form-group input:focus {
+            outline: none;
+            border-color: #667eea;
+            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+        }
+
+        .modal-footer {
+            display: flex;
+            gap: 12px;
+            margin-top: 28px;
+        }
+
+        .modal-footer button {
+            flex: 1;
+            padding: 12px;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: 600;
+            font-size: 13px;
+            transition: all 0.3s;
+        }
+
+        .modal-footer .btn-primary {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+        }
+
+        .modal-footer .btn-secondary {
+            background: #f0f0f0;
+            color: #333;
+        }
+
+        /* RESPONSIVE */
+        @media (max-width: 768px) {
+            .navbar {
+                padding: 12px 20px;
+            }
+
+            .navbar-brand {
+                font-size: 20px;
+            }
+
+            .main-content {
+                padding: 20px;
+            }
+
+            .welcome-title {
+                font-size: 24px;
+            }
+
+            .cards-container {
+                grid-template-columns: 1fr;
+                gap: 20px;
+            }
+
+            .modal-content {
+                width: 95%;
+                padding: 30px 20px;
+            }
+        }
     </style>
 </head>
 <body>
-
+    <!-- NAVBAR -->
     <nav class="navbar">
-        <div class="navbar-title">💼 Finance Manager</div>
-        <a href="/logout/" class="logout-btn">Logout</a>
+        <div class="navbar-brand">
+            💰 Finance Manager
+        </div>
+        <div class="navbar-right">
+            <div class="user-section">
+                <div class="user-avatar" title="{{ user.username }}">{{ user.username|first|upper }}</div>
+                <div class="dropdown-menu">
+                    <a href="#">👤 Profile</a>
+                    <a href="#">⚙️ Settings</a>
+                    <a href="#">💬 Support</a>
+                    <a href="/logout/" style="color: #ff6b6b;">🚪 Logout</a>
+                </div>
+            </div>
+        </div>
     </nav>
 
-    <div class="main">
-        <div class="header">
-            <h1>Welcome, {{ user.username }}!</h1>
-            <p>Manage your finance groups and collections</p>
+    <!-- MAIN CONTENT -->
+    <div class="main-content">
+        <div class="welcome-section">
+            <h1 class="welcome-title">Welcome back, {{ user.first_name|default:user.username }}! 👋</h1>
+            <p class="welcome-subtitle">Manage your finance groups and track daily collections effortlessly</p>
         </div>
 
-        <div class="cards">
+        <!-- CARDS GRID -->
+        <div class="cards-container">
             {% for group in finance_groups %}
-            <div class="card">
+            <div class="finance-card">
                 <div class="card-header">
-                    <h2>{{ group.name }}</h2>
-                    <p>{{ group.day }}</p>
+                    <div class="card-header-content">
+                        <h2 class="card-title">{{ group.name }}</h2>
+                        <p class="card-day">{{ group.day }}</p>
+                    </div>
                 </div>
                 <div class="card-body">
                     <div class="stat">
-                        <span class="stat-label">Active Borrowers</span>
+                        <span class="stat-label">👥 Active Borrowers</span>
                         <span class="stat-value">{{ group.active_borrowers }}</span>
                     </div>
                     <div class="stat">
-                        <span class="stat-label">Amount to Collect</span>
-                        <span class="stat-value">₹{{ group.total_balance }}</span>
+                        <span class="stat-label">💰 To Collect</span>
+                        <span class="stat-value amount">₹{{ group.total_balance }}</span>
                     </div>
                 </div>
                 <div class="card-footer">
-                    <a href="/group/{{ group.id }}/" class="btn btn-open">Open →</a>
-                    <button class="btn btn-edit" onclick="openEditModal({{ group.id }}, '{{ group.name }}', '{{ group.day }}')">Edit</button>
+                    <a href="/group/{{ group.id }}/" class="btn btn-primary">Open →</a>
+                    <button class="btn btn-secondary" onclick="openEditModal({{ group.id }}, '{{ group.name }}', '{{ group.day }}')">Edit</button>
                 </div>
             </div>
             {% endfor %}
         </div>
     </div>
 
-    <!-- Edit Modal -->
+    <!-- EDIT MODAL -->
     <div class="modal" id="editModal">
         <div class="modal-content">
-            <div class="modal-header">Edit Finance Group</div>
+            <div class="modal-title">✏️ Edit Finance Group</div>
             <div class="form-group">
                 <label>Finance Name</label>
                 <input type="text" id="editName" placeholder="e.g., Vizag Finance">
@@ -108,8 +563,8 @@
                 <input type="text" id="editDay" placeholder="e.g., Sunday Collection - Vizag">
             </div>
             <div class="modal-footer">
-                <button class="btn btn-save" onclick="saveEdit()">Save</button>
-                <button class="btn btn-cancel" onclick="closeEditModal()">Cancel</button>
+                <button class="btn btn-primary" onclick="saveEdit()">Save Changes</button>
+                <button class="btn btn-secondary" onclick="closeEditModal()">Cancel</button>
             </div>
         </div>
     </div>
@@ -126,7 +581,6 @@
 
         function closeEditModal() {
             document.getElementById('editModal').classList.remove('active');
-            currentGroupId = null;
         }
 
         function saveEdit() {
@@ -156,10 +610,10 @@
 
         function getCookie(name) {
             let cookieValue = null;
-            if (document.cookie && document.cookie !== '') {
+            if (document.cookie) {
                 const cookies = document.cookie.split(';');
-                for (let i = 0; i < cookies.length; i++) {
-                    const cookie = cookies[i].trim();
+                for (let cookie of cookies) {
+                    cookie = cookie.trim();
                     if (cookie.substring(0, name.length + 1) === (name + '=')) {
                         cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
                         break;
@@ -169,13 +623,11 @@
             return cookieValue;
         }
 
+        // Close modal on background click
         document.addEventListener('click', function(e) {
             const modal = document.getElementById('editModal');
-            if (e.target === modal) {
-                closeEditModal();
-            }
+            if (e.target === modal) closeEditModal();
         });
     </script>
-
 </body>
 </html>
