@@ -12,10 +12,112 @@
         }
 
         body {
-            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen', 'Ubuntu', sans-serif;
-            background: linear-gradient(135deg, #0f172a 0%, #1a1f3a 100%);
+            font-family: -apple-system, BlinkMacSystemFont, 'Inter', 'Segoe UI', 'Roboto', 'Oxygen', sans-serif;
+            background: #0a0a0f;
             min-height: 100vh;
             color: #333;
+            position: relative;
+            overflow-x: hidden;
+        }
+
+        /* CINEMATIC DASHBOARD BACKGROUND */
+        .dashboard-background {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: 0;
+            overflow: hidden;
+        }
+
+        /* Animated Gradient Layer */
+        .bg-gradient-layer {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(135deg, #0f172a 0%, #1e1b4b 25%, #0a0a0f 50%, #1a1f3a 75%, #0f172a 100%);
+            animation: gradientShift 15s ease infinite;
+        }
+
+        @keyframes gradientShift {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.8; }
+        }
+
+        /* Abstract Floating Elements */
+        .floating-element {
+            position: absolute;
+            opacity: 0.08;
+            animation: floatAround 20s ease-in-out infinite;
+        }
+
+        .floating-element-1 {
+            width: 400px;
+            height: 400px;
+            background: radial-gradient(circle, rgba(102, 126, 234, 0.4), transparent);
+            top: -10%;
+            right: -5%;
+            border-radius: 50%;
+            filter: blur(80px);
+            animation-delay: 0s;
+        }
+
+        .floating-element-2 {
+            width: 300px;
+            height: 300px;
+            background: radial-gradient(circle, rgba(168, 85, 247, 0.3), transparent);
+            bottom: -5%;
+            left: -5%;
+            border-radius: 50%;
+            filter: blur(70px);
+            animation-delay: 7s;
+        }
+
+        .floating-element-3 {
+            width: 250px;
+            height: 250px;
+            background: radial-gradient(circle, rgba(59, 130, 246, 0.3), transparent);
+            top: 40%;
+            left: 50%;
+            border-radius: 50%;
+            filter: blur(60px);
+            animation-delay: 14s;
+        }
+
+        @keyframes floatAround {
+            0%, 100% { transform: translate(0, 0) scale(1); }
+            25% { transform: translate(50px, -50px) scale(1.1); }
+            50% { transform: translate(-30px, 30px) scale(0.95); }
+            75% { transform: translate(60px, 20px) scale(1.05); }
+        }
+
+        /* Abstract Grid Pattern */
+        .grid-pattern {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            background-image:
+                linear-gradient(rgba(102, 126, 234, 0.05) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(102, 126, 234, 0.05) 1px, transparent 1px);
+            background-size: 60px 60px;
+            opacity: 0.5;
+            animation: gridMove 30s linear infinite;
+        }
+
+        @keyframes gridMove {
+            0% { transform: translate(0, 0); }
+            100% { transform: translate(60px, 60px); }
+        }
+
+        /* Depth Layers */
+        .depth-layer {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            background: radial-gradient(ellipse at center, transparent 0%, rgba(10, 10, 15, 0.4) 100%);
         }
 
         /* SMOOTH TRANSITIONS */
@@ -23,19 +125,26 @@
             transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
         }
 
-        /* TOP NAVIGATION - MODERN */
+        /* MAIN WRAPPER */
+        .main-wrapper {
+            position: relative;
+            z-index: 1;
+        }
+
+        /* TOP NAVIGATION - FLOATING GLASS */
         .navbar {
-            background: rgba(255, 255, 255, 0.95);
-            backdrop-filter: blur(10px);
+            background: rgba(15, 23, 42, 0.7);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
             padding: 16px 40px;
             display: flex;
             justify-content: space-between;
             align-items: center;
-            box-shadow: 0 4px 30px rgba(0, 0, 0, 0.1);
+            box-shadow: 0 4px 30px rgba(0, 0, 0, 0.3);
             position: sticky;
             top: 0;
             z-index: 1000;
-            border-bottom: 1px solid rgba(0, 0, 0, 0.05);
+            border-bottom: 1px solid rgba(102, 126, 234, 0.2);
         }
 
         .navbar-brand {
@@ -44,7 +153,7 @@
             gap: 12px;
             font-size: 24px;
             font-weight: 700;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            background: linear-gradient(135deg, #ffffff 0%, #a78bfa 100%);
             -webkit-background-clip: text;
             -webkit-text-fill-color: transparent;
             background-clip: text;
@@ -71,28 +180,33 @@
             color: white;
             font-weight: 700;
             cursor: pointer;
-            box-shadow: 0 4px 15px rgba(102, 126, 234, 0.3);
+            box-shadow: 0 4px 20px rgba(102, 126, 234, 0.4);
             transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            border: 2px solid rgba(255, 255, 255, 0.1);
         }
 
         .user-avatar:hover {
-            transform: translateY(-2px) scale(1.05);
-            box-shadow: 0 8px 25px rgba(102, 126, 234, 0.4);
+            transform: translateY(-3px) scale(1.05);
+            box-shadow: 0 8px 30px rgba(102, 126, 234, 0.6);
+            border-color: rgba(255, 255, 255, 0.3);
         }
 
         .dropdown-menu {
             position: absolute;
             top: 100%;
             right: 0;
-            background: white;
+            background: rgba(15, 23, 42, 0.95);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
             border-radius: 12px;
-            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.15);
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.5);
             margin-top: 10px;
-            min-width: 180px;
+            min-width: 200px;
             opacity: 0;
             visibility: hidden;
             transform: translateY(-10px);
             pointer-events: none;
+            border: 1px solid rgba(102, 126, 234, 0.2);
         }
 
         .user-avatar:hover ~ .dropdown-menu,
@@ -105,11 +219,11 @@
 
         .dropdown-menu a {
             display: block;
-            padding: 12px 16px;
-            color: #333;
+            padding: 14px 18px;
+            color: rgba(255, 255, 255, 0.9);
             text-decoration: none;
-            font-size: 13px;
-            border-bottom: 1px solid #f0f0f0;
+            font-size: 14px;
+            border-bottom: 1px solid rgba(102, 126, 234, 0.1);
             transition: all 0.2s;
         }
 
@@ -118,9 +232,9 @@
         }
 
         .dropdown-menu a:hover {
-            background: linear-gradient(135deg, #667eea15 0%, #764ba215 100%);
-            color: #667eea;
-            padding-left: 20px;
+            background: rgba(102, 126, 234, 0.15);
+            color: #a78bfa;
+            padding-left: 24px;
         }
 
         .logout-btn {
@@ -195,16 +309,18 @@
             }
         }
 
-        /* FINANCE CARD - ENTERPRISE STYLE */
+        /* FINANCE CARD - ENTERPRISE 3D GLASS STYLE */
         .finance-card {
-            background: white;
-            border-radius: 16px;
+            background: rgba(255, 255, 255, 0.05);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            border-radius: 20px;
             overflow: hidden;
-            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
-            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
             cursor: pointer;
             position: relative;
-            border: 1px solid rgba(0, 0, 0, 0.03);
+            border: 1px solid rgba(102, 126, 234, 0.15);
         }
 
         .finance-card::before {
@@ -214,14 +330,15 @@
             left: 0;
             right: 0;
             height: 3px;
-            background: linear-gradient(90deg, #667eea 0%, #764ba2 100%);
+            background: linear-gradient(90deg, #667eea 0%, #764ba2 50%, #667eea 100%);
             opacity: 0;
-            transition: opacity 0.3s;
+            transition: opacity 0.4s;
         }
 
         .finance-card:hover {
-            transform: translateY(-12px);
-            box-shadow: 0 20px 40px rgba(102, 126, 234, 0.2);
+            transform: translateY(-16px) scale(1.02);
+            box-shadow: 0 24px 48px rgba(102, 126, 234, 0.3);
+            border-color: rgba(102, 126, 234, 0.4);
         }
 
         .finance-card:hover::before {
@@ -274,7 +391,7 @@
 
         .card-body {
             padding: 28px;
-            background: linear-gradient(180deg, #ffffff 0%, #f9f9f9 100%);
+            background: rgba(255, 255, 255, 0.03);
         }
 
         .stat {
@@ -282,7 +399,7 @@
             justify-content: space-between;
             align-items: center;
             padding: 16px 0;
-            border-bottom: 1px solid #f0f0f0;
+            border-bottom: 1px solid rgba(102, 126, 234, 0.1);
             transition: all 0.3s;
         }
 
@@ -292,22 +409,23 @@
 
         .stat:hover {
             padding-left: 8px;
+            background: rgba(102, 126, 234, 0.05);
         }
 
         .stat-label {
-            color: #666;
+            color: rgba(255, 255, 255, 0.7);
             font-size: 13px;
             font-weight: 500;
         }
 
         .stat-value {
-            color: #333;
+            color: rgba(255, 255, 255, 0.95);
             font-size: 16px;
             font-weight: 700;
         }
 
         .stat-value.amount {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            background: linear-gradient(135deg, #a78bfa 0%, #c4b5fd 100%);
             -webkit-background-clip: text;
             -webkit-text-fill-color: transparent;
             background-clip: text;
@@ -317,9 +435,9 @@
         .card-footer {
             display: flex;
             gap: 12px;
-            padding: 16px 28px;
-            background: #f9f9f9;
-            border-top: 1px solid #f0f0f0;
+            padding: 18px 28px;
+            background: rgba(15, 23, 42, 0.4);
+            border-top: 1px solid rgba(102, 126, 234, 0.1);
         }
 
         .btn {
@@ -348,14 +466,15 @@
         }
 
         .btn-secondary {
-            background: #f0f0f0;
-            color: #333;
-            border: 1px solid #e0e0e0;
+            background: rgba(255, 255, 255, 0.08);
+            color: rgba(255, 255, 255, 0.9);
+            border: 1px solid rgba(102, 126, 234, 0.2);
         }
 
         .btn-secondary:hover {
-            background: #e8e8e8;
-            border-color: #d0d0d0;
+            background: rgba(255, 255, 255, 0.15);
+            border-color: rgba(102, 126, 234, 0.4);
+            transform: translateY(-2px);
         }
 
         /* MODAL */
@@ -366,8 +485,8 @@
             left: 0;
             width: 100%;
             height: 100%;
-            background: rgba(0, 0, 0, 0.6);
-            backdrop-filter: blur(5px);
+            background: rgba(0, 0, 0, 0.8);
+            backdrop-filter: blur(10px);
             z-index: 2000;
             align-items: center;
             justify-content: center;
@@ -384,13 +503,16 @@
         }
 
         .modal-content {
-            background: white;
+            background: rgba(15, 23, 42, 0.95);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
             padding: 40px;
-            border-radius: 16px;
+            border-radius: 20px;
             width: 90%;
-            max-width: 420px;
-            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+            max-width: 440px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5);
             animation: slideInUp 0.3s ease-out;
+            border: 1px solid rgba(102, 126, 234, 0.2);
         }
 
         @keyframes slideInUp {
@@ -407,7 +529,7 @@
         .modal-title {
             font-size: 22px;
             font-weight: 700;
-            color: #333;
+            color: rgba(255, 255, 255, 0.95);
             margin-bottom: 24px;
         }
 
@@ -417,25 +539,34 @@
 
         .form-group label {
             display: block;
-            color: #333;
+            color: rgba(255, 255, 255, 0.9);
             font-weight: 600;
             font-size: 13px;
             margin-bottom: 8px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
         }
 
         .form-group input {
             width: 100%;
-            padding: 12px;
-            border: 1px solid #ddd;
-            border-radius: 8px;
+            padding: 14px;
+            border: 1px solid rgba(102, 126, 234, 0.2);
+            border-radius: 10px;
             font-size: 14px;
             transition: all 0.3s;
+            background: rgba(255, 255, 255, 0.05);
+            color: rgba(255, 255, 255, 0.95);
+        }
+
+        .form-group input::placeholder {
+            color: rgba(255, 255, 255, 0.4);
         }
 
         .form-group input:focus {
             outline: none;
-            border-color: #667eea;
+            border-color: rgba(102, 126, 234, 0.6);
             box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+            background: rgba(255, 255, 255, 0.08);
         }
 
         .modal-footer {
@@ -461,8 +592,63 @@
         }
 
         .modal-footer .btn-secondary {
-            background: #f0f0f0;
-            color: #333;
+            background: rgba(255, 255, 255, 0.08);
+            color: rgba(255, 255, 255, 0.9);
+            border: 1px solid rgba(102, 126, 234, 0.2);
+        }
+
+        .modal-footer .btn-secondary:hover {
+            background: rgba(255, 255, 255, 0.15);
+        }
+
+        /* PAGE LOADER */
+        .page-loader {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: #0a0a0f;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 9999;
+            opacity: 1;
+            transition: opacity 0.5s ease-out;
+        }
+
+        .page-loader.hidden {
+            opacity: 0;
+            pointer-events: none;
+        }
+
+        .loader-content {
+            text-align: center;
+        }
+
+        .loader-spinner {
+            width: 60px;
+            height: 60px;
+            margin: 0 auto 20px;
+            border: 3px solid rgba(102, 126, 234, 0.2);
+            border-top-color: #667eea;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+
+        .loader-text {
+            color: rgba(255, 255, 255, 0.7);
+            font-size: 14px;
+            font-weight: 500;
+        }
+
+        /* CARD SKELETON LOADING */
+        .finance-card.loading {
+            animation: pulse 1.5s ease-in-out infinite;
         }
 
         /* RESPONSIVE */
@@ -496,6 +682,26 @@
     </style>
 </head>
 <body>
+    <!-- PAGE LOADER -->
+    <div class="page-loader" id="pageLoader">
+        <div class="loader-content">
+            <div class="loader-spinner"></div>
+            <div class="loader-text">Loading Dashboard...</div>
+        </div>
+    </div>
+
+    <!-- CINEMATIC DASHBOARD BACKGROUND -->
+    <div class="dashboard-background">
+        <div class="bg-gradient-layer"></div>
+        <div class="floating-element floating-element-1"></div>
+        <div class="floating-element floating-element-2"></div>
+        <div class="floating-element floating-element-3"></div>
+        <div class="grid-pattern"></div>
+        <div class="depth-layer"></div>
+    </div>
+
+    <!-- MAIN WRAPPER -->
+    <div class="main-wrapper">
     <!-- NAVBAR -->
     <nav class="navbar">
         <div class="navbar-brand">
@@ -628,6 +834,24 @@
             const modal = document.getElementById('editModal');
             if (e.target === modal) closeEditModal();
         });
+
+        // Page Load Animation
+        window.addEventListener('load', function() {
+            setTimeout(function() {
+                document.getElementById('pageLoader').classList.add('hidden');
+            }, 600);
+        });
+
+        // Card Hover Sound Effect (Visual)
+        document.querySelectorAll('.finance-card').forEach(card => {
+            card.addEventListener('mouseenter', function() {
+                this.style.transition = 'all 0.4s cubic-bezier(0.34, 1.56, 0.64, 1)';
+            });
+            card.addEventListener('mouseleave', function() {
+                this.style.transition = 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)';
+            });
+        });
     </script>
+    </div>
 </body>
 </html>
