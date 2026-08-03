@@ -101,19 +101,19 @@ Built from scratch with Django + Vanilla JavaScript and a custom fintech-inspire
 
 | Dashboard | Group Ledger |
 |-----------|--------------|
-| ![Dashboard](docs\images\Dashboard.png) | ![Group Ledger](docs\images\finance-group1.png) |
+| ![Dashboard](Screenshots\Dashboard.png) | ![Group Ledger](Screenshots\finance-group1.png) |
 
 | Cash Flow | Excel Import |
 |-----------|--------------|
-| ![Cash Flow](docs\images\cash-flow.png) | ![Import](docs\images\excel-import.png) |
+| ![Cash Flow](Screenshots\cash-flow.png) | ![Import](Screenshots\excel-import.png) |
 
 | Login | Contact |
 |-------|---------|
-| ![Login](docs\images\login.png) | ![Contact](docs\images\contact.png) |
+| ![Login](Screenshots\login.png) | ![Contact](Screenshots\contact.png) |
 
 | Mobile |
 |--------|
-| ![Mobile](docs\images\mobile.jpeg) |
+| ![Mobile](Screenshots\mobile.jpeg) |
 
 ---
 
