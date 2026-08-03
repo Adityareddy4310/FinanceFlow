@@ -1,9 +1,8 @@
 
 ```markdown
 <p align="center">
-  <img src="docs/images/logo.png" alt="FinanceFlow Logo" width="72" />
+  <img src="docs/banner.png" width="100%">
 </p>
-
 <h1 align="center">FinanceFlow</h1>
 
 <p align="center">
