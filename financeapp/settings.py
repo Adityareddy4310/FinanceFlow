@@ -7,7 +7,12 @@ SECRET_KEY = os.environ.get('SECRET_KEY', 'django-insecure-financeapp-dev-key-ch
 
 DEBUG = os.environ.get('DEBUG', 'True') == 'True'
 
-ALLOWED_HOSTS = ['*']
+
+ALLOWED_HOSTS = ['*']  # or your specific ngrok domain, e.g. 'abc123.ngrok-free.app'
+
+CSRF_TRUSTED_ORIGINS = ['https://*.ngrok-free.app']  # or your exact ngrok URL, must include https://
+
+ALLOWED_HOSTS = ['custard-plywood-radiance.ngrok-free.dev', 'localhost', '127.0.0.1']
 
 INSTALLED_APPS = [
     'django.contrib.admin',
@@ -81,8 +86,8 @@ TIME_ZONE = 'Asia/Kolkata'
 USE_I18N = True
 USE_TZ = True
 
-STATIC_URL = '/static/'
-STATIC_ROOT = BASE_DIR / 'staticfiles'
+#STATIC_URL = '/static/'
+#STATIC_ROOT = BASE_DIR / 'staticfiles'
 STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
@@ -94,6 +99,7 @@ CSRF_TRUSTED_ORIGINS = [
     'https://*.onrender.com',
     'https://financeapp-bgp8.onrender.com',
     'http://localhost:8000',
+    'https://custard-plywood-radiance.ngrok-free.dev',
 ]
 # Email Configuration (Gmail SMTP)
 EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
@@ -111,3 +117,19 @@ PASSWORD_RESET_TIMEOUT = 3600  # 1 hour
 AUTH_PASSWORD_VALIDATORS = [
     # ... keep existing ...
 ]
+
+# ============================================
+# STATIC FILES CONFIGURATION
+# ============================================
+
+STATIC_URL = '/static/'
+
+# Add this line for local development:
+STATICFILES_DIRS = [
+    BASE_DIR / 'static',  # This tells Django where to find static files
+]
+
+STATIC_ROOT = BASE_DIR / 'staticfiles'
+
+# During development, ensure this is set:
+DEBUG = True

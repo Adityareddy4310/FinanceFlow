@@ -3,855 +3,585 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Dashboard - Finance Manager</title>
+    <title>Dashboard · Finance Ledger</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Space+Grotesk:wght@500;600;700&display=swap" rel="stylesheet">
+    <script src="https://unpkg.com/lucide@latest"></script>
     <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
+        :root {
+            --bg: #15130F;
+            --box: #FAF3E7;
+            --box-alt: #F1E8D8;
+            --accent: #B8863B;
+            --accent-hover: #8C6529;
+            --glow: #D9A857;
+            --text-on-dark: #EDE6D8;
+            --text-on-light: #241F1B;
+            --muted-dark: #9C9187;
+            --muted-light: #6B6156;
+            --forest: #2F5233;
+            --rust: #A63D40;
+            --line: #E4D7BC;
+            --indigo-1: #4F46E5; --indigo-2: #A855F7;
+            --emerald-1: #059669; --emerald-2: #22D3EE;
+            --gold-1: #B8863B; --plum-2: #7C3AED;
         }
-
+        * { margin: 0; padding: 0; box-sizing: border-box; }
         body {
-            font-family: -apple-system, BlinkMacSystemFont, 'Inter', 'Segoe UI', 'Roboto', 'Oxygen', sans-serif;
-            background: #0a0a0f;
+            font-family: 'Inter', system-ui, sans-serif;
+            background: var(--bg);
+            color: var(--text-on-dark);
             min-height: 100vh;
-            color: #333;
             position: relative;
             overflow-x: hidden;
         }
+        .bg-layer { position: fixed; inset: 0; z-index: 0; pointer-events: none; overflow: hidden; }
+        .bg-dots {
+            position: absolute; inset: 0; pointer-events: none;
+            background-image: radial-gradient(rgba(237,230,216,0.05) 1px, transparent 1px);
+            background-size: 26px 26px;
+        }
+        .bg-blob { position: absolute; border-radius: 50%; filter: blur(90px); opacity: 0.35; animation: drift 24s ease-in-out infinite; pointer-events: none; }
+        .bg-blob.b1 { width: 480px; height: 480px; background: radial-gradient(circle, var(--gold-1), transparent); top: -10%; left: -8%; }
+        .bg-blob.b2 { width: 420px; height: 420px; background: radial-gradient(circle, var(--forest), transparent); bottom: -12%; right: -6%; animation-delay: 6s; }
+        .bg-blob.b3 { width: 340px; height: 340px; background: radial-gradient(circle, var(--indigo-1), transparent); top: 40%; right: 20%; opacity: 0.18; animation-delay: 12s; }
+        @keyframes drift {
+            0%, 100% { transform: translate(0,0) scale(1); }
+            50% { transform: translate(30px, -30px) scale(1.08); }
+        }
 
-        /* CINEMATIC DASHBOARD BACKGROUND */
-        .dashboard-background {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
+        .nav {
+            display: flex; align-items: center; justify-content: space-between;
+            padding: 18px 48px; border-bottom: 1px solid rgba(237,230,216,0.08);
+            position: sticky; top: 0; z-index: 50;
+            background: rgba(21,19,15,0.72); backdrop-filter: blur(16px); -webkit-backdrop-filter: blur(16px);
+        }
+        .nav-brand { display: flex; align-items: center; gap: 12px; font-family: 'Space Grotesk', sans-serif; font-size: 1.3rem; font-weight: 700; }
+        .nav-brand-icon { width: 36px; height: 36px; background: linear-gradient(135deg,#B8863B,#D9A857); border-radius: 9px; display: flex; align-items: center; justify-content: center; box-shadow: 0 0 22px rgba(184,134,59,0.4); }
+        .nav-brand-icon i { color: #15130F; width: 20px; height: 20px; }
+        .nav-right { display: flex; align-items: center; gap: 20px; }
+        .nav-user { display: flex; align-items: center; gap: 10px; font-size: 0.92rem; color: var(--muted-dark); }
+        .nav-user-avatar { width: 34px; height: 34px; border-radius: 50%; background: var(--box-alt); color: var(--text-on-light); display: flex; align-items: center; justify-content: center; font-weight: 600; font-size: 0.85rem; }
+        .nav-logout { color: var(--muted-dark); text-decoration: none; font-size: 0.9rem; padding: 8px 16px; border: 1px solid rgba(237,230,216,0.15); border-radius: 10px; transition: all 0.2s ease; }
+        .nav-logout:hover { border-color: var(--accent); color: var(--glow); }
+
+        .main { position: relative; z-index: 1; padding: 48px; max-width: 1280px; margin: 0 auto; }
+        .page-head { margin-bottom: 40px; }
+        .page-eyebrow { font-size: 0.78rem; text-transform: uppercase; letter-spacing: 0.14em; color: var(--glow); margin-bottom: 8px; font-weight: 600; }
+        .page-title { font-family: 'Space Grotesk', sans-serif; font-size: 2.1rem; font-weight: 600; margin-bottom: 6px; }
+        .page-sub { color: var(--muted-dark); font-size: 0.98rem; }
+
+        .stats { display: grid; grid-template-columns: repeat(3, 1fr); gap: 22px; margin-bottom: 48px; }
+        .stat-card {
+            position: relative; border-radius: 22px; padding: 28px;
+            overflow: hidden; isolation: isolate;
+            border: 1px solid rgba(255,255,255,0.08);
+            transition: transform 0.35s cubic-bezier(0.22,1,0.36,1), box-shadow 0.35s ease;
+        }
+        .stat-card::before, .stat-card::after { pointer-events: none; }
+        .stat-card::before { content: ''; position: absolute; inset: 0; z-index: -2; opacity: 0.9; }
+        .stat-card::after {
+            content: ''; position: absolute; width: 180px; height: 180px; border-radius: 50%;
+            filter: blur(50px); top: -40px; right: -40px; z-index: -1; opacity: 0.55;
+            animation: pulseGlow 4s ease-in-out infinite;
+        }
+        @keyframes pulseGlow { 0%,100% { opacity: 0.45; } 50% { opacity: 0.75; } }
+        .stat-card:hover { transform: translateY(-6px) rotate(-0.3deg); }
+        .stat-card.groups { background: linear-gradient(155deg, #211B45, #2E1F52 60%, #1A1533); }
+        .stat-card.groups::before { background: linear-gradient(155deg, var(--indigo-1), var(--indigo-2)); mix-blend-mode: overlay; opacity: 0.35; }
+        .stat-card.groups::after { background: var(--indigo-2); }
+        .stat-card.groups:hover { box-shadow: 0 25px 60px -15px rgba(79,70,229,0.45); }
+        .stat-card.borrowers { background: linear-gradient(155deg, #063B33, #0A4D3E 60%, #062A26); }
+        .stat-card.borrowers::before { background: linear-gradient(155deg, var(--emerald-1), var(--emerald-2)); mix-blend-mode: overlay; opacity: 0.35; }
+        .stat-card.borrowers::after { background: var(--emerald-2); }
+        .stat-card.borrowers:hover { box-shadow: 0 25px 60px -15px rgba(5,150,105,0.45); }
+        .stat-card.balance { background: linear-gradient(155deg, #3A2A12, #4A2A4E 65%, #241530); }
+        .stat-card.balance::before { background: linear-gradient(155deg, var(--gold-1), var(--plum-2)); mix-blend-mode: overlay; opacity: 0.4; }
+        .stat-card.balance::after { background: var(--plum-2); }
+        .stat-card.balance:hover { box-shadow: 0 25px 60px -15px rgba(124,58,237,0.4); }
+        .stat-icon-badge {
+            width: 46px; height: 46px; border-radius: 13px; display: flex; align-items: center; justify-content: center;
+            background: rgba(255,255,255,0.12); backdrop-filter: blur(6px); margin-bottom: 22px;
+            transition: transform 0.3s ease;
+        }
+        .stat-card:hover .stat-icon-badge { transform: scale(1.08) rotate(-4deg); }
+        .stat-icon-badge i { width: 22px; height: 22px; color: #fff; }
+        .stat-label { font-size: 0.8rem; text-transform: uppercase; letter-spacing: 0.08em; color: rgba(255,255,255,0.65); margin-bottom: 10px; font-weight: 500; }
+        .stat-value { font-family: 'Space Grotesk', sans-serif; font-size: 2.3rem; font-weight: 700; color: #fff; text-shadow: 0 0 24px rgba(255,255,255,0.15); }
+        .stat-value.money::before { content: '₹'; font-size: 1.4rem; margin-right: 2px; opacity: 0.75; }
+
+        .groups-panel {
+            background: linear-gradient(180deg, rgba(250,243,231,0.04), rgba(250,243,231,0.015));
+            border: 1px solid rgba(237,230,216,0.08);
+            border-radius: 26px; padding: 36px; backdrop-filter: blur(10px);
+        }
+        .groups-head { display: flex; align-items: center; gap: 12px; margin-bottom: 26px; }
+        .groups-head-icon { width: 38px; height: 38px; border-radius: 11px; background: linear-gradient(135deg, var(--gold-1), var(--glow)); display: flex; align-items: center; justify-content: center; }
+        .groups-head-icon i { width: 20px; height: 20px; color: #15130F; }
+        .groups-head h2 { font-family: 'Space Grotesk', sans-serif; font-size: 1.35rem; font-weight: 600; color: var(--text-on-dark); }
+        .groups-head p { font-size: 0.85rem; color: var(--muted-dark); margin-top: 2px; }
+        .group-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(min(320px, 100%), 1fr)); gap: 22px; }
+
+        .group-card {
+            position: relative;
+            background:
+                linear-gradient(160deg, rgba(255,255,255,0.92) 0%, rgba(250,243,231,0.98) 40%, rgba(241,232,216,0.95) 100%);
+            border-radius: 22px;
+            padding: 24px 24px 20px;
+            overflow: hidden;
+            cursor: pointer;
+            transition: transform 0.35s cubic-bezier(0.22,1,0.36,1), box-shadow 0.35s ease;
+            box-shadow:
+                0 2px 4px rgba(0,0,0,0.04),
+                0 12px 32px -8px rgba(0,0,0,0.18);
+            border: 1px solid rgba(228,215,188,0.6);
+        }
+        .group-card::before {
+            content: '';
+            position: absolute; inset: -1px;
+            border-radius: 23px;
+            padding: 1.5px;
+            background: linear-gradient(135deg, rgba(184,134,59,0.7), transparent 40%, transparent 60%, rgba(217,168,87,0.5));
+            -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+            -webkit-mask-composite: xor; mask-composite: exclude;
+            opacity: 0;
+            transition: opacity 0.35s ease;
+            pointer-events: none;
             z-index: 0;
-            overflow: hidden;
         }
-
-        /* Animated Gradient Layer */
-        .bg-gradient-layer {
-            position: absolute;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: linear-gradient(135deg, #0f172a 0%, #1e1b4b 25%, #0a0a0f 50%, #1a1f3a 75%, #0f172a 100%);
-            animation: gradientShift 15s ease infinite;
-        }
-
-        @keyframes gradientShift {
-            0%, 100% { opacity: 1; }
-            50% { opacity: 0.8; }
-        }
-
-        /* Abstract Floating Elements */
-        .floating-element {
-            position: absolute;
-            opacity: 0.08;
-            animation: floatAround 20s ease-in-out infinite;
-        }
-
-        .floating-element-1 {
-            width: 400px;
-            height: 400px;
-            background: radial-gradient(circle, rgba(102, 126, 234, 0.4), transparent);
-            top: -10%;
-            right: -5%;
-            border-radius: 50%;
-            filter: blur(80px);
-            animation-delay: 0s;
-        }
-
-        .floating-element-2 {
-            width: 300px;
-            height: 300px;
-            background: radial-gradient(circle, rgba(168, 85, 247, 0.3), transparent);
-            bottom: -5%;
-            left: -5%;
-            border-radius: 50%;
-            filter: blur(70px);
-            animation-delay: 7s;
-        }
-
-        .floating-element-3 {
-            width: 250px;
-            height: 250px;
-            background: radial-gradient(circle, rgba(59, 130, 246, 0.3), transparent);
-            top: 40%;
-            left: 50%;
-            border-radius: 50%;
-            filter: blur(60px);
-            animation-delay: 14s;
-        }
-
-        @keyframes floatAround {
-            0%, 100% { transform: translate(0, 0) scale(1); }
-            25% { transform: translate(50px, -50px) scale(1.1); }
-            50% { transform: translate(-30px, 30px) scale(0.95); }
-            75% { transform: translate(60px, 20px) scale(1.05); }
-        }
-
-        /* Abstract Grid Pattern */
-        .grid-pattern {
-            position: absolute;
-            width: 100%;
-            height: 100%;
-            background-image:
-                linear-gradient(rgba(102, 126, 234, 0.05) 1px, transparent 1px),
-                linear-gradient(90deg, rgba(102, 126, 234, 0.05) 1px, transparent 1px);
-            background-size: 60px 60px;
-            opacity: 0.5;
-            animation: gridMove 30s linear infinite;
-        }
-
-        @keyframes gridMove {
-            0% { transform: translate(0, 0); }
-            100% { transform: translate(60px, 60px); }
-        }
-
-        /* Depth Layers */
-        .depth-layer {
-            position: absolute;
-            width: 100%;
-            height: 100%;
-            background: radial-gradient(ellipse at center, transparent 0%, rgba(10, 10, 15, 0.4) 100%);
-        }
-
-        /* SMOOTH TRANSITIONS */
-        * {
-            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-        }
-
-        /* MAIN WRAPPER */
-        .main-wrapper {
-            position: relative;
-            z-index: 1;
-        }
-
-        /* TOP NAVIGATION - FLOATING GLASS */
-        .navbar {
-            background: rgba(15, 23, 42, 0.7);
-            backdrop-filter: blur(20px);
-            -webkit-backdrop-filter: blur(20px);
-            padding: 16px 40px;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            box-shadow: 0 4px 30px rgba(0, 0, 0, 0.3);
-            position: sticky;
-            top: 0;
-            z-index: 1000;
-            border-bottom: 1px solid rgba(102, 126, 234, 0.2);
-        }
-
-        .navbar-brand {
-            display: flex;
-            align-items: center;
-            gap: 12px;
-            font-size: 24px;
-            font-weight: 700;
-            background: linear-gradient(135deg, #ffffff 0%, #a78bfa 100%);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-            background-clip: text;
-        }
-
-        .navbar-right {
-            display: flex;
-            align-items: center;
-            gap: 20px;
-        }
-
-        .user-section {
-            position: relative;
-        }
-
-        .user-avatar {
-            width: 44px;
-            height: 44px;
-            border-radius: 12px;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            color: white;
-            font-weight: 700;
-            cursor: pointer;
-            box-shadow: 0 4px 20px rgba(102, 126, 234, 0.4);
-            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-            border: 2px solid rgba(255, 255, 255, 0.1);
-        }
-
-        .user-avatar:hover {
-            transform: translateY(-3px) scale(1.05);
-            box-shadow: 0 8px 30px rgba(102, 126, 234, 0.6);
-            border-color: rgba(255, 255, 255, 0.3);
-        }
-
-        .dropdown-menu {
-            position: absolute;
-            top: 100%;
-            right: 0;
-            background: rgba(15, 23, 42, 0.95);
-            backdrop-filter: blur(20px);
-            -webkit-backdrop-filter: blur(20px);
-            border-radius: 12px;
-            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.5);
-            margin-top: 10px;
-            min-width: 200px;
-            opacity: 0;
-            visibility: hidden;
-            transform: translateY(-10px);
-            pointer-events: none;
-            border: 1px solid rgba(102, 126, 234, 0.2);
-        }
-
-        .user-avatar:hover ~ .dropdown-menu,
-        .dropdown-menu:hover {
-            opacity: 1;
-            visibility: visible;
-            transform: translateY(0);
-            pointer-events: auto;
-        }
-
-        .dropdown-menu a {
-            display: block;
-            padding: 14px 18px;
-            color: rgba(255, 255, 255, 0.9);
-            text-decoration: none;
-            font-size: 14px;
-            border-bottom: 1px solid rgba(102, 126, 234, 0.1);
-            transition: all 0.2s;
-        }
-
-        .dropdown-menu a:last-child {
-            border-bottom: none;
-        }
-
-        .dropdown-menu a:hover {
-            background: rgba(102, 126, 234, 0.15);
-            color: #a78bfa;
-            padding-left: 24px;
-        }
-
-        .logout-btn {
-            background: linear-gradient(135deg, #ff6b6b 0%, #ee5a6f 100%);
-            color: white;
-            border: none;
-            padding: 10px 20px;
-            border-radius: 8px;
-            cursor: pointer;
-            font-weight: 600;
-            font-size: 13px;
-            box-shadow: 0 4px 15px rgba(255, 107, 107, 0.3);
-            transition: all 0.3s;
-        }
-
-        .logout-btn:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 8px 25px rgba(255, 107, 107, 0.4);
-        }
-
-        /* MAIN CONTENT */
-        .main-content {
-            padding: 40px;
-            max-width: 1400px;
-            margin: 0 auto;
-        }
-
-        .welcome-section {
-            margin-bottom: 40px;
-            animation: fadeInDown 0.6s ease-out;
-        }
-
-        @keyframes fadeInDown {
-            from {
-                opacity: 0;
-                transform: translateY(-20px);
-            }
-            to {
-                opacity: 1;
-                transform: translateY(0);
-            }
-        }
-
-        .welcome-title {
-            font-size: 32px;
-            font-weight: 700;
-            color: white;
-            margin-bottom: 8px;
-        }
-
-        .welcome-subtitle {
-            font-size: 15px;
-            color: rgba(255, 255, 255, 0.7);
-        }
-
-        /* CARDS GRID */
-        .cards-container {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(340px, 1fr));
-            gap: 28px;
-            animation: fadeInUp 0.6s ease-out 0.2s both;
-        }
-
-        @keyframes fadeInUp {
-            from {
-                opacity: 0;
-                transform: translateY(30px);
-            }
-            to {
-                opacity: 1;
-                transform: translateY(0);
-            }
-        }
-
-        /* FINANCE CARD - ENTERPRISE 3D GLASS STYLE */
-        .finance-card {
-            background: rgba(255, 255, 255, 0.05);
-            backdrop-filter: blur(20px);
-            -webkit-backdrop-filter: blur(20px);
-            border-radius: 20px;
-            overflow: hidden;
-            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
-            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
-            cursor: pointer;
-            position: relative;
-            border: 1px solid rgba(102, 126, 234, 0.15);
-        }
-
-        .finance-card::before {
+        .group-card::after {
             content: '';
             position: absolute;
-            top: 0;
-            left: 0;
-            right: 0;
+            width: 200px; height: 200px;
+            border-radius: 50%;
+            background: radial-gradient(circle, rgba(184,134,59,0.2), transparent 70%);
+            top: -70px; right: -60px;
+            filter: blur(32px);
+            opacity: 0.55;
+            transition: opacity 0.35s ease;
+            pointer-events: none;
+            z-index: 0;
+        }
+        .group-card:hover {
+            transform: translateY(-8px) scale(1.015);
+            box-shadow:
+                0 20px 45px -12px rgba(184,134,59,0.28),
+                0 8px 20px -6px rgba(0,0,0,0.15);
+        }
+        .group-card:hover::before { opacity: 1; }
+        .group-card:hover::after { opacity: 0.95; }
+
+        .group-card-link {
+            position: absolute;
+            inset: 0;
+            z-index: 1;
+            border-radius: 22px;
+        }
+
+        .group-card-inner {
+            position: relative;
+            z-index: 2;
+        }
+
+        .group-accent {
+            position: absolute; top: 0; left: 20px; right: 20px;
             height: 3px;
-            background: linear-gradient(90deg, #667eea 0%, #764ba2 50%, #667eea 100%);
-            opacity: 0;
-            transition: opacity 0.4s;
-        }
-
-        .finance-card:hover {
-            transform: translateY(-16px) scale(1.02);
-            box-shadow: 0 24px 48px rgba(102, 126, 234, 0.3);
-            border-color: rgba(102, 126, 234, 0.4);
-        }
-
-        .finance-card:hover::before {
-            opacity: 1;
-        }
-
-        .card-header {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            color: white;
-            padding: 28px;
-            position: relative;
-            overflow: hidden;
-        }
-
-        .card-header::before {
-            content: '';
-            position: absolute;
-            top: -50%;
-            right: -50%;
-            width: 200%;
-            height: 200%;
-            background: radial-gradient(circle, rgba(255, 255, 255, 0.1) 0%, transparent 70%);
-            animation: pulse 8s ease-in-out infinite;
-        }
-
-        @keyframes pulse {
-            0%, 100% {
-                transform: translate(0, 0);
-            }
-            50% {
-                transform: translate(20px, 20px);
-            }
-        }
-
-        .card-header-content {
-            position: relative;
-            z-index: 1;
-        }
-
-        .card-title {
-            font-size: 20px;
-            font-weight: 700;
-            margin-bottom: 5px;
-        }
-
-        .card-day {
-            font-size: 13px;
-            opacity: 0.9;
-        }
-
-        .card-body {
-            padding: 28px;
-            background: rgba(255, 255, 255, 0.03);
-        }
-
-        .stat {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            padding: 16px 0;
-            border-bottom: 1px solid rgba(102, 126, 234, 0.1);
-            transition: all 0.3s;
-        }
-
-        .stat:last-child {
-            border-bottom: none;
-        }
-
-        .stat:hover {
-            padding-left: 8px;
-            background: rgba(102, 126, 234, 0.05);
-        }
-
-        .stat-label {
-            color: rgba(255, 255, 255, 0.7);
-            font-size: 13px;
-            font-weight: 500;
-        }
-
-        .stat-value {
-            color: rgba(255, 255, 255, 0.95);
-            font-size: 16px;
-            font-weight: 700;
-        }
-
-        .stat-value.amount {
-            background: linear-gradient(135deg, #a78bfa 0%, #c4b5fd 100%);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-            background-clip: text;
-            font-size: 18px;
-        }
-
-        .card-footer {
-            display: flex;
-            gap: 12px;
-            padding: 18px 28px;
-            background: rgba(15, 23, 42, 0.4);
-            border-top: 1px solid rgba(102, 126, 234, 0.1);
-        }
-
-        .btn {
-            flex: 1;
-            padding: 12px;
-            border: none;
-            border-radius: 8px;
-            cursor: pointer;
-            font-weight: 600;
-            font-size: 13px;
-            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-            text-decoration: none;
-            text-align: center;
-            display: block;
-        }
-
-        .btn-primary {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            color: white;
-            box-shadow: 0 4px 15px rgba(102, 126, 234, 0.3);
-        }
-
-        .btn-primary:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 8px 25px rgba(102, 126, 234, 0.4);
-        }
-
-        .btn-secondary {
-            background: rgba(255, 255, 255, 0.08);
-            color: rgba(255, 255, 255, 0.9);
-            border: 1px solid rgba(102, 126, 234, 0.2);
-        }
-
-        .btn-secondary:hover {
-            background: rgba(255, 255, 255, 0.15);
-            border-color: rgba(102, 126, 234, 0.4);
-            transform: translateY(-2px);
-        }
-
-        /* MODAL */
-        .modal {
-            display: none;
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: rgba(0, 0, 0, 0.8);
-            backdrop-filter: blur(10px);
-            z-index: 2000;
-            align-items: center;
-            justify-content: center;
-            animation: fadeIn 0.3s ease-out;
-        }
-
-        @keyframes fadeIn {
-            from { opacity: 0; }
-            to { opacity: 1; }
-        }
-
-        .modal.active {
-            display: flex;
-        }
-
-        .modal-content {
-            background: rgba(15, 23, 42, 0.95);
-            backdrop-filter: blur(20px);
-            -webkit-backdrop-filter: blur(20px);
-            padding: 40px;
-            border-radius: 20px;
-            width: 90%;
-            max-width: 440px;
-            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5);
-            animation: slideInUp 0.3s ease-out;
-            border: 1px solid rgba(102, 126, 234, 0.2);
-        }
-
-        @keyframes slideInUp {
-            from {
-                opacity: 0;
-                transform: translateY(30px);
-            }
-            to {
-                opacity: 1;
-                transform: translateY(0);
-            }
-        }
-
-        .modal-title {
-            font-size: 22px;
-            font-weight: 700;
-            color: rgba(255, 255, 255, 0.95);
-            margin-bottom: 24px;
-        }
-
-        .form-group {
-            margin-bottom: 20px;
-        }
-
-        .form-group label {
-            display: block;
-            color: rgba(255, 255, 255, 0.9);
-            font-weight: 600;
-            font-size: 13px;
-            margin-bottom: 8px;
-            text-transform: uppercase;
-            letter-spacing: 0.5px;
-        }
-
-        .form-group input {
-            width: 100%;
-            padding: 14px;
-            border: 1px solid rgba(102, 126, 234, 0.2);
-            border-radius: 10px;
-            font-size: 14px;
-            transition: all 0.3s;
-            background: rgba(255, 255, 255, 0.05);
-            color: rgba(255, 255, 255, 0.95);
-        }
-
-        .form-group input::placeholder {
-            color: rgba(255, 255, 255, 0.4);
-        }
-
-        .form-group input:focus {
-            outline: none;
-            border-color: rgba(102, 126, 234, 0.6);
-            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
-            background: rgba(255, 255, 255, 0.08);
-        }
-
-        .modal-footer {
-            display: flex;
-            gap: 12px;
-            margin-top: 28px;
-        }
-
-        .modal-footer button {
-            flex: 1;
-            padding: 12px;
-            border: none;
-            border-radius: 8px;
-            cursor: pointer;
-            font-weight: 600;
-            font-size: 13px;
-            transition: all 0.3s;
-        }
-
-        .modal-footer .btn-primary {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            color: white;
-        }
-
-        .modal-footer .btn-secondary {
-            background: rgba(255, 255, 255, 0.08);
-            color: rgba(255, 255, 255, 0.9);
-            border: 1px solid rgba(102, 126, 234, 0.2);
-        }
-
-        .modal-footer .btn-secondary:hover {
-            background: rgba(255, 255, 255, 0.15);
-        }
-
-        /* PAGE LOADER */
-        .page-loader {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: #0a0a0f;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            z-index: 9999;
-            opacity: 1;
-            transition: opacity 0.5s ease-out;
-        }
-
-        .page-loader.hidden {
-            opacity: 0;
+            border-radius: 0 0 4px 4px;
+            background: linear-gradient(90deg, var(--accent), var(--glow));
             pointer-events: none;
+            z-index: 0;
         }
 
-        .loader-content {
-            text-align: center;
+        .group-card-top {
+            display: flex; justify-content: space-between; align-items: flex-start;
+            margin-bottom: 18px;
+        }
+        .group-name-row { display: flex; align-items: center; gap: 12px; min-width: 0; }
+        .group-icon {
+            width: 42px; height: 42px; border-radius: 12px;
+            background: linear-gradient(145deg, #F5EBDA, #E8D9C0);
+            display: flex; align-items: center; justify-content: center;
+            flex-shrink: 0;
+            box-shadow: 0 4px 14px rgba(184,134,59,0.16);
+            transition: transform 0.3s cubic-bezier(0.22,1,0.36,1);
+        }
+        .group-card:hover .group-icon { transform: scale(1.1) rotate(-4deg); }
+        .group-icon i { width: 18px; height: 18px; color: var(--accent-hover); }
+        .group-name {
+            font-family: 'Space Grotesk', sans-serif;
+            font-size: 1.2rem; font-weight: 600;
+            color: var(--text-on-light);
+            margin-bottom: 2px;
+            letter-spacing: -0.015em;
+            white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+        }
+        .group-meta { font-size: 0.8rem; color: var(--muted-light); }
+
+        .group-badge {
+            display: inline-flex; align-items: center; gap: 5px;
+            font-size: 0.68rem; font-weight: 600; letter-spacing: 0.05em;
+            text-transform: uppercase;
+            padding: 3px 9px; border-radius: 20px;
+            background: rgba(47,82,51,0.11); color: var(--forest);
+            margin-top: 5px;
+        }
+        .group-badge::before {
+            content: ''; width: 5px; height: 5px; border-radius: 50%;
+            background: var(--forest);
         }
 
-        .loader-spinner {
-            width: 60px;
-            height: 60px;
-            margin: 0 auto 20px;
-            border: 3px solid rgba(102, 126, 234, 0.2);
-            border-top-color: #667eea;
-            border-radius: 50%;
-            animation: spin 1s linear infinite;
+        .group-edit-btn {
+            position: relative;
+            z-index: 5;
+            background: rgba(241,232,216,0.7);
+            border: 1px solid transparent;
+            cursor: pointer;
+            width: 44px; height: 44px;
+            border-radius: 10px;
+            color: var(--muted-light);
+            display: flex; align-items: center; justify-content: center;
+            transition: all 0.25s ease;
+            flex-shrink: 0;
+        }
+        .group-edit-btn:hover {
+            background: var(--box-alt);
+            color: var(--accent-hover);
+            border-color: rgba(184,134,59,0.35);
+            transform: rotate(-8deg);
+        }
+        .group-edit-btn i { width: 16px; height: 16px; pointer-events: none; }
+
+        .group-stats {
+            display: grid; grid-template-columns: 1fr 1fr;
+            gap: 10px; margin-bottom: 4px;
+        }
+        .group-stat {
+            background: rgba(255,255,255,0.55);
+            border: 1px solid rgba(228,215,188,0.75);
+            border-radius: 12px;
+            padding: 11px 13px;
+        }
+        .group-stat-label {
+            display: flex; align-items: center; gap: 6px;
+            font-size: 0.72rem; color: var(--muted-light);
+            margin-bottom: 4px; font-weight: 500;
+        }
+        .group-stat-label i { width: 13px; height: 13px; }
+        .group-stat-value {
+            font-family: 'Space Grotesk', sans-serif;
+            font-size: 1.12rem; font-weight: 700;
+            color: var(--text-on-light);
+        }
+        .group-stat-value.money::before { content: '₹'; font-size: 0.85em; margin-right: 1px; opacity: 0.7; }
+
+        .group-cta {
+            position: relative;
+            z-index: 5;
+            display: flex; align-items: center; justify-content: center; gap: 8px;
+            margin-top: 16px; padding: 12px 14px;
+            background: var(--text-on-light); color: var(--box);
+            text-decoration: none; border-radius: 12px;
+            font-size: 0.88rem; font-weight: 600;
+            transition: all 0.25s ease;
+        }
+        .group-cta i { width: 15px; height: 15px; transition: transform 0.25s ease; }
+        .group-cta:hover { background: #3A322B; }
+        .group-cta:hover i { transform: translateX(4px); }
+
+        .empty-state { text-align: center; padding: 80px 20px; color: var(--muted-dark); }
+
+        .modal-overlay {
+            position: fixed; inset: 0;
+            background: rgba(21,19,15,0.72); backdrop-filter: blur(4px);
+            display: none; align-items: center; justify-content: center;
+            z-index: 100; padding: 20px;
+        }
+        .modal-overlay.open { display: flex; }
+        .modal {
+            background: var(--box); border-radius: 20px; padding: 32px;
+            width: 100%; max-width: 380px;
+            box-shadow: 0 40px 80px -20px rgba(0,0,0,0.5);
+        }
+        .modal h3 { font-family: 'Space Grotesk', sans-serif; font-size: 1.2rem; color: var(--text-on-light); margin-bottom: 20px; }
+        .modal label { display: block; font-size: 0.85rem; font-weight: 500; color: var(--text-on-light); margin-bottom: 6px; }
+        .modal input {
+            width: 100%; padding: 12px 14px; background: #FFFFFF;
+            border: 1.5px solid #DED2BB; border-radius: 10px;
+            color: var(--text-on-light); font-size: 0.95rem; margin-bottom: 16px;
+        }
+        .modal input:focus { outline: none; border-color: var(--accent); }
+        .modal-actions { display: flex; gap: 10px; margin-top: 6px; }
+        .modal-btn { flex: 1; padding: 12px; border-radius: 10px; font-size: 0.9rem; font-weight: 600; cursor: pointer; border: none; transition: all 0.2s ease; }
+        .modal-btn.save { background: linear-gradient(135deg, #B8863B, #D9A857); color: #15130F; }
+        .modal-btn.save:hover { transform: translateY(-2px); }
+        .modal-btn.cancel { background: var(--box-alt); color: var(--muted-light); }
+        .modal-error { font-size: 0.8rem; color: var(--rust); margin-bottom: 12px; display: none; }
+
+        .toast {
+            position: fixed; bottom: 28px; right: 28px;
+            background: var(--box); color: var(--text-on-light);
+            padding: 14px 20px; border-radius: 12px; font-size: 0.88rem;
+            box-shadow: 0 15px 40px -10px rgba(0,0,0,0.5);
+            transform: translateY(20px); opacity: 0; transition: all 0.3s ease; z-index: 200;
+        }
+        .toast.show { transform: translateY(0); opacity: 1; }
+
+        @media (max-width: 480px) {
+            .toast { left: 20px; right: 20px; bottom: 20px; max-width: none; text-align: center; }
         }
 
-        @keyframes spin {
-            to { transform: rotate(360deg); }
+        @media (max-width: 1000px) {
+            .stats { grid-template-columns: 1fr; }
         }
-
-        .loader-text {
-            color: rgba(255, 255, 255, 0.7);
-            font-size: 14px;
-            font-weight: 500;
-        }
-
-        /* CARD SKELETON LOADING */
-        .finance-card.loading {
-            animation: pulse 1.5s ease-in-out infinite;
-        }
-
-        /* RESPONSIVE */
-        @media (max-width: 768px) {
-            .navbar {
-                padding: 12px 20px;
-            }
-
-            .navbar-brand {
-                font-size: 20px;
-            }
-
-            .main-content {
-                padding: 20px;
-            }
-
-            .welcome-title {
-                font-size: 24px;
-            }
-
-            .cards-container {
-                grid-template-columns: 1fr;
-                gap: 20px;
-            }
-
-            .modal-content {
-                width: 95%;
-                padding: 30px 20px;
-            }
+        @media (max-width: 900px) {
+            .nav { padding: 16px 24px; }
+            .main { padding: 28px 24px; }
+            .groups-panel { padding: 24px; }
+            .group-stats { grid-template-columns: 1fr; }
         }
     </style>
 </head>
 <body>
-    <!-- PAGE LOADER -->
-    <div class="page-loader" id="pageLoader">
-        <div class="loader-content">
-            <div class="loader-spinner"></div>
-            <div class="loader-text">Loading Dashboard...</div>
-        </div>
+    <div class="bg-layer">
+        <div class="bg-dots"></div>
+        <div class="bg-blob b1"></div>
+        <div class="bg-blob b2"></div>
+        <div class="bg-blob b3"></div>
     </div>
 
-    <!-- CINEMATIC DASHBOARD BACKGROUND -->
-    <div class="dashboard-background">
-        <div class="bg-gradient-layer"></div>
-        <div class="floating-element floating-element-1"></div>
-        <div class="floating-element floating-element-2"></div>
-        <div class="floating-element floating-element-3"></div>
-        <div class="grid-pattern"></div>
-        <div class="depth-layer"></div>
-    </div>
-
-    <!-- MAIN WRAPPER -->
-    <div class="main-wrapper">
-    <!-- NAVBAR -->
-    <nav class="navbar">
-        <div class="navbar-brand">
-            💰 Finance Manager
+    <nav class="nav">
+        <div class="nav-brand">
+            <div class="nav-brand-icon"><i data-lucide="book-open"></i></div>
+            Finance Ledger
         </div>
-        <div class="navbar-right">
-            <div class="user-section">
-                <div class="user-avatar" title="{{ user.username }}">{{ user.username|first|upper }}</div>
-                <div class="dropdown-menu">
-                    <a href="#">👤 Profile</a>
-                    <a href="#">⚙️ Settings</a>
-                    <a href="#">💬 Support</a>
-                    <a href="/logout/" style="color: #ff6b6b;">🚪 Logout</a>
-                </div>
+        <div class="nav-right">
+            <a href="{% url 'contact' %}" style="color:var(--muted-dark); text-decoration:none; font-size:0.9rem; padding:8px 16px; border:1px solid rgba(237,230,216,0.15); border-radius:10px; transition: all 0.2s ease;" onmouseover="this.style.borderColor='var(--accent)';this.style.color='var(--glow)'" onmouseout="this.style.borderColor='rgba(237,230,216,0.15)';this.style.color='var(--muted-dark)'">Contact</a>
+            <div class="nav-user">
+                <div class="nav-user-avatar">{{ user.username|slice:":1"|upper }}</div>
+                <span>{{ user.username }}</span>
             </div>
+            <a href="{% url 'logout' %}" class="nav-logout">Log out</a>
         </div>
     </nav>
 
-    <!-- MAIN CONTENT -->
-    <div class="main-content">
-        <div class="welcome-section">
-            <h1 class="welcome-title">Welcome back, {{ user.first_name|default:user.username }}! 👋</h1>
-            <p class="welcome-subtitle">Manage your finance groups and track daily collections effortlessly</p>
+    <main class="main">
+        <div class="page-head">
+            <div class="page-eyebrow">Dashboard</div>
+            <h1 class="page-title">Welcome back, {{ user.username }}</h1>
+            <p class="page-sub">Here's what's happening across your collection groups.</p>
         </div>
 
-        <!-- CARDS GRID -->
-        <div class="cards-container">
-            {% for group in finance_groups %}
-            <div class="finance-card">
-                <div class="card-header">
-                    <div class="card-header-content">
-                        <h2 class="card-title">{{ group.name }}</h2>
-                        <p class="card-day">{{ group.day }}</p>
-                    </div>
-                </div>
-                <div class="card-body">
-                    <div class="stat">
-                        <span class="stat-label">👥 Active Borrowers</span>
-                        <span class="stat-value">{{ group.active_borrowers }}</span>
-                    </div>
-                    <div class="stat">
-                        <span class="stat-label">💰 To Collect</span>
-                        <span class="stat-value amount">₹{{ group.total_balance }}</span>
-                    </div>
-                </div>
-                <div class="card-footer">
-                    <a href="/group/{{ group.id }}/" class="btn btn-primary">Open →</a>
-                    <button class="btn btn-secondary" onclick="openEditModal({{ group.id }}, '{{ group.name }}', '{{ group.day }}')">Edit</button>
+        <div class="stats">
+            <div class="stat-card groups">
+                <div class="stat-icon-badge"><i data-lucide="network"></i></div>
+                <div class="stat-label">Total Groups</div>
+                <div class="stat-value" data-countup="{{ finance_groups|length }}">0</div>
+            </div>
+            <div class="stat-card borrowers">
+                <div class="stat-icon-badge"><i data-lucide="users"></i></div>
+                <div class="stat-label">Active Borrowers</div>
+                <div class="stat-value" id="totalBorrowers" data-countup="0">0</div>
+            </div>
+            <div class="stat-card balance">
+                <div class="stat-icon-badge"><i data-lucide="landmark"></i></div>
+                <div class="stat-label">Total Balance Outstanding</div>
+                <div class="stat-value money" id="totalBalance" data-countup="0">0</div>
+            </div>
+        </div>
+
+        <div class="groups-panel">
+            <div class="groups-head">
+                <div class="groups-head-icon"><i data-lucide="layout-grid"></i></div>
+                <div>
+                    <h2>Your Collection Groups</h2>
+                    <p>Manage borrower ledgers by group</p>
                 </div>
             </div>
-            {% endfor %}
+
+            {% if finance_groups %}
+            <div class="group-grid">
+                {% for group in finance_groups %}
+                <div class="group-card">
+                    <a href="{% url 'group_detail' group.id %}"
+                       class="group-card-link"
+                       aria-label="Open {{ group.name }} ledger"></a>
+
+                    <div class="group-accent"></div>
+
+                    <div class="group-card-inner">
+                        <div class="group-card-top">
+                            <div class="group-name-row">
+                                <div class="group-icon"><i data-lucide="folder"></i></div>
+                                <div style="min-width:0">
+                                    <div class="group-name">{{ group.name }}</div>
+                                    <div class="group-meta">{{ group.day }} · {{ group.location }}</div>
+                                    <span class="group-badge">Active</span>
+                                </div>
+                            </div>
+                            <button type="button"
+                                    class="group-edit-btn"
+                                    onclick="event.stopPropagation(); openEditModal({{ group.id }}, '{{ group.name|escapejs }}', '{{ group.day|escapejs }}')">
+                                <i data-lucide="pencil"></i>
+                            </button>
+                        </div>
+
+                        <div class="group-stats">
+                            <div class="group-stat">
+                                <div class="group-stat-label">
+                                    <i data-lucide="user-check"></i> Borrowers
+                                </div>
+                                <div class="group-stat-value">{{ group.active_borrowers }}</div>
+                            </div>
+                            <div class="group-stat">
+                                <div class="group-stat-label">
+                                    <i data-lucide="wallet"></i> Outstanding
+                                </div>
+                                <div class="group-stat-value money" data-balance="{{ group.total_balance }}">{{ group.total_balance }}</div>
+                            </div>
+                        </div>
+
+                        <a href="{% url 'group_detail' group.id %}"
+                           class="group-cta"
+                           onclick="event.stopPropagation()">
+                            View Ledger <i data-lucide="arrow-right"></i>
+                        </a>
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+            {% else %}
+            <div class="empty-state">
+                <p>No collection groups yet.</p>
+            </div>
+            {% endif %}
+        </div>
+    </main>
+
+    <div class="modal-overlay" id="editModalOverlay">
+        <div class="modal">
+            <h3>Edit Group</h3>
+            <div class="modal-error" id="modalError"></div>
+            <label for="editGroupName">Group Name</label>
+            <input type="text" id="editGroupName" placeholder="e.g. Vizag Finance">
+            <label for="editGroupDay">Collection Day / Label</label>
+            <input type="text" id="editGroupDay" placeholder="e.g. Sunday Collection - Vizag">
+            <div class="modal-actions">
+                <button type="button" class="modal-btn cancel" onclick="closeEditModal()">Cancel</button>
+                <button type="button" class="modal-btn save" onclick="saveGroupEdit()">Save Changes</button>
+            </div>
         </div>
     </div>
 
-    <!-- EDIT MODAL -->
-    <div class="modal" id="editModal">
-        <div class="modal-content">
-            <div class="modal-title">✏️ Edit Finance Group</div>
-            <div class="form-group">
-                <label>Finance Name</label>
-                <input type="text" id="editName" placeholder="e.g., Vizag Finance">
-            </div>
-            <div class="form-group">
-                <label>Collection Day</label>
-                <input type="text" id="editDay" placeholder="e.g., Sunday Collection - Vizag">
-            </div>
-            <div class="modal-footer">
-                <button class="btn btn-primary" onclick="saveEdit()">Save Changes</button>
-                <button class="btn btn-secondary" onclick="closeEditModal()">Cancel</button>
-            </div>
-        </div>
-    </div>
+    <div class="toast" id="toast"></div>
+    {% csrf_token %}
 
     <script>
-        let currentGroupId = null;
+        lucide.createIcons();
+
+        (function computeStats() {
+            const balanceEls = document.querySelectorAll('[data-balance]');
+            let totalBalance = 0;
+            balanceEls.forEach(el => totalBalance += parseFloat(el.dataset.balance || 0));
+            document.getElementById('totalBalance').dataset.countup = totalBalance;
+
+            let totalBorrowers = 0;
+            document.querySelectorAll('.group-stat-value:not(.money)').forEach(el => {
+                totalBorrowers += parseInt(el.textContent) || 0;
+            });
+            document.getElementById('totalBorrowers').dataset.countup = totalBorrowers;
+
+            balanceEls.forEach(el => {
+                el.textContent = parseFloat(el.dataset.balance).toLocaleString('en-IN');
+            });
+            runCountUps();
+        })();
+
+        function runCountUps() {
+            document.querySelectorAll('[data-countup]').forEach(el => {
+                const target = parseFloat(el.dataset.countup) || 0;
+                const duration = 900;
+                const start = performance.now();
+                function tick(now) {
+                    const progress = Math.min((now - start) / duration, 1);
+                    const eased = 1 - Math.pow(1 - progress, 3);
+                    el.textContent = Math.round(target * eased).toLocaleString('en-IN');
+                    if (progress < 1) requestAnimationFrame(tick);
+                }
+                requestAnimationFrame(tick);
+            });
+        }
+
+        function getCSRFToken() {
+            return document.querySelector('[name=csrfmiddlewaretoken]').value;
+        }
+
+        let currentEditGroupId = null;
 
         function openEditModal(groupId, name, day) {
-            currentGroupId = groupId;
-            document.getElementById('editName').value = name;
-            document.getElementById('editDay').value = day;
-            document.getElementById('editModal').classList.add('active');
+            currentEditGroupId = groupId;
+            document.getElementById('editGroupName').value = name;
+            document.getElementById('editGroupDay').value = day;
+            document.getElementById('modalError').style.display = 'none';
+            document.getElementById('editModalOverlay').classList.add('open');
         }
 
         function closeEditModal() {
-            document.getElementById('editModal').classList.remove('active');
+            document.getElementById('editModalOverlay').classList.remove('open');
+            currentEditGroupId = null;
         }
 
-        function saveEdit() {
-            const name = document.getElementById('editName').value.trim();
-            const day = document.getElementById('editDay').value.trim();
+        function showToast(message) {
+            const toast = document.getElementById('toast');
+            toast.textContent = message;
+            toast.classList.add('show');
+            setTimeout(() => toast.classList.remove('show'), 2600);
+        }
 
-            if (!name || !day) {
-                alert('Please fill all fields');
+        async function saveGroupEdit() {
+            const name = document.getElementById('editGroupName').value.trim();
+            const day = document.getElementById('editGroupDay').value.trim();
+            const errorEl = document.getElementById('modalError');
+
+            if (!name) {
+                errorEl.textContent = 'Group name is required.';
+                errorEl.style.display = 'block';
                 return;
             }
 
-            fetch(`/api/group/${currentGroupId}/edit/`, {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'X-CSRFToken': getCookie('csrftoken'),
-                },
-                body: JSON.stringify({ name, day }),
-            }).then(r => r.json()).then(d => {
-                if (d.success) {
-                    location.reload();
-                } else {
-                    alert('Error: ' + d.error);
-                }
-            });
-        }
+            try {
+                const res = await fetch(`/api/group/${currentEditGroupId}/edit/`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-CSRFToken': getCSRFToken()
+                    },
+                    body: JSON.stringify({ name: name, day: day })
+                });
+                const data = await res.json();
 
-        function getCookie(name) {
-            let cookieValue = null;
-            if (document.cookie) {
-                const cookies = document.cookie.split(';');
-                for (let cookie of cookies) {
-                    cookie = cookie.trim();
-                    if (cookie.substring(0, name.length + 1) === (name + '=')) {
-                        cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
-                        break;
+                if (data.success) {
+                    const card = document.querySelector(`[onclick*="openEditModal(${currentEditGroupId},"]`).closest('.group-card');
+                    if (card) {
+                        card.querySelector('.group-name').textContent = data.group.name;
+                        const meta = card.querySelector('.group-meta');
+                        if (meta) {
+                            meta.textContent = meta.textContent.replace(/^[^·]+/, data.group.day + ' ');
+                        }
                     }
+                    closeEditModal();
+                    showToast('Group updated successfully');
+                } else {
+                    errorEl.textContent = data.error || 'Something went wrong.';
+                    errorEl.style.display = 'block';
                 }
+            } catch (err) {
+                errorEl.textContent = 'Network error. Please try again.';
+                errorEl.style.display = 'block';
             }
-            return cookieValue;
         }
 
-        // Close modal on background click
-        document.addEventListener('click', function(e) {
-            const modal = document.getElementById('editModal');
-            if (e.target === modal) closeEditModal();
-        });
-
-        // Page Load Animation
-        window.addEventListener('load', function() {
-            setTimeout(function() {
-                document.getElementById('pageLoader').classList.add('hidden');
-            }, 600);
-        });
-
-        // Card Hover Sound Effect (Visual)
-        document.querySelectorAll('.finance-card').forEach(card => {
-            card.addEventListener('mouseenter', function() {
-                this.style.transition = 'all 0.4s cubic-bezier(0.34, 1.56, 0.64, 1)';
-            });
-            card.addEventListener('mouseleave', function() {
-                this.style.transition = 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)';
-            });
+        document.getElementById('editModalOverlay').addEventListener('click', function(e) {
+            if (e.target === this) closeEditModal();
         });
     </script>
-    </div>
 </body>
 </html>

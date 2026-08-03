@@ -43,7 +43,10 @@ class Borrower(models.Model):
     def total_paid(self):
         if self.is_empty:
             return 0
-        weekly_payments = self.weekly_payments.all()
+        weekly_payments = (
+            self.weekly_payments.filter(payment_date__gte=self.date_of_loan)
+            if self.date_of_loan else self.weekly_payments.all()
+        )
         weekly_total = sum(float(p.amount_paid) for p in weekly_payments)
         return float(self.amount_paid) + weekly_total
 
@@ -67,3 +70,22 @@ class WeeklyPayment(models.Model):
     class Meta:
         ordering = ['payment_date']
         unique_together = ('borrower', 'payment_date')
+
+class DailyExpense(models.Model):
+    finance_group = models.ForeignKey(FinanceGroup, on_delete=models.CASCADE, related_name='daily_expenses')
+    date = models.DateField()
+    category = models.CharField(max_length=20, choices=[
+        ('petrol', 'Petrol'), ('food', 'Food'), ('room_rent', 'Room Rent'),
+        ('salaries', 'Employee Salaries'), ('misc', 'Miscellaneous'),
+    ])
+    amount = models.DecimalField(max_digits=10, decimal_places=2, default=0)
+    created_at = models.DateTimeField(auto_now_add=True)
+
+
+class DailyInterest(models.Model):
+    finance_group = models.ForeignKey(FinanceGroup, on_delete=models.CASCADE, related_name='daily_interests')
+    date = models.DateField()
+    amount = models.DecimalField(max_digits=10, decimal_places=2, default=0)
+
+    class Meta:
+        unique_together = ('finance_group', 'date')

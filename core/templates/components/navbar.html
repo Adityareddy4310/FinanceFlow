@@ -1,0 +1,116 @@
+<nav class="navbar">
+    <div class="navbar-container">
+        <div class="navbar-brand">
+            <a href="{% url 'dashboard' %}" class="brand-logo">
+                💰 FinanceFlow
+            </a>
+        </div>
+        
+        <ul class="navbar-menu">
+            <li><a href="{% url 'dashboard' %}">Dashboard</a></li>
+            {% if user.is_authenticated %}
+                <li class="dropdown">
+                    <button class="dropdown-toggle">{{ user.username }}</button>
+                    <ul class="dropdown-menu">
+                        <li><a href="#">Profile</a></li>
+                        <li><a href="#">Settings</a></li>
+                        <li><hr></li>
+                        <li><a href="{% url 'logout' %}">Logout</a></li>
+                    </ul>
+                </li>
+            {% else %}
+                <li><a href="{% url 'login' %}">Login</a></li>
+                <li><a href="{% url 'signup' %}">Sign Up</a></li>
+            {% endif %}
+        </ul>
+    </div>
+</nav>
+
+<style>
+.navbar {
+    background: var(--color-white);
+    box-shadow: var(--shadow-md);
+    position: sticky;
+    top: 0;
+    z-index: 100;
+}
+
+.navbar-container {
+    max-width: 1400px;
+    margin: 0 auto;
+    padding: var(--spacing-4) var(--spacing-6);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.brand-logo {
+    font-size: var(--font-size-xl);
+    font-weight: var(--font-weight-bold);
+    color: var(--color-primary);
+}
+
+.navbar-menu {
+    list-style: none;
+    display: flex;
+    gap: var(--spacing-6);
+    align-items: center;
+}
+
+.navbar-menu a {
+    color: var(--color-text);
+    transition: var(--transition-fast);
+}
+
+.navbar-menu a:hover {
+    color: var(--color-primary);
+}
+
+.dropdown {
+    position: relative;
+}
+
+.dropdown-toggle {
+    background: none;
+    border: none;
+    color: var(--color-text);
+    cursor: pointer;
+    font-size: var(--font-size-base);
+}
+
+.dropdown-menu {
+    display: none;
+    position: absolute;
+    top: 100%;
+    right: 0;
+    background: var(--color-white);
+    list-style: none;
+    border-radius: var(--radius-md);
+    box-shadow: var(--shadow-lg);
+    min-width: 200px;
+    z-index: 1000;
+}
+
+.dropdown:hover .dropdown-menu {
+    display: block;
+}
+
+.dropdown-menu li {
+    padding: var(--spacing-3) var(--spacing-4);
+}
+
+.dropdown-menu a {
+    display: block;
+}
+
+@media (max-width: 768px) {
+    .navbar-menu {
+        gap: var(--spacing-4);
+        font-size: var(--font-size-sm);
+    }
+    
+    .brand-logo {
+        font-size: var(--font-size-base);
+    }
+}
+</style>

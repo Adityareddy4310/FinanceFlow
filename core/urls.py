@@ -27,4 +27,17 @@ urlpatterns = [
     path('api/borrower/<int:borrower_id>/update-payment/', views.update_payment, name='update_payment'),
     path('api/borrower/<int:borrower_id>/update-amount-paid/', views.update_amount_paid, name='update_amount_paid'),
     path('api/borrower/<int:borrower_id>/update/', views.update_borrower, name='update_borrower'),
+
+
+    path('api/group/<int:group_id>/import-excel/preview/', views.import_borrowers_preview, name='import_borrowers_preview'),
+    path('api/group/<int:group_id>/import-excel/confirm/', views.import_borrowers_confirm, name='import_borrowers_confirm'),
+    path('api/group/<int:group_id>/export-excel/', views.export_borrowers_excel, name='export_borrowers_excel'),
+    path('api/group/<int:group_id>/cash-flow/', views.cash_flow_data, name='cash_flow_data'),
+    path('api/borrower/<int:borrower_id>/give-new-loan/', views.give_new_loan, name='give_new_loan'),
+    path('api/group/<int:group_id>/cash-flow/', views.cash_flow_summary, name='cash_flow_summary'),
+    path('api/group/<int:group_id>/cash-flow-extras/', views.cash_flow_extras, name='cash_flow_extras'),
+    path('api/group/<int:group_id>/add-expense/', views.add_expense, name='add_expense'),
+    path('api/expense/<int:expense_id>/delete/', views.delete_expense, name='delete_expense'),
+    path('api/group/<int:group_id>/update-interest/', views.update_interest, name='update_interest'),
+    path('contact/', views.contact, name='contact'),
 ]

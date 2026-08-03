@@ -1,8 +1,0 @@
-{
-  "build": {
-    "builder": "heroku.buildpacks"
-  },
-  "deploy": {
-    "startCommand": "python manage.py migrate && gunicorn financeapp.wsgi"
-  }
-}

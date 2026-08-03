@@ -3,797 +3,658 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>{{ group.name }} - Finance Manager</title>
+    <title>{{ group.name }} · Finance Ledger</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Space+Grotesk:wght@500;600;700&display=swap" rel="stylesheet">
+    <script src="https://unpkg.com/lucide@latest"></script>
     <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
-
-        body {
-            font-family: -apple-system, BlinkMacSystemFont, 'Inter', 'Segoe UI', 'Roboto', sans-serif;
-            background: #0a0a0f;
-            min-height: 100vh;
-            color: #333;
-            position: relative;
-            overflow-x: hidden;
-        }
-
-        /* FINANCE GROUP WORKSPACE BACKGROUND */
-        .workspace-background {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            z-index: 0;
-            overflow: hidden;
-        }
-
-        /* Animated Data Pattern Background */
-        .data-pattern-layer {
-            position: absolute;
-            width: 100%;
-            height: 100%;
-            background: linear-gradient(135deg, #0f172a 0%, #1e1b4b 30%, #0a0a0f 60%, #1a1f3a 100%);
-            animation: dataShift 20s ease infinite;
-        }
-
-        @keyframes dataShift {
-            0%, 100% { opacity: 1; }
-            50% { opacity: 0.85; }
-        }
-
-        /* Financial Chart Pattern */
-        .chart-pattern {
-            position: absolute;
-            width: 100%;
-            height: 100%;
-            background-image:
-                repeating-linear-gradient(0deg, rgba(102, 126, 234, 0.03) 0px, transparent 1px, transparent 40px),
-                repeating-linear-gradient(90deg, rgba(102, 126, 234, 0.03) 0px, transparent 1px, transparent 40px);
-            opacity: 0.6;
-            animation: chartMove 40s linear infinite;
-        }
-
-        @keyframes chartMove {
-            0% { transform: translate(0, 0); }
-            100% { transform: translate(40px, 40px); }
-        }
-
-        /* Glowing Elements */
-        .glow-element {
-            position: absolute;
-            border-radius: 50%;
-            filter: blur(100px);
-            opacity: 0.1;
-            animation: glowPulse 15s ease-in-out infinite;
-        }
-
-        .glow-1 {
-            width: 500px;
-            height: 500px;
-            background: radial-gradient(circle, rgba(102, 126, 234, 0.6), transparent);
-            top: -10%;
-            left: 20%;
-            animation-delay: 0s;
-        }
-
-        .glow-2 {
-            width: 400px;
-            height: 400px;
-            background: radial-gradient(circle, rgba(168, 85, 247, 0.4), transparent);
-            bottom: -10%;
-            right: 15%;
-            animation-delay: 7.5s;
-        }
-
-        @keyframes glowPulse {
-            0%, 100% { transform: translate(0, 0) scale(1); opacity: 0.1; }
-            50% { transform: translate(30px, -30px) scale(1.2); opacity: 0.15; }
-        }
-
-        /* Depth Layer */
-        .workspace-depth {
-            position: absolute;
-            width: 100%;
-            height: 100%;
-            background: radial-gradient(ellipse at center top, transparent 0%, rgba(10, 10, 15, 0.6) 100%);
-        }
-
-        /* SMOOTH TRANSITIONS */
-        * {
-            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-        }
-
-        /* MAIN WORKSPACE WRAPPER */
-        .workspace-wrapper {
-            position: relative;
-            z-index: 1;
-        }
-
-        /* TOP NAV - GLASS STYLE */
-        .navbar {
-            background: rgba(15, 23, 42, 0.7);
-            backdrop-filter: blur(20px);
-            -webkit-backdrop-filter: blur(20px);
-            padding: 16px 40px;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            box-shadow: 0 4px 30px rgba(0, 0, 0, 0.3);
-            border-bottom: 1px solid rgba(102, 126, 234, 0.2);
-            position: sticky;
-            top: 0;
-            z-index: 100;
-        }
-
-        .navbar-left {
-            display: flex;
-            align-items: center;
-            gap: 16px;
-        }
-
-        .back-btn {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            border: none;
-            color: white;
-            padding: 10px 14px;
-            border-radius: 8px;
-            cursor: pointer;
-            font-size: 18px;
-            transition: all 0.3s;
-            box-shadow: 0 4px 12px rgba(102, 126, 234, 0.3);
-        }
-
-        .back-btn:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 8px 20px rgba(102, 126, 234, 0.4);
-        }
-
-        .nav-title {
-            color: rgba(255, 255, 255, 0.95);
-        }
-
-        .nav-title h1 {
-            font-size: 22px;
-            font-weight: 700;
-            margin-bottom: 4px;
-            background: linear-gradient(135deg, #ffffff 0%, #a78bfa 100%);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-            background-clip: text;
-        }
-
-        .nav-title p {
-            font-size: 13px;
-            color: rgba(255, 255, 255, 0.6);
-        }
-
-        .logout-btn {
-            background: linear-gradient(135deg, #ff6b6b 0%, #ee5a6f 100%);
-            color: white;
-            border: none;
-            padding: 10px 20px;
-            border-radius: 8px;
-            cursor: pointer;
-            font-weight: 600;
-            font-size: 13px;
-            box-shadow: 0 4px 12px rgba(255, 107, 107, 0.3);
-            transition: all 0.3s;
-        }
-
-        .logout-btn:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 8px 20px rgba(255, 107, 107, 0.4);
-        }
-
-        /* MAIN CONTENT */
-        .main {
-            padding: 40px;
-            max-width: 1400px;
-            margin: 0 auto;
-        }
-
-        .info-box {
-            background: rgba(255, 193, 7, 0.08);
-            border: 1px solid rgba(255, 193, 7, 0.2);
-            backdrop-filter: blur(10px);
-            -webkit-backdrop-filter: blur(10px);
-            padding: 14px 16px;
-            border-radius: 12px;
-            color: #fbbf24;
-            font-size: 13px;
-            margin-bottom: 24px;
-            border-left: 3px solid #fbbf24;
-            animation: slideInDown 0.5s ease-out;
-        }
-
-        @keyframes slideInDown {
-            from {
-                opacity: 0;
-                transform: translateY(-20px);
-            }
-            to {
-                opacity: 1;
-                transform: translateY(0);
-            }
-        }
-
-        /* TOTAL INFO CARD */
-        .total-info {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            color: white;
-            padding: 32px;
-            border-radius: 16px;
-            margin-bottom: 32px;
-            box-shadow: 0 10px 40px rgba(102, 126, 234, 0.2);
-            animation: fadeInUp 0.6s ease-out;
-        }
-
-        @keyframes fadeInUp {
-            from {
-                opacity: 0;
-                transform: translateY(30px);
-            }
-            to {
-                opacity: 1;
-                transform: translateY(0);
-            }
-        }
-
-        .total-info-value {
-            font-size: 40px;
-            font-weight: 700;
-            letter-spacing: -1px;
-        }
-
-        .total-info-label {
-            font-size: 14px;
-            opacity: 0.9;
-            margin-top: 8px;
-        }
-
-        /* SECTION HEADER WITH SEARCH */
-        .section-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 24px;
-            animation: fadeInUp 0.6s ease-out 0.1s both;
-        }
-
-        .section-title {
-            font-size: 20px;
-            font-weight: 700;
-            color: white;
-        }
-
-        .search-box {
-            width: 300px;
-            padding: 12px 16px;
-            border: 1px solid rgba(102, 126, 234, 0.2);
-            border-radius: 12px;
-            background: rgba(255, 255, 255, 0.05);
-            backdrop-filter: blur(10px);
-            color: rgba(255, 255, 255, 0.95);
-            font-size: 14px;
-            transition: all 0.3s;
-            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
-        }
-
-        .search-box::placeholder {
-            color: rgba(255, 255, 255, 0.5);
-        }
-
-        .search-box:focus {
-            outline: none;
-            background: rgba(255, 255, 255, 0.08);
-            border-color: rgba(102, 126, 234, 0.5);
-            box-shadow: 0 8px 25px rgba(102, 126, 234, 0.3);
-        }
-
-        /* TABLE WRAPPER - PREMIUM GLASS */
-        .spreadsheet-wrapper {
-            background: rgba(255, 255, 255, 0.03);
-            backdrop-filter: blur(20px);
-            -webkit-backdrop-filter: blur(20px);
-            border-radius: 20px;
-            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.3);
-            overflow: hidden;
-            margin-bottom: 32px;
-            animation: fadeInUp 0.6s ease-out 0.2s both;
-            border: 1px solid rgba(102, 126, 234, 0.15);
-        }
-
-        .spreadsheet {
-            overflow-x: auto;
-            max-height: 600px;
-            overflow-y: auto;
-        }
-
-        table {
-            width: 100%;
-            border-collapse: collapse;
-            font-size: 12px;
-        }
-
-        th {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            color: white;
-            padding: 14px 8px;
-            text-align: center;
-            font-weight: 600;
-            white-space: nowrap;
-            position: sticky;
-            top: 0;
-            z-index: 10;
-            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-        }
-
-        th.sticky-left {
-            position: sticky;
-            left: 0;
-            z-index: 11;
-        }
-
-        td {
-            padding: 10px 6px;
-            border-bottom: 1px solid rgba(102, 126, 234, 0.08);
-            background: rgba(255, 255, 255, 0.02);
-            color: rgba(255, 255, 255, 0.9);
-        }
-
-        td.sticky-col {
-            position: sticky;
-            left: 0;
-            background: rgba(15, 23, 42, 0.8);
-            backdrop-filter: blur(10px);
-            font-weight: 500;
-            z-index: 5;
-            color: rgba(255, 255, 255, 0.95);
-        }
-
-        tr.data-row:hover {
-            background: rgba(102, 126, 234, 0.08);
-        }
-
-        tr.total-row {
-            background: rgba(102, 126, 234, 0.15);
-            font-weight: 700;
-            color: rgba(255, 255, 255, 0.95);
-            border-top: 2px solid rgba(102, 126, 234, 0.4);
-        }
-
-        .editable {
-            cursor: pointer;
-            position: relative;
-        }
-
-        .editable:hover {
-            background: rgba(102, 126, 234, 0.15);
-        }
-
-        .editable input {
-            width: 100%;
-            padding: 4px;
-            border: 2px solid #667eea;
-            text-align: center;
-            font-weight: 600;
-            font-size: 11px;
-            border-radius: 4px;
-            background: rgba(15, 23, 42, 0.9);
-            color: rgba(255, 255, 255, 0.95);
-        }
-
-        .payment-cell {
-            text-align: center;
-            cursor: pointer;
-            background: rgba(102, 126, 234, 0.05);
-        }
-
-        .payment-cell:hover {
-            background: rgba(102, 126, 234, 0.2);
-        }
-
-        .btn-delete {
-            background: linear-gradient(135deg, #ff6b6b 0%, #ee5a6f 100%);
-            color: white;
-            border: none;
-            padding: 6px 10px;
-            border-radius: 6px;
-            cursor: pointer;
-            font-size: 11px;
-            font-weight: 600;
-            transition: all 0.3s;
-            box-shadow: 0 2px 8px rgba(255, 107, 107, 0.2);
-        }
-
-        .btn-delete:hover {
-            transform: translateY(-1px);
-            box-shadow: 0 4px 12px rgba(255, 107, 107, 0.3);
-        }
-
-        /* ADD BORROWER SECTION - GLASS STYLE */
-        .add-section {
-            background: rgba(255, 255, 255, 0.03);
-            backdrop-filter: blur(20px);
-            -webkit-backdrop-filter: blur(20px);
-            border-radius: 20px;
-            padding: 32px;
-            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.3);
-            border-top: 3px solid #70ad47;
-            animation: fadeInUp 0.6s ease-out 0.3s both;
-            border: 1px solid rgba(112, 173, 71, 0.2);
-        }
-
-        .add-title {
-            font-size: 18px;
-            font-weight: 700;
-            color: rgba(255, 255, 255, 0.95);
-            margin-bottom: 20px;
-        }
-
-        .add-form {
-            display: grid;
-            grid-template-columns: 80px 130px 110px 110px 1fr auto;
-            gap: 14px;
-            align-items: center;
-        }
-
-        .add-form label {
-            display: block;
-            font-size: 11px;
-            font-weight: 600;
-            color: rgba(255, 255, 255, 0.8);
-            margin-bottom: 5px;
-            text-transform: uppercase;
-            letter-spacing: 0.5px;
-        }
-
-        .add-form input {
-            padding: 11px;
-            border: 1px solid rgba(102, 126, 234, 0.2);
-            border-radius: 8px;
-            font-size: 13px;
-            transition: all 0.3s;
-            background: rgba(255, 255, 255, 0.05);
-            color: rgba(255, 255, 255, 0.95);
-        }
-
-        .add-form input::placeholder {
-            color: rgba(255, 255, 255, 0.4);
-        }
-
-        .add-form input:focus {
-            outline: none;
-            border-color: rgba(102, 126, 234, 0.6);
-            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
-            background: rgba(255, 255, 255, 0.08);
-        }
-
-        .btn-add {
-            background: linear-gradient(135deg, #70ad47 0%, #5a9236 100%);
-            color: white;
-            border: none;
-            padding: 11px 24px;
-            border-radius: 8px;
-            cursor: pointer;
-            font-weight: 600;
-            font-size: 13px;
-            transition: all 0.3s;
-            box-shadow: 0 4px 12px rgba(112, 173, 71, 0.3);
-        }
-
-        .btn-add:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 8px 20px rgba(112, 173, 71, 0.4);
-        }
-
-        .no-data {
-            text-align: center;
-            padding: 50px;
-            color: rgba(255, 255, 255, 0.5);
-        }
-
-        /* PAGE LOADER */
-        .page-loader {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: #0a0a0f;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            z-index: 9999;
-            opacity: 1;
-            transition: opacity 0.5s ease-out;
-        }
-
-        .page-loader.hidden {
-            opacity: 0;
-            pointer-events: none;
-        }
-
-        .loader-content {
-            text-align: center;
-        }
-
-        .loader-spinner {
-            width: 60px;
-            height: 60px;
-            margin: 0 auto 20px;
-            border: 3px solid rgba(102, 126, 234, 0.2);
-            border-top-color: #667eea;
-            border-radius: 50%;
-            animation: spin 1s linear infinite;
-        }
-
-        @keyframes spin {
-            to { transform: rotate(360deg); }
-        }
-
-        .loader-text {
-            color: rgba(255, 255, 255, 0.7);
-            font-size: 14px;
-            font-weight: 500;
-        }
-
-        /* BUTTON LOADING STATE */
-        .btn-add.loading,
-        .btn-delete.loading {
-            position: relative;
-            color: transparent;
-            pointer-events: none;
-        }
-
-        .btn-add.loading::after,
-        .btn-delete.loading::after {
-            content: '';
-            position: absolute;
-            width: 16px;
-            height: 16px;
-            top: 50%;
-            left: 50%;
-            margin-left: -8px;
-            margin-top: -8px;
-            border: 2px solid rgba(255, 255, 255, 0.3);
-            border-top-color: white;
-            border-radius: 50%;
-            animation: spin 0.8s linear infinite;
-        }
-
-        @media (max-width: 1024px) {
-            .search-box {
-                width: 100%;
-                margin-top: 12px;
-            }
-
-            .section-header {
-                flex-direction: column;
-                align-items: flex-start;
-                gap: 12px;
-            }
-
-            .add-form {
-                grid-template-columns: repeat(auto-fit, minmax(100px, 1fr));
-            }
-        }
-
-        @media (max-width: 768px) {
-            .navbar {
-                padding: 12px 20px;
-            }
-
-            .main {
-                padding: 20px;
-            }
-
-            .add-form {
-                grid-template-columns: 1fr;
-            }
+        :root {
+            --bg: #15130F;
+            --box: #FAF3E7;
+            --box-alt: #F1E8D8;
+            --accent: #B8863B;
+            --accent-hover: #8C6529;
+            --glow: #D9A857;
+            --text-on-dark: #EDE6D8;
+            --text-on-light: #241F1B;
+            --muted-dark: #9C9187;
+            --muted-light: #6B6156;
+            --forest: #2F5233;
+            --rust: #A63D40;
+            --line: #E4D7BC;
+            --indigo-1: #4F46E5; --indigo-2: #A855F7;
+            --emerald-1: #059669; --emerald-2: #22D3EE;
+            --gold-1: #B8863B; --plum-2: #7C3AED;
+        }
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: 'Inter', system-ui, sans-serif; background: var(--bg); color: var(--text-on-dark); min-height: 100vh; position: relative; overflow-x: hidden; }
+
+        .bg-layer { position: fixed; inset: 0; z-index: 0; pointer-events: none; overflow: hidden; }
+        .bg-dots { position: absolute; inset: 0; background-image: radial-gradient(rgba(237,230,216,0.05) 1px, transparent 1px); background-size: 26px 26px; }
+        .bg-blob { position: absolute; border-radius: 50%; filter: blur(90px); opacity: 0.3; animation: drift 24s ease-in-out infinite; }
+        .bg-blob.b1 { width: 480px; height: 480px; background: radial-gradient(circle, var(--gold-1), transparent); top: -10%; left: -8%; }
+        .bg-blob.b2 { width: 420px; height: 420px; background: radial-gradient(circle, var(--forest), transparent); bottom: -12%; right: -6%; animation-delay: 6s; }
+        .bg-blob.b3 { width: 340px; height: 340px; background: radial-gradient(circle, var(--indigo-1), transparent); top: 40%; right: 20%; opacity: 0.14; animation-delay: 12s; }
+        @keyframes drift { 0%,100% { transform: translate(0,0) scale(1); } 50% { transform: translate(30px,-30px) scale(1.08); } }
+
+        .nav { display: flex; align-items: center; justify-content: space-between; padding: 16px 48px; border-bottom: 1px solid rgba(237,230,216,0.08); position: sticky; top: 0; z-index: 50; background: rgba(21,19,15,0.72); backdrop-filter: blur(16px); -webkit-backdrop-filter: blur(16px); }
+        .nav-left { display: flex; align-items: center; gap: 14px; }
+        .back-btn { width: 38px; height: 38px; border-radius: 10px; background: rgba(237,230,216,0.06); border: 1px solid rgba(237,230,216,0.12); color: var(--text-on-dark); display: flex; align-items: center; justify-content: center; cursor: pointer; transition: all 0.2s ease; }
+        .back-btn:hover { background: rgba(237,230,216,0.12); border-color: var(--accent); }
+        .back-btn i { width: 17px; height: 17px; }
+        .breadcrumb { font-size: 0.82rem; color: var(--muted-dark); display: flex; align-items: center; gap: 6px; }
+        .breadcrumb span:last-child { color: var(--text-on-dark); font-weight: 500; }
+        .breadcrumb i { width: 13px; height: 13px; }
+        .logout-btn { color: var(--muted-dark); text-decoration: none; font-size: 0.85rem; padding: 8px 16px; border: 1px solid rgba(237,230,216,0.15); border-radius: 9px; transition: all 0.2s ease; }
+        .logout-btn:hover { border-color: var(--rust); color: #E88A8D; }
+
+        .main { position: relative; z-index: 1; padding: 40px 48px; max-width: 1400px; margin: 0 auto; }
+
+        .workspace-header { display: flex; align-items: flex-start; justify-content: space-between; gap: 20px; margin-bottom: 32px; flex-wrap: wrap; }
+        .header-left { display: flex; align-items: flex-start; gap: 16px; }
+        .header-icon { width: 52px; height: 52px; border-radius: 14px; background: linear-gradient(135deg, var(--gold-1), var(--glow)); display: flex; align-items: center; justify-content: center; flex-shrink: 0; box-shadow: 0 8px 22px rgba(184,134,59,0.3); }
+        .header-icon i { width: 24px; height: 24px; color: #15130F; }
+        .header-title { font-family: 'Space Grotesk', sans-serif; font-size: 1.8rem; font-weight: 600; letter-spacing: -0.015em; margin-bottom: 8px; }
+        .header-meta { display: flex; align-items: center; gap: 18px; flex-wrap: wrap; }
+        .header-meta-item { display: flex; align-items: center; gap: 6px; font-size: 0.85rem; color: var(--muted-dark); }
+        .header-meta-item i { width: 14px; height: 14px; }
+        .header-right-group { display: flex; align-items: center; gap: 12px; flex-wrap: wrap; }
+        .month-pill { display: flex; align-items: center; gap: 8px; background: rgba(217,168,87,0.1); border: 1px solid rgba(217,168,87,0.25); color: var(--glow); padding: 10px 18px; border-radius: 12px; font-size: 0.85rem; font-weight: 600; }
+        .month-pill i { width: 15px; height: 15px; }
+        .btn-cashflow { display: flex; align-items: center; gap: 8px; padding: 10px 18px; border-radius: 12px; background: linear-gradient(135deg, var(--indigo-1), var(--indigo-2)); color: #fff; border: none; cursor: pointer; font-size: 0.85rem; font-weight: 600; box-shadow: 0 6px 18px rgba(79,70,229,0.3); transition: all 0.25s ease; }
+        .btn-cashflow i { width: 15px; height: 15px; }
+        .btn-cashflow:hover { transform: translateY(-2px); box-shadow: 0 10px 26px rgba(79,70,229,0.4); }
+
+        .info-box { display: flex; align-items: center; gap: 10px; background: rgba(217,168,87,0.09); border: 1px solid rgba(217,168,87,0.22); padding: 13px 16px; border-radius: 12px; color: var(--glow); font-size: 0.85rem; margin-bottom: 28px; }
+        .info-box i { width: 17px; height: 17px; flex-shrink: 0; }
+
+        .stats { display: grid; grid-template-columns: repeat(4, 1fr); gap: 20px; margin-bottom: 40px; }
+        .stat-card { position: relative; border-radius: 20px; padding: 24px; overflow: hidden; isolation: isolate; border: 1px solid rgba(255,255,255,0.08); backdrop-filter: blur(4px); transition: transform 0.35s cubic-bezier(0.22,1,0.36,1), box-shadow 0.35s ease; }
+        .stat-card::before { content: ''; position: absolute; inset: 0; z-index: -2; opacity: 0.9; }
+        .stat-card::after { content: ''; position: absolute; width: 160px; height: 160px; border-radius: 50%; filter: blur(46px); top: -36px; right: -36px; z-index: -1; opacity: 0.55; animation: pulseGlow 4s ease-in-out infinite; }
+        @keyframes pulseGlow { 0%,100% { opacity: 0.4; } 50% { opacity: 0.7; } }
+        .stat-card:hover { transform: translateY(-5px) rotate(-0.3deg); }
+
+        .stat-card.borrowers { background: linear-gradient(155deg, #211B45, #2E1F52 60%, #1A1533); }
+        .stat-card.borrowers::before { background: linear-gradient(155deg, var(--indigo-1), var(--indigo-2)); mix-blend-mode: overlay; opacity: 0.35; }
+        .stat-card.borrowers::after { background: var(--indigo-2); }
+        .stat-card.borrowers:hover { box-shadow: 0 22px 55px -15px rgba(79,70,229,0.45); }
+
+        .stat-card.loaned { background: linear-gradient(155deg, #063B33, #0A4D3E 60%, #062A26); }
+        .stat-card.loaned::before { background: linear-gradient(155deg, var(--emerald-1), var(--emerald-2)); mix-blend-mode: overlay; opacity: 0.35; }
+        .stat-card.loaned::after { background: var(--emerald-2); }
+        .stat-card.loaned:hover { box-shadow: 0 22px 55px -15px rgba(5,150,105,0.45); }
+
+        .stat-card.collected { background: linear-gradient(155deg, #3A2A12, #4A3512 65%, #241D10); }
+        .stat-card.collected::before { background: linear-gradient(155deg, var(--gold-1), var(--glow)); mix-blend-mode: overlay; opacity: 0.4; }
+        .stat-card.collected::after { background: var(--glow); }
+        .stat-card.collected:hover { box-shadow: 0 22px 55px -15px rgba(184,134,59,0.4); }
+
+        .stat-card.outstanding { background: linear-gradient(155deg, #3A1230, #4A2A4E 65%, #241530); }
+        .stat-card.outstanding::before { background: linear-gradient(155deg, var(--rust), var(--plum-2)); mix-blend-mode: overlay; opacity: 0.4; }
+        .stat-card.outstanding::after { background: var(--plum-2); }
+        .stat-card.outstanding:hover { box-shadow: 0 22px 55px -15px rgba(124,58,237,0.4); }
+
+        .stat-icon-badge { width: 44px; height: 44px; border-radius: 12px; display: flex; align-items: center; justify-content: center; background: rgba(255,255,255,0.12); backdrop-filter: blur(6px); margin-bottom: 18px; transition: transform 0.3s ease; }
+        .stat-card:hover .stat-icon-badge { transform: scale(1.08) rotate(-4deg); }
+        .stat-icon-badge i { width: 20px; height: 20px; color: #fff; }
+        .stat-label { font-size: 0.76rem; text-transform: uppercase; letter-spacing: 0.08em; color: rgba(255,255,255,0.65); margin-bottom: 8px; font-weight: 500; }
+        .stat-value { font-family: 'Space Grotesk', sans-serif; font-size: 1.9rem; font-weight: 700; color: #fff; text-shadow: 0 0 22px rgba(255,255,255,0.15); font-variant-numeric: tabular-nums; }
+        .stat-value.money::before { content: '₹'; font-size: 1.15rem; margin-right: 2px; opacity: 0.75; }
+
+        .section-header { display: flex; align-items: center; justify-content: space-between; gap: 16px; margin-bottom: 18px; flex-wrap: wrap; }
+        .section-title-row { display: flex; align-items: center; gap: 10px; }
+        .section-title-icon { width: 34px; height: 34px; border-radius: 10px; background: linear-gradient(135deg, var(--gold-1), var(--glow)); display: flex; align-items: center; justify-content: center; }
+        .section-title-icon i { width: 17px; height: 17px; color: #15130F; }
+        .section-title { font-family: 'Space Grotesk', sans-serif; font-size: 1.2rem; font-weight: 600; }
+
+        .search-wrap { position: relative; width: 300px; }
+        .search-wrap i,
+        .search-wrap svg { position: absolute; left: 14px; top: 50%; transform: translateY(-50%); width: 16px; height: 16px; color: var(--muted-dark); pointer-events: none; }
+        .search-box { width: 100%; padding: 10px 14px 10px 40px; border: 1.5px solid rgba(237,230,216,0.15); border-radius: 10px; background: rgba(237,230,216,0.04); color: var(--text-on-dark); font-size: 0.85rem; font-family: inherit; }
+        .search-box::placeholder { color: var(--muted-dark); }
+        .search-box:focus { outline: none; border-color: var(--accent); background: rgba(237,230,216,0.07); box-shadow: 0 0 0 3px rgba(184,134,59,0.15); }
+
+        .excel-toolbar { display: flex; gap: 12px; margin-bottom: 22px; flex-wrap: wrap; }
+        .btn-toolbar { display: inline-flex; align-items: center; gap: 8px; padding: 11px 18px; border-radius: 11px; font-size: 0.85rem; font-weight: 600; cursor: pointer; border: 1px solid transparent; text-decoration: none; transition: all 0.25s ease; min-height: 42px; }
+        .btn-toolbar i { width: 15px; height: 15px; }
+        .btn-toolbar.import { background: linear-gradient(135deg, var(--indigo-1), var(--indigo-2)); color: white; box-shadow: 0 6px 18px rgba(79,70,229,0.3); }
+        .btn-toolbar.import:hover { transform: translateY(-2px); box-shadow: 0 10px 26px rgba(79,70,229,0.4); }
+        .btn-toolbar.import.loading { color: transparent; pointer-events: none; position: relative; }
+        .btn-toolbar.import.loading::after { content:''; position:absolute; width:16px; height:16px; top:50%; left:50%; margin:-8px 0 0 -8px; border:2px solid rgba(255,255,255,0.3); border-top-color:#fff; border-radius:50%; animation: spin 0.8s linear infinite; }
+        .btn-toolbar.export { background: linear-gradient(135deg, var(--emerald-1), var(--emerald-2)); color: white; box-shadow: 0 6px 18px rgba(5,150,105,0.3); }
+        .btn-toolbar.export:hover { transform: translateY(-2px); box-shadow: 0 10px 26px rgba(5,150,105,0.4); }
+        @keyframes spin { to { transform: rotate(360deg); } }
+
+        .table-panel { background: var(--box); border: 1px solid rgba(36,31,27,0.08); border-radius: 22px; overflow: hidden; box-shadow: 0 20px 50px -15px rgba(0,0,0,0.4); margin-bottom: 32px; }
+        .spreadsheet { overflow-x: auto; max-height: 600px; overflow-y: auto; }
+        .spreadsheet::-webkit-scrollbar { height: 9px; width: 9px; }
+        .spreadsheet::-webkit-scrollbar-track { background: transparent; }
+        .spreadsheet::-webkit-scrollbar-thumb { background: rgba(36,31,27,0.16); border-radius: 8px; }
+        .spreadsheet::-webkit-scrollbar-thumb:hover { background: rgba(36,31,27,0.3); }
+
+        table { width: 100%; border-collapse: collapse; font-size: 0.8rem; }
+        th { background: var(--text-on-light); color: var(--box); padding: 14px 10px; text-align: center; font-weight: 600; white-space: nowrap; position: sticky; top: 0; z-index: 10; font-size: 0.71rem; text-transform: uppercase; letter-spacing: 0.04em; }
+        th.align-right { text-align: right; }
+        th.sticky-left { position: sticky; left: 0; z-index: 11; }
+        td { padding: 12px 10px; border-bottom: 1px solid rgba(36,31,27,0.06); color: var(--text-on-light); font-variant-numeric: tabular-nums; }
+        tr.data-row:nth-child(even) td { background: rgba(36,31,27,0.02); }
+        td.sticky-col { position: sticky; left: 0; background: var(--box-alt); font-weight: 500; z-index: 5; }
+        tr.data-row:nth-child(even) td.sticky-col { background: #ECE1CB; }
+        tr.data-row:hover td { background: rgba(184,134,59,0.08); }
+        tr.data-row:hover td.sticky-col { background: rgba(184,134,59,0.14); }
+        tr.total-row td { background: var(--text-on-light); color: var(--box); font-weight: 700; border-top: 2px solid var(--accent); }
+
+        /* Paid row — distinct softer styling, placed after base rules so it wins by source order */
+        tr.data-row.row-paid td { background: rgba(47,82,51,0.07); }
+        tr.data-row.row-paid td.sticky-col { background: rgba(47,82,51,0.12); }
+        tr.data-row.row-paid:hover td { background: rgba(47,82,51,0.14) !important; }
+        tr.data-row.row-paid:hover td.sticky-col { background: rgba(47,82,51,0.2) !important; }
+
+        .badge { display: inline-flex; align-items: center; gap: 4px; font-size: 0.65rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.04em; padding: 4px 10px; border-radius: 20px; }
+        .badge.active { background: rgba(184,134,59,0.14); color: var(--accent-hover); }
+        .badge.paid { background: rgba(47,82,51,0.16); color: var(--forest); }
+        .badge::before { content: ''; width: 5px; height: 5px; border-radius: 50%; background: currentColor; }
+
+        .editable { cursor: pointer; position: relative; }
+        .editable:hover { background: rgba(184,134,59,0.16) !important; }
+        .edit-affordance { position: absolute; top: 6px; right: 6px; width: 12px; height: 12px; opacity: 0; color: var(--accent-hover); transition: opacity 0.2s ease; pointer-events: none; }
+        .editable:hover .edit-affordance { opacity: 0.8; }
+        .editable input { width: 100%; padding: 4px; border: 2px solid var(--accent); text-align: center; font-weight: 600; font-size: 0.75rem; border-radius: 5px; background: #fff; color: var(--text-on-light); }
+
+        .payment-cell { text-align: center; cursor: pointer; transition: background 0.15s ease; }
+        .payment-cell.has-payment { background: rgba(47,82,51,0.09); color: var(--forest); font-weight: 700; }
+        .payment-cell.has-payment:hover { background: rgba(47,82,51,0.2) !important; }
+        .payment-cell.empty { color: var(--muted-light); font-weight: 400; }
+        .payment-cell.empty:hover { background: rgba(184,134,59,0.14) !important; color: var(--accent-hover); }
+
+        .icon-btn { width: 34px; height: 34px; border-radius: 9px; border: none; display: flex; align-items: center; justify-content: center; cursor: pointer; transition: all 0.2s ease; }
+        .icon-btn i { width: 15px; height: 15px; }
+        .icon-btn.menu-trigger { background: rgba(36,31,27,0.06); color: var(--muted-light); }
+        .icon-btn.menu-trigger:hover { background: rgba(36,31,27,0.12); color: var(--text-on-light); }
+
+        /* Action dropdown menu */
+        .action-menu-wrap { position: relative; }
+        .action-menu { position: absolute; right: 0; top: 40px; background: #fff; border: 1px solid #DED2BB; border-radius: 10px; box-shadow: 0 16px 36px rgba(0,0,0,0.18); display: none; flex-direction: column; min-width: 175px; z-index: 30; overflow: hidden; }
+        .action-menu.open { display: flex; }
+        .action-menu button { display: flex; align-items: center; gap: 9px; padding: 11px 14px; border: none; background: none; text-align: left; font-size: 0.82rem; color: var(--text-on-light); cursor: pointer; width: 100%; font-family: inherit; }
+        .action-menu button i { width: 15px; height: 15px; }
+        .action-menu button:hover { background: rgba(184,134,59,0.1); }
+        .action-menu button.danger { color: var(--rust); }
+        .action-menu button.danger:hover { background: rgba(166,61,64,0.08); }
+
+        .no-data { text-align: center; padding: 56px 20px; color: var(--muted-light); }
+        .no-data i { width: 40px; height: 40px; margin-bottom: 12px; opacity: 0.5; }
+
+        .add-section { background: var(--box); border: 1px solid rgba(36,31,27,0.08); border-radius: 22px; padding: 30px; box-shadow: 0 20px 50px -15px rgba(0,0,0,0.35); }
+        .add-title { display: flex; align-items: center; gap: 10px; font-family: 'Space Grotesk', sans-serif; font-size: 1.1rem; font-weight: 600; color: var(--text-on-light); margin-bottom: 22px; }
+        .add-title-icon { width: 32px; height: 32px; border-radius: 9px; background: linear-gradient(135deg, var(--forest), #4C7A50); display: flex; align-items: center; justify-content: center; }
+        .add-title-icon i { width: 16px; height: 16px; color: #fff; }
+        .add-form { display: grid; grid-template-columns: 90px 1fr 140px 140px auto; gap: 16px; align-items: end; }
+        .add-form-field label { display: block; font-size: 0.7rem; font-weight: 600; color: var(--muted-light); margin-bottom: 6px; text-transform: uppercase; letter-spacing: 0.05em; }
+        .add-form input, .modal-field input { width: 100%; padding: 11px 13px; border: 1.5px solid #DED2BB; border-radius: 10px; font-size: 0.85rem; background: #fff; color: var(--text-on-light); }
+        .add-form input::placeholder { color: #B3A692; }
+        .add-form input:focus, .modal-field input:focus { outline: none; border-color: var(--accent); box-shadow: 0 0 0 3px rgba(184,134,59,0.15); }
+        .btn-add { background: linear-gradient(135deg, var(--forest), #4C7A50); color: white; border: none; padding: 12px 24px; border-radius: 10px; cursor: pointer; font-weight: 600; font-size: 0.85rem; transition: all 0.25s ease; display: flex; align-items: center; gap: 8px; box-shadow: 0 6px 16px rgba(47,82,51,0.3); min-height: 44px; }
+        .btn-add i { width: 15px; height: 15px; }
+        .btn-add:hover { transform: translateY(-2px); box-shadow: 0 10px 22px rgba(47,82,51,0.4); }
+        .btn-add.loading { color: transparent; pointer-events: none; position: relative; }
+        .btn-add.loading::after { content:''; position:absolute; width:16px; height:16px; top:50%; left:50%; margin:-8px 0 0 -8px; border:2px solid rgba(255,255,255,0.3); border-top-color:#fff; border-radius:50%; animation: spin 0.8s linear infinite; }
+
+        .import-modal-overlay { position: fixed; inset: 0; background: rgba(21,19,15,0.75); backdrop-filter: blur(5px); display: none; align-items: center; justify-content: center; z-index: 500; padding: 20px; }
+        .import-modal-overlay.open { display: flex; }
+        .import-modal { background: var(--box); border-radius: 22px; padding: 32px; width: 100%; max-width: 780px; max-height: 85vh; display: flex; flex-direction: column; box-shadow: 0 40px 90px rgba(0,0,0,0.5); }
+        .import-modal h3 { font-family: 'Space Grotesk', sans-serif; font-size: 1.25rem; color: var(--text-on-light); margin-bottom: 6px; }
+        .import-modal-sub { font-size: 0.85rem; color: var(--muted-light); margin-bottom: 18px; }
+        #importSummary { font-size: 0.85rem; color: var(--text-on-light); margin-bottom: 16px; padding: 12px 14px; background: rgba(184,134,59,0.08); border-radius: 10px; border: 1px solid rgba(184,134,59,0.18); }
+        .preview-table-wrap { overflow-y: auto; max-height: 320px; border-radius: 12px; border: 1px solid rgba(36,31,27,0.1); margin-bottom: 18px; }
+        .preview-table-wrap th { position: sticky; top: 0; background: var(--text-on-light); color: var(--box); padding: 10px 8px; text-align: left; font-weight: 600; font-size: 0.72rem; }
+        .preview-table-wrap td { padding: 9px 8px; border-bottom: 1px solid rgba(36,31,27,0.06); color: var(--text-on-light); font-size: 0.8rem; }
+        .import-modal-controls { display: flex; align-items: center; gap: 14px; margin-bottom: 18px; flex-wrap: wrap; }
+        .import-modal-controls label { font-size: 0.78rem; color: var(--muted-light); font-weight: 600; }
+        #duplicateActionSelect { padding: 9px 12px; border-radius: 9px; background: #fff; border: 1.5px solid #DED2BB; color: var(--text-on-light); font-size: 0.8rem; }
+        .import-modal-actions { display: flex; justify-content: flex-end; gap: 12px; }
+        .btn-modal-cancel { background: var(--box-alt); color: var(--muted-light); border: none; padding: 11px 22px; border-radius: 10px; cursor: pointer; font-weight: 600; font-size: 0.85rem; }
+        .btn-modal-confirm { background: linear-gradient(135deg, var(--indigo-1), var(--indigo-2)); color: white; border: none; padding: 11px 22px; border-radius: 10px; cursor: pointer; font-weight: 600; font-size: 0.85rem; position: relative; }
+        .btn-modal-confirm.loading { color: transparent; pointer-events: none; }
+        .btn-modal-confirm.loading::after { content:''; position:absolute; width:16px; height:16px; top:50%; left:50%; margin:-8px 0 0 -8px; border:2px solid rgba(255,255,255,0.3); border-top-color:#fff; border-radius:50%; animation: spin 0.8s linear infinite; }
+
+        .confirm-modal-overlay { position: fixed; inset: 0; background: rgba(21,19,15,0.75); backdrop-filter: blur(5px); display: none; align-items: center; justify-content: center; z-index: 600; padding: 20px; }
+        .confirm-modal-overlay.open { display: flex; }
+        .confirm-modal { background: var(--box); border-radius: 20px; padding: 30px; width: 100%; max-width: 380px; box-shadow: 0 40px 90px rgba(0,0,0,0.5); }
+        .confirm-modal.center-text { text-align: center; }
+        .confirm-modal-icon { width: 52px; height: 52px; margin: 0 auto 16px; border-radius: 50%; background: rgba(166,61,64,0.12); display: flex; align-items: center; justify-content: center; }
+        .confirm-modal-icon.positive { background: rgba(47,82,51,0.12); }
+        .confirm-modal-icon i { width: 24px; height: 24px; color: var(--rust); }
+        .confirm-modal-icon.positive i { color: var(--forest); }
+        .confirm-modal h3 { font-family: 'Space Grotesk', sans-serif; font-size: 1.1rem; color: var(--text-on-light); margin-bottom: 8px; text-align: center; }
+        .confirm-modal p { font-size: 0.85rem; color: var(--muted-light); margin-bottom: 22px; line-height: 1.5; text-align: center; }
+        .modal-field { margin-bottom: 16px; }
+        .modal-field label { display: block; font-size: 0.72rem; font-weight: 600; color: var(--muted-light); margin-bottom: 6px; text-transform: uppercase; letter-spacing: 0.05em; }
+        .confirm-modal-actions { display: flex; gap: 10px; margin-top: 8px; }
+        .confirm-modal-actions button { flex: 1; padding: 12px; border-radius: 10px; font-size: 0.85rem; font-weight: 600; cursor: pointer; border: none; position: relative; }
+        .btn-modal-delete { background: var(--rust); color: #fff; }
+        .btn-modal-delete:hover { background: #8E3538; }
+        .btn-modal-confirm-positive { background: var(--forest); color: #fff; }
+        .btn-modal-confirm-positive:hover { background: #24401F; }
+        .btn-loading.loading { color: transparent; pointer-events: none; }
+        .btn-loading.loading::after { content:''; position:absolute; width:16px; height:16px; top:50%; left:50%; margin:-8px 0 0 -8px; border:2px solid rgba(255,255,255,0.3); border-top-color:#fff; border-radius:50%; animation: spin 0.8s linear infinite; }
+
+        /* ===== CASH FLOW DRAWER ===== */
+        .drawer-overlay { position: fixed; inset: 0; background: rgba(21,19,15,0.6); backdrop-filter: blur(3px); display: none; justify-content: flex-end; z-index: 700; }
+        .drawer-overlay.open { display: flex; }
+        .drawer-panel { width: 440px; max-width: 92vw; height: 100%; background: var(--box); box-shadow: -20px 0 60px rgba(0,0,0,0.4); display: flex; flex-direction: column; transform: translateX(100%); animation: slideIn 0.3s cubic-bezier(0.22,1,0.36,1) forwards; }
+        @keyframes slideIn { to { transform: translateX(0); } }
+        .drawer-header { display: flex; align-items: center; justify-content: space-between; padding: 22px 24px; border-bottom: 1px solid rgba(36,31,27,0.08); }
+        .drawer-header h3 { display: flex; align-items: center; gap: 8px; font-family: 'Space Grotesk', sans-serif; font-size: 1.05rem; color: var(--text-on-light); }
+        .drawer-header h3 i { width: 18px; height: 18px; color: var(--accent-hover); }
+        .drawer-close { width: 32px; height: 32px; border-radius: 8px; border: none; background: var(--box-alt); color: var(--muted-light); display: flex; align-items: center; justify-content: center; cursor: pointer; }
+        .drawer-close:hover { background: rgba(166,61,64,0.1); color: var(--rust); }
+        .drawer-stats { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; padding: 20px 24px; }
+        .drawer-stat { background: var(--box-alt); border-radius: 12px; padding: 14px 16px; }
+        .drawer-stat.highlight { background: linear-gradient(135deg, rgba(184,134,59,0.16), rgba(217,168,87,0.1)); border: 1px solid rgba(184,134,59,0.25); }
+        .drawer-stat-label { font-size: 0.66rem; text-transform: uppercase; letter-spacing: 0.05em; color: var(--muted-light); margin-bottom: 6px; }
+        .drawer-stat-value { font-family: 'Space Grotesk', sans-serif; font-size: 1.1rem; font-weight: 700; color: var(--text-on-light); font-variant-numeric: tabular-nums; }
+        .drawer-stat-value.money::before { content: '₹'; font-size: 0.85em; opacity: 0.7; margin-right: 1px; }
+        .drawer-sub { padding: 0 24px 10px; font-size: 0.75rem; color: var(--muted-light); }
+        .drawer-table-wrap { flex: 1; overflow-y: auto; overflow-x: auto; padding: 0 24px 24px; }
+        .cf-table { width: 100%; border-collapse: collapse; font-size: 0.76rem; }
+        .cf-table th { position: sticky; top: 0; background: var(--text-on-light); color: var(--box); padding: 9px 8px; text-align: right; font-size: 0.65rem; text-transform: uppercase; }
+        .cf-table th:first-child { text-align: left; }
+        .cf-table td { padding: 9px 8px; text-align: right; border-bottom: 1px solid rgba(36,31,27,0.06); color: var(--text-on-light); font-variant-numeric: tabular-nums; }
+        .cf-table td:first-child { text-align: left; font-weight: 600; }
+        .cf-table tr.cf-today td { background: rgba(184,134,59,0.12); font-weight: 700; }
+        .cf-empty { text-align: center; padding: 30px 10px; color: var(--muted-light); font-size: 0.82rem; }
+
+        @media (max-width: 1100px) { .stats { grid-template-columns: repeat(2, 1fr); } }
+        @media (max-width: 900px) {
+            .nav { padding: 14px 22px; }
+            .main { padding: 26px 22px; }
+            .workspace-header { flex-direction: column; }
+            .header-right-group { width: 100%; justify-content: space-between; }
+            .section-header { flex-direction: column; align-items: flex-start; }
+            .search-wrap { width: 100%; }
+            .add-form { grid-template-columns: 1fr 1fr; }
+        }
+        @media (max-width: 640px) {
+            .stats { grid-template-columns: 1fr; }
+            .add-form { grid-template-columns: 1fr; }
+            .excel-toolbar { flex-direction: column; }
+            .header-title { font-size: 1.5rem; }
+            .drawer-stats { grid-template-columns: 1fr 1fr; }
         }
     </style>
 </head>
 <body>
-    <!-- PAGE LOADER -->
-    <div class="page-loader" id="pageLoader">
-        <div class="loader-content">
-            <div class="loader-spinner"></div>
-            <div class="loader-text">Loading Workspace...</div>
-        </div>
+    <div class="bg-layer">
+        <div class="bg-dots"></div>
+        <div class="bg-blob b1"></div>
+        <div class="bg-blob b2"></div>
+        <div class="bg-blob b3"></div>
     </div>
 
-    <!-- WORKSPACE BACKGROUND -->
-    <div class="workspace-background">
-        <div class="data-pattern-layer"></div>
-        <div class="chart-pattern"></div>
-        <div class="glow-element glow-1"></div>
-        <div class="glow-element glow-2"></div>
-        <div class="workspace-depth"></div>
-    </div>
-
-    <!-- WORKSPACE WRAPPER -->
-    <div class="workspace-wrapper">
-    <!-- NAVBAR -->
-    <div class="navbar">
-        <div class="navbar-left">
-            <button class="back-btn" onclick="window.location.href='/dashboard/'">← Back</button>
-            <div class="nav-title">
-                <h1>{{ group.name }}</h1>
-                <p>{{ month_name }}</p>
+    <nav class="nav">
+        <div class="nav-left">
+            <button class="back-btn" onclick="window.location.href='/dashboard/'"><i data-lucide="arrow-left"></i></button>
+            <div class="breadcrumb">
+                <span>Dashboard</span>
+                <i data-lucide="chevron-right"></i>
+                <span>{{ group.name }}</span>
             </div>
         </div>
-        <a href="/logout/" class="logout-btn">Logout</a>
-    </div>
+        <a href="/logout/" class="logout-btn">Log out</a>
+    </nav>
 
-    <!-- MAIN CONTENT -->
-    <div class="main">
+    <main class="main">
+        <div class="workspace-header">
+            <div class="header-left">
+                <div class="header-icon"><i data-lucide="folder-open"></i></div>
+                <div>
+                    <h1 class="header-title">{{ group.name }}</h1>
+                    <div class="header-meta">
+                        <div class="header-meta-item"><i data-lucide="calendar"></i>{{ group.day }}</div>
+                        <div class="header-meta-item"><i data-lucide="map-pin"></i>{{ group.location }}</div>
+                    </div>
+                </div>
+            </div>
+            <div class="header-right-group">
+                <button class="btn-cashflow" onclick="openCashFlowDrawer()"><i data-lucide="line-chart"></i> Cash Flow</button>
+                <div class="month-pill"><i data-lucide="calendar-days"></i>{{ month_name }}</div>
+            </div>
+        </div>
+
         <div class="info-box">
-            💡 <strong>Pro tip:</strong> Click any field to edit. Use the search box to find borrowers by name or serial number.
+            <i data-lucide="lightbulb"></i>
+            <span>Click any field to edit inline. Paid borrowers are pinned to the top with a softer highlight.</span>
         </div>
 
-        <!-- TOTAL INFO -->
-        <div class="total-info">
-            <div class="total-info-value">₹{{ total_to_collect|floatformat:0 }}</div>
-            <div class="total-info-label">Total Amount to Collect</div>
+        <div class="stats">
+            <div class="stat-card borrowers">
+                <div class="stat-icon-badge"><i data-lucide="users"></i></div>
+                <div class="stat-label">Total Borrowers</div>
+                <div class="stat-value" data-countup="{{ borrowers|length }}">0</div>
+            </div>
+            <div class="stat-card loaned">
+                <div class="stat-icon-badge"><i data-lucide="banknote"></i></div>
+                <div class="stat-label">Total Loan Amount</div>
+                <div class="stat-value money" id="totalLoaned" data-countup="0">0</div>
+            </div>
+            <div class="stat-card collected">
+                <div class="stat-icon-badge"><i data-lucide="hand-coins"></i></div>
+                <div class="stat-label">Total Collected</div>
+                <div class="stat-value money" id="totalCollected" data-countup="0">0</div>
+            </div>
+            <div class="stat-card outstanding">
+                <div class="stat-icon-badge"><i data-lucide="wallet"></i></div>
+                <div class="stat-label">Outstanding Balance</div>
+                <div class="stat-value money" data-countup="{{ total_to_collect|floatformat:0 }}">0</div>
+            </div>
         </div>
 
-        <!-- SECTION HEADER WITH SEARCH -->
         <div class="section-header">
-            <h2 class="section-title">📊 Borrower Records</h2>
-            <input
-                type="text"
-                id="searchInput"
-                class="search-box"
-                placeholder="🔍 Search by name or Sr#..."
-                onkeyup="filterBorrowers()"
-            />
+            <div class="section-title-row">
+                <div class="section-title-icon"><i data-lucide="table"></i></div>
+                <h2 class="section-title">Borrower Records</h2>
+            </div>
+            <div class="search-wrap">
+                <i data-lucide="search"></i>
+                <input type="text" id="searchInput" class="search-box" placeholder="Search by name or Sr#..." onkeyup="filterBorrowers()">
+            </div>
         </div>
 
-        <!-- TABLE -->
-        <div class="spreadsheet-wrapper">
+        <div class="excel-toolbar">
+            <button class="btn-toolbar import" id="importExcelBtn" onclick="triggerFileSelect()">
+                <i data-lucide="upload"></i> Import Excel
+            </button>
+            <a href="/api/group/{{ group.id }}/export-excel/" class="btn-toolbar export">
+                <i data-lucide="download"></i> Export Excel
+            </a>
+            <input type="file" id="excelFileInput" accept=".xlsx,.xls" style="display:none" onchange="handleFileSelect(event)">
+        </div>
+
+        <div class="table-panel">
             {% if borrowers %}
                 <div class="spreadsheet">
                     <table id="emiTable">
                         <thead>
                             <tr>
                                 <th class="sticky-left" style="width: 40px;">Sr#</th>
-                                <th class="sticky-left" style="width: 100px;">Name</th>
+                                <th class="sticky-left" style="width: 110px; text-align:left;">Name</th>
                                 <th class="sticky-left" style="width: 90px;">Loan Date</th>
-                                <th class="sticky-left" style="width: 90px;">Amount</th>
-                                <th class="sticky-left" style="width: 75px;">Paid</th>
-                                <th class="sticky-left" style="width: 75px;">Balance</th>
+                                <th class="sticky-left align-right" style="width: 100px;">Loan Amount</th>
+                                <th class="sticky-left align-right" style="width: 85px;">Paid</th>
+                                <th class="sticky-left align-right" style="width: 95px;">Balance</th>
+                                <th class="sticky-left" style="width: 70px;">Status</th>
                                 {% for day in days %}
                                 <th style="min-width: 50px; width: 50px;">{{ day.display }}</th>
                                 {% endfor %}
                                 <th class="sticky-left" style="width: 60px;">Action</th>
                             </tr>
                         </thead>
-                        <tbody id="tableBody">
-                        </tbody>
+                        <tbody id="tableBody"></tbody>
                     </table>
                 </div>
             {% else %}
                 <div class="no-data">
-                    <p>📭 No borrowers yet. Add your first borrower below.</p>
+                    <i data-lucide="inbox"></i>
+                    <p>No borrowers yet. Add your first borrower below, or import from Excel.</p>
                 </div>
             {% endif %}
         </div>
 
-        <!-- ADD BORROWER -->
         <div class="add-section">
-            <div class="add-title">➕ Add New Borrower</div>
+            <div class="add-title"><div class="add-title-icon"><i data-lucide="user-plus"></i></div>Add New Borrower</div>
             <div class="add-form">
-                <div>
-                    <label>Sr#</label>
-                    <input type="number" id="newSerial" min="1" placeholder="1">
+                <div class="add-form-field"><label>Sr#</label><input type="number" id="newSerial" min="1" placeholder="1"></div>
+                <div class="add-form-field"><label>Name</label><input type="text" id="newName" placeholder="Full name" maxlength="50"></div>
+                <div class="add-form-field"><label>Loan Date</label><input type="date" id="newLoanDate"></div>
+                <div class="add-form-field"><label>Amount</label><input type="number" id="newAmount" min="1" step="100" placeholder="0"></div>
+                <button class="btn-add" onclick="addBorrower()"><i data-lucide="plus"></i> Add Borrower</button>
+            </div>
+        </div>
+    </main>
+
+    <!-- IMPORT PREVIEW MODAL -->
+    <div class="import-modal-overlay" id="importModalOverlay">
+        <div class="import-modal">
+            <h3>Import Preview</h3>
+            <p class="import-modal-sub">Review the detected rows below before confirming.</p>
+            <div id="importSummary"></div>
+            <div class="preview-table-wrap">
+                <table>
+                    <thead><tr><th>Sr#</th><th>Name</th><th>Loan Date</th><th>Amount</th><th>Status</th></tr></thead>
+                    <tbody id="previewTableBody"></tbody>
+                </table>
+            </div>
+            <div class="import-modal-controls">
+                <label for="duplicateActionSelect">For duplicate serial numbers:</label>
+                <select id="duplicateActionSelect">
+                    <option value="skip">Skip duplicates (keep existing)</option>
+                    <option value="replace">Replace existing borrower data</option>
+                </select>
+            </div>
+            <div class="import-modal-actions">
+                <button class="btn-modal-cancel" onclick="closeImportModal()">Cancel</button>
+                <button class="btn-modal-confirm" id="confirmImportBtn" onclick="confirmImport()">Confirm Import</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- DELETE CONFIRM MODAL -->
+    <div class="confirm-modal-overlay" id="deleteConfirmOverlay">
+        <div class="confirm-modal center-text">
+            <div class="confirm-modal-icon"><i data-lucide="alert-triangle"></i></div>
+            <h3>Delete Borrower?</h3>
+            <p id="deleteConfirmText">This action cannot be undone.</p>
+            <div class="confirm-modal-actions">
+                <button class="btn-modal-cancel" onclick="closeDeleteConfirm()">Cancel</button>
+                <button class="btn-modal-delete btn-loading" id="confirmDeleteBtn" onclick="executeDelete()">Delete</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- GIVE NEW LOAN MODAL -->
+    <div class="confirm-modal-overlay" id="giveLoanOverlay">
+        <div class="confirm-modal">
+            <div class="confirm-modal-icon positive"><i data-lucide="banknote"></i></div>
+            <h3>Give New Loan</h3>
+            <p id="giveLoanBorrowerName">—</p>
+            <div class="modal-field">
+                <label>New Loan Amount</label>
+                <input type="number" id="giveLoanAmount" min="1" step="100" placeholder="0">
+            </div>
+            <div class="modal-field">
+                <label>Loan Date</label>
+                <input type="date" id="giveLoanDate">
+            </div>
+            <div class="confirm-modal-actions">
+                <button class="btn-modal-cancel" onclick="closeGiveLoanModal()">Cancel</button>
+                <button class="btn-modal-confirm-positive btn-loading" id="confirmGiveLoanBtn" onclick="executeGiveLoan()">Confirm</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- CASH FLOW DRAWER -->
+    <div class="drawer-overlay" id="cashFlowOverlay">
+        <div class="drawer-panel">
+            <div class="drawer-header">
+                <h3><i data-lucide="line-chart"></i> Cash Flow</h3>
+                <button class="drawer-close" onclick="closeCashFlowDrawer()"><i data-lucide="x"></i></button>
+            </div>
+            <div class="drawer-sub">{{ month_name }} · resets each month</div>
+            <div class="drawer-stats">
+                <div class="drawer-stat">
+                    <div class="drawer-stat-label">Today's Collection</div>
+                    <div class="drawer-stat-value money" id="cfTodayCollected">0</div>
                 </div>
-                <div>
-                    <label>Name</label>
-                    <input type="text" id="newName" placeholder="Full name" maxlength="50">
+                <div class="drawer-stat">
+                    <div class="drawer-stat-label">Today's Loans Given</div>
+                    <div class="drawer-stat-value money" id="cfTodayLoans">0</div>
                 </div>
-                <div>
-                    <label>Loan Date</label>
-                    <input type="date" id="newLoanDate">
+                <div class="drawer-stat">
+                    <div class="drawer-stat-label">Today's Net Cash</div>
+                    <div class="drawer-stat-value money" id="cfTodayNet">0</div>
                 </div>
-                <div>
-                    <label>Amount</label>
-                    <input type="number" id="newAmount" min="1" step="100" placeholder="0">
+                <div class="drawer-stat highlight">
+                    <div class="drawer-stat-label">Available Cash</div>
+                    <div class="drawer-stat-value money" id="cfAvailable">0</div>
                 </div>
-                <div></div>
-                <button class="btn-add" onclick="addBorrower()">Add Borrower</button>
+            </div>
+            <div class="drawer-sub" style="padding-top:4px;">Interest Collected</div>
+            <div style="display:flex; gap:8px; padding:0 24px 14px;">
+                <input type="number" id="interestInput" placeholder="0" min="0" style="flex:1; padding:9px 12px; border:1.5px solid #DED2BB; border-radius:9px; font-size:0.85rem;">
+                <button class="btn-modal-confirm-positive btn-loading" id="saveInterestBtn" style="padding:9px 16px;" onclick="saveInterest()">Save</button>
+            </div>
+            <div class="drawer-sub">Daily Expenses</div>
+            <div style="display:flex; gap:8px; padding:0 24px 10px; flex-wrap:wrap;">
+                <select id="expenseCategory" style="flex:1; min-width:120px; padding:9px 10px; border:1.5px solid #DED2BB; border-radius:9px; font-size:0.8rem;">
+                    <option value="petrol">Petrol</option>
+                    <option value="food">Food</option>
+                    <option value="room_rent">Room Rent</option>
+                    <option value="salaries">Employee Salaries</option>
+                    <option value="misc">Miscellaneous</option>
+                </select>
+                <input type="number" id="expenseAmount" placeholder="Amount" min="0" style="width:100px; padding:9px 10px; border:1.5px solid #DED2BB; border-radius:9px; font-size:0.8rem;">
+                <button class="btn-modal-confirm-positive btn-loading" id="addExpenseBtn" style="padding:9px 14px;" onclick="addExpense()">Add</button>
+            </div>
+            <div id="expenseListToday" style="padding:0 24px 14px; font-size:0.78rem; color:var(--muted-light);"></div>
+            <div class="drawer-table-wrap">
+                <table class="cf-table">
+                    <thead><tr><th>Date</th><th>Collected</th><th>Interest</th><th>Loans</th><th>Expenses</th><th>Net</th><th>Running Cash</th></tr></thead>
+                    <tbody id="cfTableBody"></tbody>
+                </table>
             </div>
         </div>
     </div>
 
     <script>
+        lucide.createIcons();
+
         const borrowersData = {{ borrowers|safe }};
         const daysData = {{ days|safe }};
         const dailyTotalsData = {{ daily_totals|safe }};
         const groupId = {{ group.id }};
+        let pendingDeleteId = null;
+        let pendingGiveLoanId = null;
 
         window.addEventListener('load', function() {
             renderTable();
             setDefaultDate();
+            computeStatCards();
         });
 
         function setDefaultDate() {
             const today = new Date();
-            const todayISO = today.toISOString().split('T')[0];
-            document.getElementById('newLoanDate').value = todayISO;
+            document.getElementById('newLoanDate').value = today.toISOString().split('T')[0];
+        }
+
+        function computeStatCards() {
+            let totalLoaned = 0, totalCollected = 0;
+            borrowersData.forEach(b => { totalLoaned += b.amount_given; totalCollected += b.total_paid; });
+            runCountUp(document.getElementById('totalLoaned'), totalLoaned);
+            runCountUp(document.getElementById('totalCollected'), totalCollected);
+            document.querySelectorAll('.stat-value[data-countup]').forEach(el => {
+                if (el.id === 'totalLoaned' || el.id === 'totalCollected') return;
+                runCountUp(el, parseFloat(el.dataset.countup) || 0);
+            });
+        }
+
+        function runCountUp(el, target) {
+            const duration = 900;
+            const start = performance.now();
+            function tick(now) {
+                const progress = Math.min((now - start) / duration, 1);
+                const eased = 1 - Math.pow(1 - progress, 3);
+                el.textContent = Math.round(target * eased).toLocaleString('en-IN');
+                if (progress < 1) requestAnimationFrame(tick);
+            }
+            requestAnimationFrame(tick);
+        }
+
+        /* Paid borrowers sorted to top (stable sort preserves serial order within each group) */
+        function getSortedBorrowers() {
+            return [...borrowersData].sort((a, b) => (a.balance <= 0 ? 0 : 1) - (b.balance <= 0 ? 0 : 1));
         }
 
         function renderTable() {
             const tbody = document.getElementById('tableBody');
             tbody.innerHTML = '';
+            const sorted = getSortedBorrowers();
 
-            borrowersData.forEach((borrower) => {
+            sorted.forEach((borrower) => {
                 const row = document.createElement('tr');
-                row.className = 'data-row';
+                const isPaid = borrower.balance <= 0;
+                row.className = 'data-row' + (isPaid ? ' row-paid' : '');
                 row.dataset.searchName = borrower.name.toLowerCase();
                 row.dataset.searchSerial = borrower.serial.toString();
+                row.dataset.borrowerId = borrower.id;
+                row.dataset.displayName = borrower.name;
+
+                const badge = isPaid
+                    ? '<span class="badge paid"><i data-lucide="check" style="width:10px;height:10px;"></i>Paid</span>'
+                    : '<span class="badge active">Active</span>';
+
+                const pencil = '<i data-lucide="pencil" class="edit-affordance"></i>';
 
                 let html = `<td class="sticky-col">${borrower.serial}</td>`;
-                html += `<td class="sticky-col editable" onclick="editField(this, ${borrower.id}, 'name')">${borrower.name}</td>`;
-                html += `<td class="sticky-col editable" onclick="editField(this, ${borrower.id}, 'date')">${borrower.loan_date || '-'}</td>`;
-                html += `<td class="sticky-col editable" style="text-align: right;" onclick="editField(this, ${borrower.id}, 'amount')">₹${Math.round(borrower.amount_given)}</td>`;
-                html += `<td class="sticky-col editable" style="text-align: right; background: rgba(255, 107, 107, 0.05);" onclick="editField(this, ${borrower.id}, 'paid')">₹${Math.round(borrower.amount_paid)}</td>`;
+                html += `<td class="sticky-col editable" style="text-align:left;" onclick="editField(this, ${borrower.id}, 'name')">${borrower.name}${pencil}</td>`;
+                html += `<td class="sticky-col editable" onclick="editField(this, ${borrower.id}, 'date')">${borrower.loan_date || '-'}${pencil}</td>`;
+                html += `<td class="sticky-col editable" style="text-align: right;" onclick="editField(this, ${borrower.id}, 'amount')">₹${Math.round(borrower.amount_given)}${pencil}</td>`;
+                html += `<td class="sticky-col editable" style="text-align: right;" onclick="editField(this, ${borrower.id}, 'paid')">₹${Math.round(borrower.amount_paid)}${pencil}</td>`;
                 html += `<td class="sticky-col" style="text-align: right;">₹${borrower.balance.toFixed(2)}</td>`;
+                html += `<td class="sticky-col" style="text-align: center;">${badge}</td>`;
 
                 daysData.forEach(day => {
                     const amt = borrower.payments[day.date] || 0;
-                    const display = amt > 0 ? `₹${amt}` : '0';
-                    html += `<td class="payment-cell" onclick="editPayment(this, ${borrower.id}, '${day.date}')">${display}</td>`;
+                    const hasPayment = amt > 0;
+                    const display = hasPayment ? `₹${amt}` : '—';
+                    html += `<td class="payment-cell ${hasPayment ? 'has-payment' : 'empty'}" data-raw-amount="${amt}" onclick="editPayment(this, ${borrower.id}, '${day.date}')">${display}</td>`;
                 });
 
-                html += `<td class="sticky-col"><button class="btn-delete" onclick="deleteBorrower(${borrower.id})">Delete</button></td>`;
+                html += `<td class="sticky-col">
+                    <div class="action-menu-wrap">
+                        <button class="icon-btn menu-trigger" onclick="toggleActionMenu(event, ${borrower.id})" aria-label="More actions">
+                            <i data-lucide="more-vertical"></i>
+                        </button>
+                        <div class="action-menu" id="actionMenu-${borrower.id}">
+                            <button onclick="openGiveLoanModal(${borrower.id})"><i data-lucide="banknote"></i>Give New Loan</button>
+                            <button class="danger" onclick="deleteBorrower(${borrower.id})"><i data-lucide="trash-2"></i>Delete Borrower</button>
+                        </div>
+                    </div>
+                </td>`;
 
                 row.innerHTML = html;
                 tbody.appendChild(row);
             });
 
-            // Total row
             const totalRow = document.createElement('tr');
             totalRow.className = 'total-row';
-            let totalHtml = `<td colspan="6" style="text-align: right; padding-right: 12px;">DAILY TOTALS</td>`;
-
+            let totalHtml = `<td colspan="7" style="text-align: right; padding-right: 12px;">DAILY TOTALS</td>`;
             daysData.forEach(day => {
                 const total = dailyTotalsData[day.date] || 0;
                 totalHtml += `<td style="text-align: center;">₹${total > 0 ? Math.round(total) : '0'}</td>`;
             });
             totalHtml += '<td></td>';
-
             totalRow.innerHTML = totalHtml;
             tbody.appendChild(totalRow);
+
+            lucide.createIcons();
         }
 
         function filterBorrowers() {
             const search = document.getElementById('searchInput').value.toLowerCase();
-            const rows = document.querySelectorAll('tr.data-row');
-
-            rows.forEach(row => {
+            document.querySelectorAll('tr.data-row').forEach(row => {
                 const name = row.dataset.searchName || '';
                 const serial = row.dataset.searchSerial || '';
-
-                if (name.includes(search) || serial.includes(search) || search === '') {
-                    row.style.display = '';
-                } else {
-                    row.style.display = 'none';
-                }
+                row.style.display = (name.includes(search) || serial.includes(search) || search === '') ? '' : 'none';
             });
         }
 
         function editPayment(cell, borrowerId, date) {
-            const val = cell.innerText.replace('₹', '').trim().replace('0', '');
+            const raw = cell.dataset.rawAmount || '0';
             const input = document.createElement('input');
             input.type = 'number';
-            input.value = val;
+            input.value = raw === '0' ? '' : raw;
             input.min = '0';
-
             cell.innerHTML = '';
             cell.appendChild(input);
             input.focus();
@@ -801,17 +662,13 @@
             const save = () => {
                 fetch(`/api/borrower/${borrowerId}/update-payment/`, {
                     method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                        'X-CSRFToken': getCookie('csrftoken'),
-                    },
+                    headers: { 'Content-Type': 'application/json', 'X-CSRFToken': getCookie('csrftoken') },
                     body: JSON.stringify({ date, amount: parseFloat(input.value) || 0 }),
                 }).then(r => r.json()).then(d => {
                     if (d.success) location.reload();
                     else alert('Error: ' + d.error);
                 });
             };
-
             input.onblur = save;
             input.onkeypress = e => { if (e.key === 'Enter') save(); };
         }
@@ -821,7 +678,6 @@
             const input = document.createElement('input');
             input.type = fieldType === 'date' ? 'date' : (fieldType.includes('amount') || fieldType === 'paid' ? 'number' : 'text');
             input.value = val;
-
             cell.innerHTML = '';
             cell.appendChild(input);
             input.focus();
@@ -834,10 +690,7 @@
                 else if (fieldType === 'paid') {
                     fetch(`/api/borrower/${borrowerId}/update-amount-paid/`, {
                         method: 'POST',
-                        headers: {
-                            'Content-Type': 'application/json',
-                            'X-CSRFToken': getCookie('csrftoken'),
-                        },
+                        headers: { 'Content-Type': 'application/json', 'X-CSRFToken': getCookie('csrftoken') },
                         body: JSON.stringify({ amount: parseFloat(input.value) }),
                     }).then(r => r.json()).then(d => {
                         if (d.success) location.reload();
@@ -845,20 +698,15 @@
                     });
                     return;
                 }
-
                 fetch(`/api/borrower/${borrowerId}/update/`, {
                     method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                        'X-CSRFToken': getCookie('csrftoken'),
-                    },
+                    headers: { 'Content-Type': 'application/json', 'X-CSRFToken': getCookie('csrftoken') },
                     body: JSON.stringify(payload),
                 }).then(r => r.json()).then(d => {
                     if (d.success) location.reload();
                     else alert('Error: ' + d.error);
                 });
             };
-
             input.onblur = save;
             input.onkeypress = e => { if (e.key === 'Enter') save(); };
         }
@@ -874,30 +722,118 @@
                 return;
             }
 
+            const btn = document.querySelector('.btn-add');
+            btn.classList.add('loading');
+            btn.disabled = true;
+
             fetch(`/api/group/${groupId}/add-borrower/`, {
                 method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'X-CSRFToken': getCookie('csrftoken'),
-                },
+                headers: { 'Content-Type': 'application/json', 'X-CSRFToken': getCookie('csrftoken') },
                 body: JSON.stringify({ serial_number: serial, name, amount_given: amount, date_of_loan: loanDate }),
             }).then(r => r.json()).then(d => {
                 if (d.success) location.reload();
-                else alert('Error: ' + d.error);
+                else { alert('Error: ' + d.error); btn.classList.remove('loading'); btn.disabled = false; }
             });
         }
 
-        function deleteBorrower(borrowerId) {
-            if (!confirm('Delete this borrower?')) return;
+        /* ===== ACTION DROPDOWN MENU ===== */
 
-            fetch(`/api/borrower/${borrowerId}/delete/`, {
+        function toggleActionMenu(e, borrowerId) {
+            e.stopPropagation();
+            document.querySelectorAll('.action-menu.open').forEach(m => {
+                if (m.id !== `actionMenu-${borrowerId}`) m.classList.remove('open');
+            });
+            document.getElementById(`actionMenu-${borrowerId}`).classList.toggle('open');
+        }
+
+        document.addEventListener('click', () => {
+            document.querySelectorAll('.action-menu.open').forEach(m => m.classList.remove('open'));
+        });
+
+        /* ===== DELETE ===== */
+
+        function deleteBorrower(borrowerId) {
+            pendingDeleteId = borrowerId;
+            const row = document.querySelector(`tr[data-borrower-id="${borrowerId}"]`);
+            const name = row ? row.dataset.displayName : 'this borrower';
+            document.getElementById('deleteConfirmText').textContent = `Delete ${name}? This cannot be undone.`;
+            document.getElementById('deleteConfirmOverlay').classList.add('open');
+        }
+
+        function closeDeleteConfirm() {
+            document.getElementById('deleteConfirmOverlay').classList.remove('open');
+            pendingDeleteId = null;
+        }
+
+        function executeDelete() {
+            if (!pendingDeleteId) return;
+            const btn = document.getElementById('confirmDeleteBtn');
+            btn.classList.add('loading');
+            btn.disabled = true;
+
+            fetch(`/api/borrower/${pendingDeleteId}/delete/`, {
                 method: 'POST',
                 headers: { 'X-CSRFToken': getCookie('csrftoken') },
             }).then(r => r.json()).then(d => {
                 if (d.success) location.reload();
-                else alert('Error: ' + d.error);
+                else {
+                    alert('Error: ' + d.error);
+                    btn.classList.remove('loading');
+                    btn.disabled = false;
+                }
             });
         }
+
+        document.getElementById('deleteConfirmOverlay').addEventListener('click', function(e) {
+            if (e.target === this) closeDeleteConfirm();
+        });
+
+        /* ===== GIVE NEW LOAN — reuses existing update_borrower endpoint ===== */
+
+        function openGiveLoanModal(borrowerId) {
+            pendingGiveLoanId = borrowerId;
+            const b = borrowersData.find(x => x.id === borrowerId);
+            document.getElementById('giveLoanBorrowerName').textContent = b ? b.name : '';
+            document.getElementById('giveLoanAmount').value = '';
+            document.getElementById('giveLoanDate').value = new Date().toISOString().split('T')[0];
+            document.getElementById('giveLoanOverlay').classList.add('open');
+        }
+
+        function closeGiveLoanModal() {
+            document.getElementById('giveLoanOverlay').classList.remove('open');
+            pendingGiveLoanId = null;
+        }
+
+        function executeGiveLoan() {
+            const additional = parseFloat(document.getElementById('giveLoanAmount').value);
+            const newDate = document.getElementById('giveLoanDate').value;
+
+            if (!additional || additional <= 0 || !newDate) {
+                alert('Enter a valid amount and date');
+                return;
+            }
+
+            const btn = document.getElementById('confirmGiveLoanBtn');
+            btn.classList.add('loading');
+            btn.disabled = true;
+
+        fetch(`/api/borrower/${pendingGiveLoanId}/give-new-loan/`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json', 'X-CSRFToken': getCookie('csrftoken') },
+            body: JSON.stringify({ amount_given: additional, date_of_loan: newDate }),
+        }).then(r => r.json()).then(d => {
+            if (d.success) location.reload();
+            else {
+               alert('Error: ' + d.error);
+                btn.classList.remove('loading');
+                btn.disabled = false;
+            }
+         });
+   }
+
+        document.getElementById('giveLoanOverlay').addEventListener('click', function(e) {
+            if (e.target === this) closeGiveLoanModal();
+        });
 
         function getCookie(name) {
             let cookieValue = null;
@@ -914,34 +850,237 @@
             return cookieValue;
         }
 
-        // Page Load Animation
-        window.addEventListener('load', function() {
-            setTimeout(function() {
-                document.getElementById('pageLoader').classList.add('hidden');
-            }, 600);
-        });
+        /* ===== CASH FLOW — computed entirely client-side from existing data, resets each month ===== */
 
-        // Enhanced Button Interactions
-        const addBtn = document.querySelector('.btn-add');
-        if (addBtn) {
-            const originalAddBorrower = window.addBorrower;
-            window.addBorrower = function() {
-                addBtn.classList.add('loading');
-                addBtn.disabled = true;
-                originalAddBorrower();
-            };
+        let cfExpensesByDate = {};
+        let cfInterestByDate = {};
+        function fetchCashFlowExtras(callback) {
+            fetch(`/api/group/${groupId}/cash-flow-extras/`)
+                .then(r => r.json())
+                .then(d => {
+                    if (d.success) { cfExpensesByDate = d.expenses; cfInterestByDate = d.interest; }
+                    callback();
+                });
+        }
+        function computeCashFlow() {
+            const todayISO = new Date().toISOString().split('T')[0];
+            const loansPerDay = {};
+            borrowersData.forEach(b => {
+                if (b.loan_date) loansPerDay[b.loan_date] = (loansPerDay[b.loan_date] || 0) + b.amount_given;
+            });
+            let running = 0;
+            const rows = [];
+            daysData.forEach(day => {
+                if (day.date > todayISO) return;
+                const collected = dailyTotalsData[day.date] || 0;
+                const loans = loansPerDay[day.date] || 0;
+                const interest = cfInterestByDate[day.date] || 0;
+                const expensesList = cfExpensesByDate[day.date] || [];
+                const expenses = expensesList.reduce((s, e) => s + e.amount, 0);
+                const net = collected + interest - loans - expenses;
+                running += net;
+                rows.push({ date: day.date, display: day.display, collected, loans, interest, expenses, net, running, isToday: day.date === todayISO });
+            });
+            return rows;
+        }
+        function openCashFlowDrawer() {
+            fetchCashFlowExtras(() => {
+                document.getElementById('interestInput').value = cfInterestByDate[new Date().toISOString().split('T')[0]] || '';
+                renderExpenseListToday();
+                const rows = computeCashFlow();
+                const today = rows.find(r => r.isToday) || { collected: 0, loans: 0, interest: 0, expenses: 0, net: 0 };
+                const available = rows.length ? rows[rows.length - 1].running : 0;
+                document.getElementById('cfTodayCollected').textContent = today.collected.toLocaleString('en-IN');
+                document.getElementById('cfTodayLoans').textContent = today.loans.toLocaleString('en-IN');
+                document.getElementById('cfTodayNet').textContent = today.net.toLocaleString('en-IN');
+                document.getElementById('cfAvailable').textContent = available.toLocaleString('en-IN');
+                const tbody = document.getElementById('cfTableBody');
+                tbody.innerHTML = '';
+                if (rows.length === 0) {
+                    tbody.innerHTML = '<tr><td colspan="7" class="cf-empty">No cash flow data yet this month.</td></tr>';
+                } else {
+                    rows.slice().reverse().forEach(r => {
+                        const tr = document.createElement('tr');
+                        if (r.isToday) tr.className = 'cf-today';
+                        tr.innerHTML = `
+                            <td>${r.display}</td>
+                            <td>₹${r.collected.toLocaleString('en-IN')}</td>
+                            <td>₹${r.interest.toLocaleString('en-IN')}</td>
+                            <td>₹${r.loans.toLocaleString('en-IN')}</td>
+                            <td>₹${r.expenses.toLocaleString('en-IN')}</td>
+                            <td>${r.net >= 0 ? '+' : ''}₹${r.net.toLocaleString('en-IN')}</td>
+                            <td>₹${r.running.toLocaleString('en-IN')}</td>
+                        `;
+                        tbody.appendChild(tr);
+                    });
+                }
+                document.getElementById('cashFlowOverlay').classList.add('open');
+            });
+        }
+        function renderExpenseListToday() {
+            const todayISO = new Date().toISOString().split('T')[0];
+            const list = cfExpensesByDate[todayISO] || [];
+            const el = document.getElementById('expenseListToday');
+            if (list.length === 0) { el.textContent = 'No expenses added today.'; return; }
+            el.innerHTML = list.map(e =>
+                `<div style="display:flex;justify-content:space-between;padding:4px 0;">
+                    <span>${e.category.replace('_',' ')}</span>
+                    <span>₹${e.amount.toLocaleString('en-IN')} <i data-lucide="x" style="width:12px;height:12px;cursor:pointer;vertical-align:middle;" onclick="deleteExpense(${e.id})"></i></span>
+                </div>`).join('');
+            lucide.createIcons();
+        }
+        function addExpense() {
+            const category = document.getElementById('expenseCategory').value;
+            const amount = parseFloat(document.getElementById('expenseAmount').value);
+            if (!amount || amount <= 0) { alert('Enter a valid amount'); return; }
+            const todayISO = new Date().toISOString().split('T')[0];
+            const btn = document.getElementById('addExpenseBtn');
+            btn.classList.add('loading'); btn.disabled = true;
+            fetch(`/api/group/${groupId}/add-expense/`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json', 'X-CSRFToken': getCookie('csrftoken') },
+                body: JSON.stringify({ date: todayISO, category, amount }),
+            }).then(r => r.json()).then(d => {
+                btn.classList.remove('loading'); btn.disabled = false;
+                if (d.success) {
+                    document.getElementById('expenseAmount').value = '';
+                    fetchCashFlowExtras(() => { renderExpenseListToday(); openCashFlowDrawer(); });
+                } else alert('Error: ' + d.error);
+            });
+        }
+        function deleteExpense(id) {
+            fetch(`/api/expense/${id}/delete/`, { method: 'POST', headers: { 'X-CSRFToken': getCookie('csrftoken') } })
+                .then(r => r.json()).then(d => { if (d.success) fetchCashFlowExtras(() => { renderExpenseListToday(); openCashFlowDrawer(); }); });
+        }
+        function saveInterest() {
+            const amount = parseFloat(document.getElementById('interestInput').value) || 0;
+            const todayISO = new Date().toISOString().split('T')[0];
+            const btn = document.getElementById('saveInterestBtn');
+            btn.classList.add('loading'); btn.disabled = true;
+            fetch(`/api/group/${groupId}/update-interest/`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json', 'X-CSRFToken': getCookie('csrftoken') },
+                body: JSON.stringify({ date: todayISO, amount }),
+            }).then(r => r.json()).then(d => {
+                btn.classList.remove('loading'); btn.disabled = false;
+                if (d.success) { fetchCashFlowExtras(openCashFlowDrawer); } else alert('Error: ' + d.error);
+            });
         }
 
-        // Table Cell Hover Effect
-        document.addEventListener('DOMContentLoaded', function() {
-            const cells = document.querySelectorAll('.editable, .payment-cell');
-            cells.forEach(cell => {
-                cell.addEventListener('mouseenter', function() {
-                    this.style.transition = 'all 0.2s cubic-bezier(0.34, 1.56, 0.64, 1)';
-                });
+        function closeCashFlowDrawer() {
+            document.getElementById('cashFlowOverlay').classList.remove('open');
+        }
+
+        document.getElementById('cashFlowOverlay').addEventListener('click', function(e) {
+            if (e.target === this) closeCashFlowDrawer();
+        });
+
+        /* ===== EXCEL IMPORT / EXPORT — unchanged logic ===== */
+
+        let pendingImportRows = [];
+
+        function triggerFileSelect() {
+            document.getElementById('excelFileInput').click();
+        }
+
+        function handleFileSelect(event) {
+            const file = event.target.files[0];
+            if (!file) return;
+
+            const formData = new FormData();
+            formData.append('file', file);
+
+            const importBtn = document.getElementById('importExcelBtn');
+            importBtn.classList.add('loading');
+            importBtn.disabled = true;
+
+            fetch(`/api/group/${groupId}/import-excel/preview/`, {
+                method: 'POST',
+                headers: { 'X-CSRFToken': getCookie('csrftoken') },
+                body: formData,
+            }).then(r => r.json()).then(d => {
+                importBtn.classList.remove('loading');
+                importBtn.disabled = false;
+                event.target.value = '';
+                if (d.error) { alert('Error: ' + d.error); return; }
+                showImportPreview(d);
+            }).catch(() => {
+                importBtn.classList.remove('loading');
+                importBtn.disabled = false;
+                alert('Upload failed. Please try again.');
             });
+        }
+
+        function showImportPreview(data) {
+            pendingImportRows = data.valid_rows;
+
+            document.getElementById('importSummary').innerHTML = `
+                <strong>${data.total_detected}</strong> rows detected —
+                <span style="color:#2F5233">${data.valid_count} valid</span>,
+                <span style="color:#A63D40">${data.error_count} errors</span>,
+                <span style="color:#8C6529">${data.duplicate_count} duplicates</span>
+            `;
+
+            const tbody = document.getElementById('previewTableBody');
+            tbody.innerHTML = '';
+
+            data.valid_rows.forEach(row => {
+                const tr = document.createElement('tr');
+                tr.innerHTML = `
+                    <td>${row.serial_number}</td><td>${row.name}</td><td>${row.date_of_loan}</td><td>₹${row.amount_given}</td>
+                    <td>${row.is_duplicate ? '<span style="color:#8C6529">Duplicate</span>' : '<span style="color:#2F5233">New</span>'}</td>
+                `;
+                tbody.appendChild(tr);
+            });
+
+            data.error_rows.forEach(row => {
+                const tr = document.createElement('tr');
+                tr.style.opacity = '0.6';
+                tr.innerHTML = `
+                    <td>${row.serial_number ?? '-'}</td><td>${row.name || '-'}</td><td>${row.date_of_loan || '-'}</td><td>${row.amount_given ?? '-'}</td>
+                    <td style="color:#A63D40">${row.error}</td>
+                `;
+                tbody.appendChild(tr);
+            });
+
+            document.getElementById('confirmImportBtn').style.display = data.valid_count > 0 ? 'inline-block' : 'none';
+            document.getElementById('importModalOverlay').classList.add('open');
+        }
+
+        function closeImportModal() {
+            document.getElementById('importModalOverlay').classList.remove('open');
+            pendingImportRows = [];
+        }
+
+        function confirmImport() {
+            const duplicateAction = document.getElementById('duplicateActionSelect').value;
+            const confirmBtn = document.getElementById('confirmImportBtn');
+            confirmBtn.classList.add('loading');
+            confirmBtn.disabled = true;
+
+            fetch(`/api/group/${groupId}/import-excel/confirm/`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json', 'X-CSRFToken': getCookie('csrftoken') },
+                body: JSON.stringify({ rows: pendingImportRows, duplicate_action: duplicateAction }),
+            }).then(r => r.json()).then(d => {
+                if (d.success) {
+                    alert(`Import complete — ${d.created} added, ${d.updated} updated, ${d.skipped} skipped.`);
+                    location.reload();
+                } else {
+                    confirmBtn.classList.remove('loading');
+                    confirmBtn.disabled = false;
+                    alert('Error: ' + d.error);
+                }
+            }).catch(() => {
+                confirmBtn.classList.remove('loading');
+                confirmBtn.disabled = false;
+                alert('Import failed. Please try again.');
+            });
+        }
+
+        document.getElementById('importModalOverlay').addEventListener('click', function(e) {
+            if (e.target === this) closeImportModal();
         });
     </script>
-    </div>
 </body>
 </html>

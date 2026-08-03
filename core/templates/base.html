@@ -1,0 +1,49 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="FinanceFlow - Enterprise Finance Management">
+    <meta name="theme-color" content="#667EEA">
+    
+    <title>{% block title %}FinanceFlow{% endblock %}</title>
+    
+    <!-- Design System CSS -->
+    <link rel="stylesheet" href="{% static 'css/design-system.css' %}">
+    
+    <!-- Additional CSS per page -->
+    {% block extra_css %}{% endblock %}
+    
+    <style>
+        /* Page-specific inline styles */
+        {% block inline_css %}{% endblock %}
+    </style>
+</head>
+<body>
+    <!-- Navigation -->
+    {% include 'components/navbar.html' %}
+    
+    <!-- Main Content -->
+    <main id="main-content" class="main-content">
+        {% block content %}{% endblock %}
+    </main>
+    
+    <!-- Footer -->
+    {% include 'components/footer.html' %}
+    
+    <!-- Modals & Overlays -->
+    {% block modals %}{% endblock %}
+    
+    <!-- Shared JavaScript -->
+    <script src="{% static 'js/shared-utilities.js' %}"></script>
+    
+    <!-- Page-specific JavaScript -->
+    {% block extra_js %}{% endblock %}
+    
+    <script>
+        // Initialize shared utilities on page load
+        {% block inline_js %}{% endblock %}
+    </script>
+</body>
+</html>
