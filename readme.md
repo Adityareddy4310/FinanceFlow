@@ -1,3 +1,4 @@
+
 ```markdown
 <p align="center">
   <img src="docs/images/logo.png" alt="FinanceFlow Logo" width="72" />
@@ -50,11 +51,12 @@ Built from scratch with Django + Vanilla JavaScript and a custom fintech-inspire
 
 ## Demo
 
-> Replace with your actual demo link
-
-**Live demo** :  
+**Walkthrough video:**
 
 
+> Add a live demo URL here when available.
+
+---
 
 ## Features
 
@@ -101,19 +103,21 @@ Built from scratch with Django + Vanilla JavaScript and a custom fintech-inspire
 
 | Dashboard | Group Ledger |
 |-----------|--------------|
-| ![Dashboard](Screenshots\Dashboard.png) | ![Group Ledger](Screenshots\finance-group1.png) |
+| ![Dashboard](screenshots/Dashboard.png) | ![Group Ledger](screenshots/finance-group1.png) |
 
 | Cash Flow | Excel Import |
 |-----------|--------------|
-| ![Cash Flow](Screenshots\cash-flow.png) | ![Import](Screenshots\excel-import.png) |
+| ![Cash Flow](screenshots/cash-flow.png) | ![Import](screenshots/excel-import.png) |
 
 | Login | Contact |
 |-------|---------|
-| ![Login](Screenshots\login.png) | ![Contact](Screenshots\contact.png) |
+| ![Login](screenshots/login.png) | ![Contact](screenshots/contact.png) |
 
 | Mobile |
 |--------|
-| ![Mobile](Screenshots\mobile.jpeg) |
+| ![Mobile](screenshots/mobile.jpeg) |
+
+> **Note:** Make sure the folder is named `screenshots` (lowercase) and the image filenames match exactly (case-sensitive on GitHub).
 
 ---
 
@@ -135,16 +139,16 @@ Built from scratch with Django + Vanilla JavaScript and a custom fintech-inspire
 ## Project Structure
 
 ```text
-financeapp/
-├── accounts/          # Authentication & user management
-├── finance/           # Core business logic (groups, borrowers, cashflow)
-├── templates/         # Django templates
-├── static/            # CSS, JS, images
-├── media/             # Uploaded files
-├── docs/
-│   └── images/        # README screenshots
+FinanceFlow/
+├── core/                 # Core app logic
+├── financeapp/           # Project settings
+├── screenshots/          # README screenshots
+├── static/               # CSS, JS, images
+├── docs/                 # Documentation assets
 ├── manage.py
 ├── requirements.txt
+├── Procfile
+├── .gitignore
 └── README.md
 ```
 
@@ -155,8 +159,8 @@ financeapp/
 ### 1. Clone the repository
 
 ```bash
-git clone https://github.com/Adityareddy4310/financeapp.git
-cd financeapp
+git clone https://github.com/Adityareddy4310/FinanceFlow.git
+cd FinanceFlow
 ```
 
 ### 2. Create and activate a virtual environment
@@ -222,11 +226,12 @@ Open [http://127.0.0.1:8000](http://127.0.0.1:8000)
 - GitHub: [Adityareddy4310](https://github.com/Adityareddy4310)  
 - LinkedIn: [Add your LinkedIn URL]  
 
----
 
 
 <p align="center">
   Built for real finance teams · Designed for daily use
 </p>
 ```
+
+---
 
