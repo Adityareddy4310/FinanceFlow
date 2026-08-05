@@ -1,236 +1,290 @@
 
-```markdown
 <p align="center">
-  <img src="docs/banner.png" width="100%">
-</p>
-<h1 align="center">FinanceFlow</h1>
-
-<p align="center">
-  <strong>Enterprise finance collection management for small-scale lenders</strong>
+  <img src="docs/images/banner.png" width="100%">
 </p>
 
+<h1 align="center">💰 FinanceFlow</h1>
+
 <p align="center">
-  Digitize daily loan collections, borrower ledgers, cash flow, and Excel workflows<br>
-  with a modern Django-powered dashboard.
+Enterprise Loan Collection & Finance Management Platform
 </p>
 
 <p align="center">
-  <a href="#features">Features</a> ·
-  <a href="#demo">Demo</a> ·
-  <a href="#screenshots">Screenshots</a> ·
-  <a href="#tech-stack">Tech Stack</a> ·
-  <a href="#installation">Installation</a> ·
-  <a href="#roadmap">Roadmap</a>
+
+Modern Django application built for small finance businesses to manage
+borrowers, collections, cash flow and Excel workflows.
+
 </p>
 
 <p align="center">
-  <img src="https://img.shields.io/badge/Django-4.2-092E20?style=flat-square&logo=django&logoColor=white" alt="Django" />
-  <img src="https://img.shields.io/badge/Python-3.11+-3776AB?style=flat-square&logo=python&logoColor=white" alt="Python" />
-  <img src="https://img.shields.io/badge/License-MIT-green?style=flat-square" alt="License" />
-  <img src="https://img.shields.io/badge/UI-Custom%20Fintech-B8863B?style=flat-square" alt="UI" />
+
+<img src="https://img.shields.io/badge/Python-3.11-blue">
+<img src="https://img.shields.io/badge/Django-4.2-success">
+<img src="https://img.shields.io/badge/SQLite-Database-orange">
+<img src="https://img.shields.io/badge/License-MIT-green">
+
 </p>
 
 ---
 
-## Overview
+## 🎥 Demo
 
-FinanceFlow is a production-oriented Django application built for small finance businesses that still run collections on notebooks or Excel sheets.
+<p align="center">
 
-It helps teams:
+<img src="docs/FinanceFlowDemo.gif" width="90%">
 
-- Manage multiple **finance groups** with isolated ledgers  
-- Track **daily repayments** and outstanding balances  
-- Record **cash flow** (collections, loans given, expenses)  
-- Import / export borrower data via **Excel**  
-- Work from a clean, modern dashboard designed for daily use  
-
-Built from scratch with Django + Vanilla JavaScript and a custom fintech-inspired design system.
+</p>
 
 ---
 
-## Demo
+## ✨ Why FinanceFlow?
 
-**Walkthrough video:**
+Many small finance companies still manage borrowers using notebooks and Excel sheets.
 
+FinanceFlow digitizes the entire workflow into a clean web application.
 
-> Add a live demo URL here when available.
+It enables:
+
+- Loan Management
+- Daily Collection Tracking
+- Cash Flow Monitoring
+- Excel Import & Export
+- Group-wise Finance Management
+- Modern Dashboard
+- Secure Authentication
 
 ---
 
-## Features
+## 🚀 Features
 
 ### Authentication
-- User registration & secure login  
-- Password reset via email  
-- Session-based authentication  
+
+- Secure Login
+- Registration
+- Password Reset
+- Session Authentication
+
+---
 
 ### Finance Groups
-- Create and manage multiple collection groups  
-- Separate borrower ledgers per group  
-- Independent statistics and cash flow  
 
-### Borrower & Loan Management
-- Add, edit, and delete borrowers  
-- Search by name or serial number  
-- Daily repayment tracking with automatic balance calculation  
-- “Give New Loan” without creating duplicate borrowers  
-- Paid borrower highlighting  
-- Historical payment preservation  
+- Multiple finance groups
+- Independent ledgers
+- Statistics
+- Outstanding amount tracking
+
+---
+
+### Borrowers
+
+- Add borrower
+- Edit borrower
+- Delete borrower
+- Search borrower
+- Give new loan
+- Preserve history
+- Paid borrower highlighting
+
+---
 
 ### Cash Flow
-- Daily collections, loans given, and interest  
-- Expense categories (Petrol, Food, Rent, Salaries, Misc)  
-- Automatic net cash & running cash  
-- Monthly reconciliation  
 
-### Excel Workflows
-- **Import**: bulk upload with preview, validation, and duplicate handling  
-- **Export**: complete ledger download  
-
-### Dashboard & UX
-- Real-time group stats (borrowers, outstanding, totals)  
-- Enterprise-style UI (dark cinematic theme + cream surfaces)  
-- Fully responsive (desktop → mobile)  
-- English + Telugu language support  
-
-### Contact
-- Professional contact page with form validation and email delivery  
+- Collections
+- Loans Given
+- Interest
+- Expenses
+- Running Cash
+- Monthly Summary
 
 ---
 
-## Screenshots
+### Excel
 
-| Dashboard | Group Ledger |
-|-----------|--------------|
-| ![Dashboard](screenshots/Dashboard.png) | ![Group Ledger](screenshots/finance-group1.png) |
-
-| Cash Flow | Excel Import |
-|-----------|--------------|
-| ![Cash Flow](screenshots/cash-flow.png) | ![Import](screenshots/excel-import.png) |
-
-| Login | Contact |
-|-------|---------|
-| ![Login](screenshots/login.png) | ![Contact](screenshots/contact.png) |
-
-| Mobile |
-|--------|
-| ![Mobile](screenshots/mobile.jpeg) |
-
-> **Note:** Make sure the folder is named `screenshots` (lowercase) and the image filenames match exactly (case-sensitive on GitHub).
+- Bulk Import
+- Validation
+- Duplicate Detection
+- Export Ledger
 
 ---
 
-## Tech Stack
+### Dashboard
 
-| Layer            | Technology                          |
-|------------------|-------------------------------------|
-| Backend          | Python 3.11+, Django 4.2            |
-| Frontend         | HTML5, CSS3, Vanilla JavaScript     |
-| Database         | SQLite (dev) · PostgreSQL planned   |
-| Excel            | openpyxl                            |
-| Auth             | Django Authentication               |
-| Email            | Gmail SMTP                          |
-| Icons / Fonts    | Lucide · Inter · Space Grotesk      |
-| Design           | Custom fintech design system        |
+- Modern FinTech UI
+- Mobile Responsive
+- Live Statistics
+- Beautiful Charts
 
 ---
 
-## Project Structure
+## 📸 Screenshots
+
+### Dashboard
+
+![Dashboard](screenshots/Dashboard.png)
+
+---
+
+### Finance Group
+
+![Group](screenshots/finance-group1.png)
+
+---
+
+### Cash Flow
+
+![Cash](screenshots/cash-flow.png)
+
+---
+
+### Excel Import
+
+![Excel](screenshots/excel-import.png)
+
+---
+
+### Login
+
+![Login](screenshots/login.png)
+
+---
+
+### Mobile View
+
+![Mobile](screenshots/mobile.jpeg)
+
+---
+
+## 🏗 Tech Stack
+
+| Layer | Technology |
+|--------|------------|
+| Backend | Django |
+| Language | Python |
+| Database | SQLite |
+| Excel | openpyxl |
+| Frontend | HTML CSS JavaScript |
+| Authentication | Django Auth |
+| Email | SMTP |
+| Icons | Lucide |
+
+---
+
+## 📂 Project Structure
 
 ```text
-FinanceFlow/
-├── core/                 # Core app logic
-├── financeapp/           # Project settings
-├── screenshots/          # README screenshots
-├── static/               # CSS, JS, images
-├── docs/                 # Documentation assets
-├── manage.py
+FinanceFlow
+│
+├── core/
+├── financeapp/
+├── screenshots/
+├── DemoVideo/
+├── static/
+├── templates/
+├── docs/
 ├── requirements.txt
-├── Procfile
-├── .gitignore
+├── manage.py
 └── README.md
-```
+````
 
 ---
 
-## Installation
-
-### 1. Clone the repository
+## ⚙ Installation
 
 ```bash
 git clone https://github.com/Adityareddy4310/FinanceFlow.git
+```
+
+```bash
 cd FinanceFlow
 ```
 
-### 2. Create and activate a virtual environment
-
 ```bash
 python -m venv venv
+```
 
-# macOS / Linux
-source venv/bin/activate
+Windows
 
-# Windows
+```bash
 venv\Scripts\activate
 ```
 
-### 3. Install dependencies
+Linux
+
+```bash
+source venv/bin/activate
+```
+
+Install dependencies
 
 ```bash
 pip install -r requirements.txt
 ```
 
-### 4. Run migrations
+Run server
 
 ```bash
 python manage.py migrate
 ```
 
-### 5. Create a superuser
-
-```bash
-python manage.py createsuperuser
-```
-
-### 6. Start the development server
-
 ```bash
 python manage.py runserver
 ```
 
-Open [http://127.0.0.1:8000](http://127.0.0.1:8000)
+Visit
 
-> **Note:** Configure email settings in `settings.py` for password reset and contact form delivery.
-
----
-
-## Roadmap
-
-- [ ] PostgreSQL / Supabase migration  
-- [ ] Role-based access control (Admin / Collector / Viewer)  
-- [ ] REST API  
-- [ ] Docker support  
-- [ ] Audit logs  
-- [ ] Charts & analytics  
-- [ ] WhatsApp / SMS reminders  
-- [ ] Payment gateway integration  
-- [ ] Progressive Web App (PWA)  
-
----
-
-## Author
-
-**Aditya Reddy**
-
-- GitHub: [Adityareddy4310](https://github.com/Adityareddy4310)  
-- LinkedIn: [Add your LinkedIn URL]  
-
-
-
-<p align="center">
-  Built for real finance teams · Designed for daily use
-</p>
+```
+http://127.0.0.1:8000/
 ```
 
 ---
+
+## 📈 Roadmap
+
+* Docker Support
+* PostgreSQL
+* AWS Deployment
+* REST API
+* Mobile App
+* Reports & Analytics
+
+---
+
+## 🤖 AI Assisted Development
+
+FinanceFlow was developed using an **AI-assisted development workflow (Vibe Coding)**.
+
+I designed the product requirements, validated features, iterated on the UI/UX, tested functionality, and integrated AI-generated code into a working production-style application.
+
+This project reflects my ability to:
+
+* Translate business requirements into software
+* Use AI development tools effectively
+* Debug, customize, and integrate generated code
+* Deliver complete end-to-end applications
+
+---
+
+## 👨‍💻 Author
+
+**Aditya Reddy Kovvuri**
+
+AI/ML Engineer
+
+Graduate Apprentice @ DRDO
+
+LinkedIn
+
+Portfolio
+
+GitHub
+
+---
+
+## ⭐ Support
+
+If you like this project,
+
+⭐ Star the repository.
+
+```
 
