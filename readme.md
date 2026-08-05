@@ -148,11 +148,7 @@ It enables:
 
 ---
 
-### Mobile View
 
-![Mobile](screenshots/mobile.jpeg)
-
----
 
 ## 🏗 Tech Stack
 
