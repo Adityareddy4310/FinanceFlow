@@ -16,7 +16,7 @@ from openpyxl.styles import Font, PatternFill
 
 from .models import (
     FinanceGroup, Borrower, WeeklyPayment, DailyExpense, DailyInterest,
-    Employee, CollectionStaffEntry,
+    Employee, CollectionStaffEntry, LoanHistory,
 )
 from .forms import CustomUserCreationForm
 from django.db.models import Q, Prefetch, Sum, Min
@@ -93,7 +93,7 @@ def dashboard(request):
 
     finance_groups = []
     for group in groups:
-        active_borrowers = [b for b in group.borrowers.all() if b.name and not b.is_archived]
+        active_borrowers = [b for b in group.borrowers.all() if b.name]
         total_balance = sum(float(b.balance) for b in active_borrowers)
 
         finance_groups.append({
@@ -149,11 +149,10 @@ def group_detail(request, group_id):
     # Get search query
     search_query = request.GET.get('search', '').strip()
 
-    # Active (non-archived) borrowers only — this is the operational list.
+    # Get borrowers with optional search filter
     borrowers_query = Borrower.objects.filter(
         finance_group=group,
-        name__gt='',
-        is_archived=False,
+        name__gt=''
     ).prefetch_related('weekly_payments')
 
     # Apply search filter
@@ -182,16 +181,17 @@ def group_detail(request, group_id):
         })
         current += timedelta(days=1)
 
-    # Per-borrower day-grid: CURRENT loan_cycle only, so a new loan's cells
-    # start blank even if the borrower closed a previous loan on the same
-    # calendar date this month.
     borrower_data = []
+    daily_totals = {day['date']: 0 for day in days}
+
     for borrower in all_borrowers:
         payments = {day['date']: 0 for day in days}
-        for payment in borrower.weekly_payments.filter(loan_cycle=borrower.loan_cycle):
+
+        for payment in borrower.weekly_payments.all():
             payment_date_str = payment.payment_date.isoformat()
             if payment_date_str in payments:
                 payments[payment_date_str] = float(payment.amount_paid)
+                daily_totals[payment_date_str] += float(payment.amount_paid)
 
         borrower_data.append({
             'id': borrower.id,
@@ -204,21 +204,6 @@ def group_detail(request, group_id):
             'loan_date': borrower.date_of_loan.isoformat() if borrower.date_of_loan else '',
             'payments': payments
         })
-
-    # Daily collection totals: EVERY WeeklyPayment row for the group this
-    # month, across ALL loan cycles and INCLUDING archived borrowers — this
-    # is the group's actual daily collection total and must not lose a
-    # same-day old-loan payment or an archived borrower's history.
-    daily_totals = {day['date']: 0 for day in days}
-    all_payments_this_month = WeeklyPayment.objects.filter(
-        borrower__finance_group=group,
-        payment_date__gte=first_day,
-        payment_date__lte=last_day,
-    )
-    for payment in all_payments_this_month:
-        d = payment.payment_date.isoformat()
-        if d in daily_totals:
-            daily_totals[d] += float(payment.amount_paid)
 
     total_to_collect = sum(b['balance'] for b in borrower_data)
     month_name = today.strftime('%B %Y')
@@ -245,8 +230,7 @@ def search_borrowers(request, group_id):
 
     borrowers = Borrower.objects.filter(
         finance_group=group,
-        name__gt='',
-        is_archived=False,
+        name__gt=''
     ).filter(
         Q(name__icontains=search_query) |
         Q(serial_number__icontains=search_query)
@@ -305,7 +289,7 @@ def _create_or_update_borrower(group, serial_number, name, amount_given, date_of
         current = first_day
         while current <= last_day:
             payments_to_create.append(
-                WeeklyPayment(borrower=borrower, payment_date=current, amount_paid=0, loan_cycle=borrower.loan_cycle)
+                WeeklyPayment(borrower=borrower, payment_date=current, amount_paid=0)
             )
             current += timedelta(days=1)
 
@@ -358,15 +342,9 @@ def add_borrower(request, group_id):
 @login_required
 @require_http_methods(["POST"])
 def delete_borrower(request, borrower_id):
-    """
-    Archive borrower (Blocker 1 fix). No longer a hard delete — the borrower
-    disappears from active Borrower Records but their record and all
-    WeeklyPayment history remain in the database permanently for historical
-    cash-flow/reporting purposes.
-    """
+    """Delete borrower"""
     borrower = get_object_or_404(Borrower, id=borrower_id, finance_group__user=request.user)
-    borrower.is_archived = True
-    borrower.save()
+    borrower.delete()
     return JsonResponse({'success': True})
 
 
@@ -383,13 +361,9 @@ def update_payment(request, borrower_id):
 
         payment_date = datetime.fromisoformat(payment_date_str).date()
 
-        # Stamped with the borrower's CURRENT loan_cycle at write time, so
-        # this payment is permanently tied to whichever loan was active when
-        # it was actually collected.
         payment, created = WeeklyPayment.objects.get_or_create(
             borrower=borrower,
             payment_date=payment_date,
-            loan_cycle=borrower.loan_cycle,
             defaults={'amount_paid': amount}
         )
 
@@ -463,7 +437,7 @@ def update_borrower(request, borrower_id):
 
 
 # ============================================================
-# EXCEL IMPORT / EXPORT — new in this phase
+# EXCEL IMPORT / EXPORT
 # ============================================================
 
 def _parse_excel_row(row_cells, row_index):
@@ -679,7 +653,7 @@ def export_borrowers_excel(request, group_id):
     can be re-imported with minimal effort.
     """
     group = get_object_or_404(FinanceGroup, id=group_id, user=request.user)
-    borrowers = Borrower.objects.filter(finance_group=group, name__gt='', is_archived=False).order_by('serial_number')
+    borrowers = Borrower.objects.filter(finance_group=group, name__gt='').order_by('serial_number')
 
     wb = openpyxl.Workbook()
     sheet = wb.active
@@ -723,12 +697,17 @@ def export_borrowers_excel(request, group_id):
 def give_new_loan(request, borrower_id):
     """
     Start a new loan cycle for a borrower (typically one who has fully repaid).
-    Increments loan_cycle and resets amount_paid/date_of_loan. Does NOT touch
-    any existing WeeklyPayment row — the old cycle's payments (including a
-    same-day final payment that closed the previous loan) remain in the
-    database exactly as recorded, permanently, and keep counting toward the
-    group's daily collection total. Borrower.total_paid now excludes them
-    automatically because it filters by the (now incremented) loan_cycle.
+    Resets amount_paid to 0 and moves date_of_loan forward — total_paid/balance
+    (see models.py) only count payments from date_of_loan onward. Any payment
+    already recorded on the new loan's exact date (same-day old-loan-clear +
+    new-loan case) belongs to the previous cycle and is zeroed so it can't
+    bleed into the new cycle's Paid/Balance, while remaining part of that
+    day's Daily Collection total (dailyTotalsData is computed independently
+    in group_detail's payments dict from the raw amount at collection time).
+
+    Before any of that, the closing cycle's final numbers are snapshotted to
+    LoanHistory so the previous loan amount/paid/balance remain permanently
+    visible even after this function overwrites Borrower's fields.
     """
     borrower = get_object_or_404(Borrower, id=borrower_id, finance_group__user=request.user)
     try:
@@ -741,11 +720,23 @@ def give_new_loan(request, borrower_id):
 
         new_date = datetime.fromisoformat(new_date_str).date() if new_date_str else date.today()
 
+        # Snapshot the closing cycle's final state BEFORE the existing reset
+        # logic below (unchanged) overwrites amount_given/amount_paid/date_of_loan.
+        LoanHistory.objects.create(
+            borrower=borrower,
+            loan_amount=borrower.amount_given,
+            total_paid=borrower.total_paid,
+            balance=borrower.balance,
+            started_on=borrower.date_of_loan,
+            closed_on=new_date,
+        )
+
         borrower.amount_given = new_amount
         borrower.amount_paid = 0
         borrower.date_of_loan = new_date
-        borrower.loan_cycle = borrower.loan_cycle + 1
         borrower.save()
+
+        WeeklyPayment.objects.filter(borrower=borrower, payment_date=new_date).update(amount_paid=0)
 
         return JsonResponse({
             'success': True,
@@ -760,6 +751,47 @@ def give_new_loan(request, borrower_id):
     except Exception as e:
         return JsonResponse({'error': str(e)}, status=400)
 
+
+@login_required
+def loan_history(request, borrower_id):
+    """
+    Returns past CLOSED loan cycles for a borrower (from LoanHistory) plus
+    the current live cycle (read straight from Borrower — never stored
+    twice). Read-only, informational — does not affect any calculation.
+    """
+    borrower = get_object_or_404(Borrower, id=borrower_id, finance_group__user=request.user)
+
+    past_cycles = [
+        {
+            'loan_amount': float(h.loan_amount),
+            'total_paid': float(h.total_paid),
+            'balance': float(h.balance),
+            'started_on': h.started_on.isoformat() if h.started_on else None,
+            'closed_on': h.closed_on.isoformat(),
+            'status': 'Paid' if float(h.balance) <= 0 else 'Closed',
+        }
+        for h in borrower.loan_history.all()
+    ]
+
+    current_cycle = {
+        'loan_amount': float(borrower.amount_given),
+        'total_paid': borrower.total_paid,
+        'balance': borrower.balance,
+        'started_on': borrower.date_of_loan.isoformat() if borrower.date_of_loan else None,
+        'status': 'Paid' if borrower.balance <= 0 else 'Active',
+    }
+
+    return JsonResponse({
+        'success': True,
+        'borrower_name': borrower.name,
+        'current_cycle': current_cycle,
+        'past_cycles': past_cycles,
+    })
+
+
+# ============================================================
+# CASH FLOW — dead/shadowed route, left as-is (previously flagged)
+# ============================================================
 
 @login_required
 def cash_flow_data(request, group_id):

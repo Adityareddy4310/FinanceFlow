@@ -131,6 +131,27 @@ class Employee(models.Model):
         ordering = ['name']
 
 
+class LoanHistory(models.Model):
+    """
+    Append-only snapshot of a CLOSED loan cycle, written by give_new_loan
+    right before it resets Borrower for the new cycle. Borrower.amount_given/
+    amount_paid/date_of_loan remain single mutable fields describing only the
+    CURRENT cycle (unchanged) — this table is the only place prior cycles
+    are recoverable from, since overwriting those fields would otherwise
+    lose that information permanently.
+    """
+    borrower = models.ForeignKey(Borrower, on_delete=models.CASCADE, related_name='loan_history')
+    loan_amount = models.DecimalField(max_digits=10, decimal_places=2)
+    total_paid = models.DecimalField(max_digits=10, decimal_places=2)
+    balance = models.DecimalField(max_digits=10, decimal_places=2)
+    started_on = models.DateField(null=True, blank=True)
+    closed_on = models.DateField()
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        ordering = ['-closed_on', '-created_at']
+
+
 class CollectionStaffEntry(models.Model):
     """
     One row per (finance_group, date, employee). Multiple collectors on the

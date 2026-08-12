@@ -35,6 +35,7 @@ urlpatterns = [
     path('api/group/<int:group_id>/export-excel/', views.export_borrowers_excel, name='export_borrowers_excel'),
     path('api/group/<int:group_id>/cash-flow/', views.cash_flow_data, name='cash_flow_data'),
     path('api/borrower/<int:borrower_id>/give-new-loan/', views.give_new_loan, name='give_new_loan'),
+    path('api/borrower/<int:borrower_id>/loan-history/', views.loan_history, name='loan_history'),
     path('api/group/<int:group_id>/cash-flow/', views.cash_flow_summary, name='cash_flow_summary'),
 
     path('api/group/<int:group_id>/cash-flow-extras/', views.cash_flow_extras, name='cash_flow_extras'),

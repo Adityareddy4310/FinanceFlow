@@ -498,6 +498,17 @@
         </div>
     </div>
 
+    <!-- LOAN HISTORY MODAL -->
+    <div class="confirm-modal-overlay" id="loanHistoryOverlay">
+        <div class="confirm-modal" style="max-width: 460px; text-align: left;">
+            <h3 style="text-align:left;"><i data-lucide="history" style="width:16px;height:16px;vertical-align:-2px;margin-right:6px;color:var(--accent-hover);"></i><span id="loanHistoryBorrowerName">Loan History</span></h3>
+            <div id="loanHistoryBody" style="max-height: 420px; overflow-y: auto; margin: 14px 0;"></div>
+            <div class="confirm-modal-actions">
+                <button class="btn-modal-cancel" style="flex:none; width:100%;" onclick="closeLoanHistoryModal()">Close</button>
+            </div>
+        </div>
+    </div>
+
     <!-- CASH FLOW DRAWER -->
     <div class="drawer-overlay" id="cashFlowOverlay">
         <div class="drawer-panel">
@@ -660,6 +671,7 @@
                         </button>
                         <div class="action-menu" id="actionMenu-${borrower.id}">
                             <button onclick="openGiveLoanModal(${borrower.id})"><i data-lucide="banknote"></i>Give New Loan</button>
+                            <button onclick="openLoanHistoryModal(${borrower.id})"><i data-lucide="history"></i>Loan History</button>
                             <button class="danger" onclick="deleteBorrower(${borrower.id})"><i data-lucide="trash-2"></i>Delete Borrower</button>
                         </div>
                     </div>
@@ -876,6 +888,53 @@
 
         document.getElementById('giveLoanOverlay').addEventListener('click', function(e) {
             if (e.target === this) closeGiveLoanModal();
+        });
+
+        /* ===== LOAN HISTORY — read-only, informational ===== */
+
+        function openLoanHistoryModal(borrowerId) {
+            const body = document.getElementById('loanHistoryBody');
+            body.innerHTML = '<p style="color:var(--muted-light); font-size:0.85rem;">Loading...</p>';
+            document.getElementById('loanHistoryOverlay').classList.add('open');
+
+            fetch(`/api/borrower/${borrowerId}/loan-history/`)
+                .then(r => r.json())
+                .then(d => {
+                    if (!d.success) { body.innerHTML = `<p style="color:var(--rust);">${d.error}</p>`; return; }
+                    document.getElementById('loanHistoryBorrowerName').textContent = d.borrower_name;
+
+                    const card = (title, c, isCurrent) => `
+                        <div style="border:1.5px solid ${isCurrent ? 'var(--accent)' : '#DED2BB'}; border-radius:12px; padding:14px 16px; margin-bottom:10px; ${isCurrent ? 'background:rgba(184,134,59,0.06);' : ''}">
+                            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:8px;">
+                                <span style="font-weight:700; font-size:0.82rem; color:var(--text-on-light);">${title}</span>
+                                <span class="badge ${c.status === 'Paid' ? 'paid' : 'active'}">${c.status}</span>
+                            </div>
+                            <div style="display:grid; grid-template-columns:1fr 1fr; gap:6px; font-size:0.8rem; color:var(--muted-light);">
+                                <div>Loan Amount: <strong style="color:var(--text-on-light);">₹${Math.round(c.loan_amount).toLocaleString('en-IN')}</strong></div>
+                                <div>Paid: <strong style="color:var(--text-on-light);">₹${Math.round(c.total_paid).toLocaleString('en-IN')}</strong></div>
+                                <div>Balance: <strong style="color:var(--text-on-light);">₹${Math.round(c.balance).toLocaleString('en-IN')}</strong></div>
+                                <div>${c.closed_on ? 'Closed: ' + c.closed_on.split('-').reverse().join('/') : (c.started_on ? 'Started: ' + c.started_on.split('-').reverse().join('/') : '')}</div>
+                            </div>
+                        </div>`;
+
+                    let html = card('Current Loan', d.current_cycle, true);
+                    if (d.past_cycles.length === 0) {
+                        html += '<p style="color:var(--muted-light); font-size:0.8rem; text-align:center; padding:10px 0;">No previous loan cycles.</p>';
+                    } else {
+                        d.past_cycles.forEach((c, i) => { html += card(`Previous Loan ${d.past_cycles.length - i}`, c, false); });
+                    }
+                    body.innerHTML = html;
+                    lucide.createIcons();
+                })
+                .catch(() => { body.innerHTML = '<p style="color:var(--rust);">Failed to load history.</p>'; });
+        }
+
+        function closeLoanHistoryModal() {
+            document.getElementById('loanHistoryOverlay').classList.remove('open');
+        }
+
+        document.getElementById('loanHistoryOverlay').addEventListener('click', function(e) {
+            if (e.target === this) closeLoanHistoryModal();
         });
 
         function getCookie(name) {
