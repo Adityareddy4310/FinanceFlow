@@ -110,7 +110,7 @@
         .search-wrap { position: relative; width: 300px; }
         .search-wrap i,
         .search-wrap svg { position: absolute; left: 14px; top: 50%; transform: translateY(-50%); width: 16px; height: 16px; color: var(--muted-dark); pointer-events: none; }
-        .search-box { width: 100%; padding: 10px 14px 10px 40px; border: 1.5px solid rgba(237,230,216,0.15); border-radius: 10px; background: rgba(237,230,216,0.04); color: var(--text-on-dark); font-size: 0.85rem; font-family: inherit; }
+        .search-box { width: 100%; padding: 11px 14px 11px 40px; border: 1px solid rgba(237,230,216,0.14); border-radius: 11px; background: rgba(237,230,216,0.04); color: var(--text-on-dark); font-size: 0.88rem; }
         .search-box::placeholder { color: var(--muted-dark); }
         .search-box:focus { outline: none; border-color: var(--accent); background: rgba(237,230,216,0.07); box-shadow: 0 0 0 3px rgba(184,134,59,0.15); }
 
@@ -144,7 +144,6 @@
         tr.data-row:hover td.sticky-col { background: rgba(184,134,59,0.14); }
         tr.total-row td { background: var(--text-on-light); color: var(--box); font-weight: 700; border-top: 2px solid var(--accent); }
 
-        /* Paid row — distinct softer styling, placed after base rules so it wins by source order */
         tr.data-row.row-paid td { background: rgba(47,82,51,0.07); }
         tr.data-row.row-paid td.sticky-col { background: rgba(47,82,51,0.12); }
         tr.data-row.row-paid:hover td { background: rgba(47,82,51,0.14) !important; }
@@ -172,7 +171,6 @@
         .icon-btn.menu-trigger { background: rgba(36,31,27,0.06); color: var(--muted-light); }
         .icon-btn.menu-trigger:hover { background: rgba(36,31,27,0.12); color: var(--text-on-light); }
 
-        /* Action dropdown menu */
         .action-menu-wrap { position: relative; }
         .action-menu { position: absolute; right: 0; top: 40px; background: #fff; border: 1px solid #DED2BB; border-radius: 10px; box-shadow: 0 16px 36px rgba(0,0,0,0.18); display: none; flex-direction: column; min-width: 175px; z-index: 30; overflow: hidden; }
         .action-menu.open { display: flex; }
@@ -242,26 +240,52 @@
         /* ===== CASH FLOW DRAWER ===== */
         .drawer-overlay { position: fixed; inset: 0; background: rgba(21,19,15,0.6); backdrop-filter: blur(3px); display: none; justify-content: flex-end; z-index: 700; }
         .drawer-overlay.open { display: flex; }
-        .drawer-panel { width: 440px; max-width: 92vw; height: 100%; background: var(--box); box-shadow: -20px 0 60px rgba(0,0,0,0.4); display: flex; flex-direction: column; transform: translateX(100%); animation: slideIn 0.3s cubic-bezier(0.22,1,0.36,1) forwards; }
+        .drawer-panel { width: 460px; max-width: 92vw; height: 100%; background: var(--box); box-shadow: -20px 0 60px rgba(0,0,0,0.4); display: flex; flex-direction: column; transform: translateX(100%); animation: slideIn 0.3s cubic-bezier(0.22,1,0.36,1) forwards; }
         @keyframes slideIn { to { transform: translateX(0); } }
         .drawer-header { display: flex; align-items: center; justify-content: space-between; padding: 22px 24px; border-bottom: 1px solid rgba(36,31,27,0.08); }
         .drawer-header h3 { display: flex; align-items: center; gap: 8px; font-family: 'Space Grotesk', sans-serif; font-size: 1.05rem; color: var(--text-on-light); }
         .drawer-header h3 i { width: 18px; height: 18px; color: var(--accent-hover); }
         .drawer-close { width: 32px; height: 32px; border-radius: 8px; border: none; background: var(--box-alt); color: var(--muted-light); display: flex; align-items: center; justify-content: center; cursor: pointer; }
         .drawer-close:hover { background: rgba(166,61,64,0.1); color: var(--rust); }
+        .drawer-body { flex: 1; overflow-y: auto; }
         .drawer-stats { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; padding: 20px 24px; }
         .drawer-stat { background: var(--box-alt); border-radius: 12px; padding: 14px 16px; }
         .drawer-stat.highlight { background: linear-gradient(135deg, rgba(184,134,59,0.16), rgba(217,168,87,0.1)); border: 1px solid rgba(184,134,59,0.25); }
         .drawer-stat-label { font-size: 0.66rem; text-transform: uppercase; letter-spacing: 0.05em; color: var(--muted-light); margin-bottom: 6px; }
         .drawer-stat-value { font-family: 'Space Grotesk', sans-serif; font-size: 1.1rem; font-weight: 700; color: var(--text-on-light); font-variant-numeric: tabular-nums; }
         .drawer-stat-value.money::before { content: '₹'; font-size: 0.85em; opacity: 0.7; margin-right: 1px; }
-        .drawer-sub { padding: 0 24px 10px; font-size: 0.75rem; color: var(--muted-light); }
-        .drawer-table-wrap { flex: 1; overflow-y: auto; overflow-x: auto; padding: 0 24px 24px; }
-        .cf-table { width: 100%; border-collapse: collapse; font-size: 0.76rem; }
-        .cf-table th { position: sticky; top: 0; background: var(--text-on-light); color: var(--box); padding: 9px 8px; text-align: right; font-size: 0.65rem; text-transform: uppercase; }
-        .cf-table th:first-child { text-align: left; }
-        .cf-table td { padding: 9px 8px; text-align: right; border-bottom: 1px solid rgba(36,31,27,0.06); color: var(--text-on-light); font-variant-numeric: tabular-nums; }
+        .drawer-sub { padding: 14px 24px 8px; font-size: 0.72rem; text-transform: uppercase; letter-spacing: 0.05em; font-weight: 700; color: var(--accent-hover); }
+        .entry-date-row { display: flex; align-items: center; gap: 8px; padding: 0 24px 12px; }
+        .entry-date-row input[type="date"] { flex: 1; padding: 9px 12px; border: 1.5px solid #DED2BB; border-radius: 9px; font-size: 0.82rem; color: var(--text-on-light); background: #fff; }
+        .entry-date-row .entry-date-tag { font-size: 0.7rem; font-weight: 700; padding: 4px 10px; border-radius: 20px; background: rgba(184,134,59,0.14); color: var(--accent-hover); white-space: nowrap; }
+        .interest-row { display: flex; gap: 8px; padding: 0 24px 14px; }
+        .interest-row input { flex: 1; padding: 9px 12px; border: 1.5px solid #DED2BB; border-radius: 9px; font-size: 0.85rem; }
+        .expense-form-row { display: flex; gap: 8px; padding: 0 24px 10px; flex-wrap: wrap; }
+        .expense-form-row select { flex: 1; min-width: 120px; padding: 9px 10px; border: 1.5px solid #DED2BB; border-radius: 9px; font-size: 0.8rem; }
+        .expense-form-row input { width: 100px; padding: 9px 10px; border: 1.5px solid #DED2BB; border-radius: 9px; font-size: 0.8rem; }
+        .mini-btn { padding: 9px 14px; border-radius: 9px; border: none; font-weight: 600; font-size: 0.8rem; cursor: pointer; position: relative; }
+        #expenseListForDate { padding: 0 24px 16px; font-size: 0.78rem; color: var(--muted-light); }
+
+        /* Collection staff multi-select */
+        .staff-select-wrap { position: relative; padding: 0 24px 16px; }
+        .staff-select-trigger { width: 100%; display: flex; align-items: center; justify-content: space-between; gap: 8px; padding: 10px 14px; border: 1.5px solid #DED2BB; border-radius: 9px; background: #fff; cursor: pointer; font-size: 0.83rem; color: var(--text-on-light); }
+        .staff-select-trigger i { width: 15px; height: 15px; color: var(--muted-light); transition: transform 0.2s ease; }
+        .staff-select-trigger.open i.chev { transform: rotate(180deg); }
+        .staff-selected-names { color: var(--muted-light); }
+        .staff-selected-names.has-value { color: var(--text-on-light); font-weight: 600; }
+        .staff-dropdown { position: absolute; left: 24px; right: 24px; top: 100%; margin-top: 4px; background: #fff; border: 1px solid #DED2BB; border-radius: 10px; box-shadow: 0 16px 36px rgba(0,0,0,0.16); z-index: 40; display: none; max-height: 200px; overflow-y: auto; }
+        .staff-dropdown.open { display: block; }
+        .staff-option { display: flex; align-items: center; gap: 10px; padding: 10px 14px; cursor: pointer; font-size: 0.85rem; color: var(--text-on-light); }
+        .staff-option:hover { background: rgba(184,134,59,0.08); }
+        .staff-option input { width: 15px; height: 15px; accent-color: var(--forest); cursor: pointer; }
+
+        .drawer-table-wrap { padding: 0 24px 24px; overflow-x: auto; }
+        .cf-table { width: 100%; border-collapse: collapse; font-size: 0.74rem; }
+        .cf-table th { position: sticky; top: 0; background: var(--text-on-light); color: var(--box); padding: 9px 7px; text-align: right; font-size: 0.63rem; text-transform: uppercase; }
+        .cf-table th:first-child, .cf-table th.staff-col { text-align: left; }
+        .cf-table td { padding: 9px 7px; text-align: right; border-bottom: 1px solid rgba(36,31,27,0.06); color: var(--text-on-light); font-variant-numeric: tabular-nums; white-space: nowrap; }
         .cf-table td:first-child { text-align: left; font-weight: 600; }
+        .cf-table td.staff-col { text-align: left; font-variant-numeric: normal; white-space: normal; color: var(--muted-light); font-weight: 500; max-width: 130px; }
         .cf-table tr.cf-today td { background: rgba(184,134,59,0.12); font-weight: 700; }
         .cf-empty { text-align: center; padding: 30px 10px; color: var(--muted-light); font-size: 0.82rem; }
 
@@ -281,6 +305,7 @@
             .excel-toolbar { flex-direction: column; }
             .header-title { font-size: 1.5rem; }
             .drawer-stats { grid-template-columns: 1fr 1fr; }
+            .drawer-panel { width: 100%; max-width: 100vw; }
         }
     </style>
 </head>
@@ -480,48 +505,67 @@
                 <h3><i data-lucide="line-chart"></i> Cash Flow</h3>
                 <button class="drawer-close" onclick="closeCashFlowDrawer()"><i data-lucide="x"></i></button>
             </div>
-            <div class="drawer-sub">{{ month_name }} · resets each month</div>
-            <div class="drawer-stats">
-                <div class="drawer-stat">
-                    <div class="drawer-stat-label">Today's Collection</div>
-                    <div class="drawer-stat-value money" id="cfTodayCollected">0</div>
+            <div class="drawer-body">
+                <div class="drawer-stats">
+                    <div class="drawer-stat">
+                        <div class="drawer-stat-label">Today's Collection</div>
+                        <div class="drawer-stat-value money" id="cfTodayCollected">0</div>
+                    </div>
+                    <div class="drawer-stat">
+                        <div class="drawer-stat-label">Today's Loans Given</div>
+                        <div class="drawer-stat-value money" id="cfTodayLoans">0</div>
+                    </div>
+                    <div class="drawer-stat">
+                        <div class="drawer-stat-label">Today's Net Cash</div>
+                        <div class="drawer-stat-value money" id="cfTodayNet">0</div>
+                    </div>
+                    <div class="drawer-stat highlight">
+                        <div class="drawer-stat-label">Available Cash</div>
+                        <div class="drawer-stat-value money" id="cfAvailable">0</div>
+                    </div>
                 </div>
-                <div class="drawer-stat">
-                    <div class="drawer-stat-label">Today's Loans Given</div>
-                    <div class="drawer-stat-value money" id="cfTodayLoans">0</div>
+
+                <div class="drawer-sub">Entry Date</div>
+                <div class="entry-date-row">
+                    <input type="date" id="entryDateInput" onchange="onEntryDateChange()">
+                    <span class="entry-date-tag" id="entryDateTag">Today</span>
                 </div>
-                <div class="drawer-stat">
-                    <div class="drawer-stat-label">Today's Net Cash</div>
-                    <div class="drawer-stat-value money" id="cfTodayNet">0</div>
+
+                <div class="drawer-sub">Interest Collected</div>
+                <div class="interest-row">
+                    <input type="number" id="interestInput" placeholder="0" min="0">
+                    <button class="mini-btn btn-modal-confirm-positive btn-loading" id="saveInterestBtn" onclick="saveInterest()">Save</button>
                 </div>
-                <div class="drawer-stat highlight">
-                    <div class="drawer-stat-label">Available Cash</div>
-                    <div class="drawer-stat-value money" id="cfAvailable">0</div>
+
+                <div class="drawer-sub">Daily Expenses</div>
+                <div class="expense-form-row">
+                    <select id="expenseCategory">
+                        <option value="petrol">Petrol</option>
+                        <option value="food">Food</option>
+                        <option value="room_rent">Room Rent</option>
+                        <option value="salaries">Employee Salaries</option>
+                        <option value="misc">Miscellaneous</option>
+                    </select>
+                    <input type="number" id="expenseAmount" placeholder="Amount" min="0">
+                    <button class="mini-btn btn-modal-confirm-positive btn-loading" id="addExpenseBtn" onclick="addExpense()">Add</button>
                 </div>
-            </div>
-            <div class="drawer-sub" style="padding-top:4px;">Interest Collected</div>
-            <div style="display:flex; gap:8px; padding:0 24px 14px;">
-                <input type="number" id="interestInput" placeholder="0" min="0" style="flex:1; padding:9px 12px; border:1.5px solid #DED2BB; border-radius:9px; font-size:0.85rem;">
-                <button class="btn-modal-confirm-positive btn-loading" id="saveInterestBtn" style="padding:9px 16px;" onclick="saveInterest()">Save</button>
-            </div>
-            <div class="drawer-sub">Daily Expenses</div>
-            <div style="display:flex; gap:8px; padding:0 24px 10px; flex-wrap:wrap;">
-                <select id="expenseCategory" style="flex:1; min-width:120px; padding:9px 10px; border:1.5px solid #DED2BB; border-radius:9px; font-size:0.8rem;">
-                    <option value="petrol">Petrol</option>
-                    <option value="food">Food</option>
-                    <option value="room_rent">Room Rent</option>
-                    <option value="salaries">Employee Salaries</option>
-                    <option value="misc">Miscellaneous</option>
-                </select>
-                <input type="number" id="expenseAmount" placeholder="Amount" min="0" style="width:100px; padding:9px 10px; border:1.5px solid #DED2BB; border-radius:9px; font-size:0.8rem;">
-                <button class="btn-modal-confirm-positive btn-loading" id="addExpenseBtn" style="padding:9px 14px;" onclick="addExpense()">Add</button>
-            </div>
-            <div id="expenseListToday" style="padding:0 24px 14px; font-size:0.78rem; color:var(--muted-light);"></div>
-            <div class="drawer-table-wrap">
-                <table class="cf-table">
-                    <thead><tr><th>Date</th><th>Collected</th><th>Interest</th><th>Loans</th><th>Expenses</th><th>Net</th><th>Running Cash</th></tr></thead>
-                    <tbody id="cfTableBody"></tbody>
-                </table>
+                <div id="expenseListForDate"></div>
+
+                <div class="drawer-sub">Collection Staff</div>
+                <div class="staff-select-wrap">
+                    <div class="staff-select-trigger" id="staffSelectTrigger" onclick="toggleStaffDropdown()">
+                        <span class="staff-selected-names" id="staffSelectedNames">Select collectors</span>
+                        <i data-lucide="chevron-down" class="chev"></i>
+                    </div>
+                    <div class="staff-dropdown" id="staffDropdown"></div>
+                </div>
+
+                <div class="drawer-table-wrap">
+                    <table class="cf-table">
+                        <thead><tr><th>Date</th><th>Collected</th><th>Loans</th><th>Interest</th><th>Expenses</th><th class="staff-col">Collection Staff</th><th>Net</th><th>Running Cash</th></tr></thead>
+                        <tbody id="cfTableBody"></tbody>
+                    </table>
+                </div>
             </div>
         </div>
     </div>
@@ -570,7 +614,6 @@
             requestAnimationFrame(tick);
         }
 
-        /* Paid borrowers sorted to top (stable sort preserves serial order within each group) */
         function getSortedBorrowers() {
             return [...borrowersData].sort((a, b) => (a.balance <= 0 ? 0 : 1) - (b.balance <= 0 ? 0 : 1));
         }
@@ -788,7 +831,7 @@
             if (e.target === this) closeDeleteConfirm();
         });
 
-        /* ===== GIVE NEW LOAN — reuses existing update_borrower endpoint ===== */
+        /* ===== GIVE NEW LOAN — reuses existing give-new-loan endpoint ===== */
 
         function openGiveLoanModal(borrowerId) {
             pendingGiveLoanId = borrowerId;
@@ -805,10 +848,10 @@
         }
 
         function executeGiveLoan() {
-            const additional = parseFloat(document.getElementById('giveLoanAmount').value);
+            const newAmount = parseFloat(document.getElementById('giveLoanAmount').value);
             const newDate = document.getElementById('giveLoanDate').value;
 
-            if (!additional || additional <= 0 || !newDate) {
+            if (!newAmount || newAmount <= 0 || !newDate) {
                 alert('Enter a valid amount and date');
                 return;
             }
@@ -817,19 +860,19 @@
             btn.classList.add('loading');
             btn.disabled = true;
 
-        fetch(`/api/borrower/${pendingGiveLoanId}/give-new-loan/`, {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json', 'X-CSRFToken': getCookie('csrftoken') },
-            body: JSON.stringify({ amount_given: additional, date_of_loan: newDate }),
-        }).then(r => r.json()).then(d => {
-            if (d.success) location.reload();
-            else {
-               alert('Error: ' + d.error);
-                btn.classList.remove('loading');
-                btn.disabled = false;
-            }
-         });
-   }
+            fetch(`/api/borrower/${pendingGiveLoanId}/give-new-loan/`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json', 'X-CSRFToken': getCookie('csrftoken') },
+                body: JSON.stringify({ amount_given: newAmount, date_of_loan: newDate }),
+            }).then(r => r.json()).then(d => {
+                if (d.success) location.reload();
+                else {
+                    alert('Error: ' + d.error);
+                    btn.classList.remove('loading');
+                    btn.disabled = false;
+                }
+            });
+        }
 
         document.getElementById('giveLoanOverlay').addEventListener('click', function(e) {
             if (e.target === this) closeGiveLoanModal();
@@ -850,24 +893,35 @@
             return cookieValue;
         }
 
-        /* ===== CASH FLOW — computed entirely client-side from existing data, resets each month ===== */
+        /* ===== CASH FLOW — date-selectable interest/expenses/collection staff ===== */
 
         let cfExpensesByDate = {};
         let cfInterestByDate = {};
+        let cfStaffByDate = {};
+        let cfEmployees = [];
+        let cfSelectedEmployeeIds = new Set();
+        const todayISO = new Date().toISOString().split('T')[0];
+
         function fetchCashFlowExtras(callback) {
             fetch(`/api/group/${groupId}/cash-flow-extras/`)
                 .then(r => r.json())
                 .then(d => {
-                    if (d.success) { cfExpensesByDate = d.expenses; cfInterestByDate = d.interest; }
+                    if (d.success) {
+                        cfExpensesByDate = d.expenses;
+                        cfInterestByDate = d.interest;
+                        cfStaffByDate = d.collection_staff;
+                        cfEmployees = d.employees;
+                    }
                     callback();
                 });
         }
+
         function computeCashFlow() {
-            const todayISO = new Date().toISOString().split('T')[0];
             const loansPerDay = {};
             borrowersData.forEach(b => {
                 if (b.loan_date) loansPerDay[b.loan_date] = (loansPerDay[b.loan_date] || 0) + b.amount_given;
             });
+
             let running = 0;
             const rows = [];
             daysData.forEach(day => {
@@ -877,51 +931,68 @@
                 const interest = cfInterestByDate[day.date] || 0;
                 const expensesList = cfExpensesByDate[day.date] || [];
                 const expenses = expensesList.reduce((s, e) => s + e.amount, 0);
+                const staffList = cfStaffByDate[day.date] || [];
                 const net = collected + interest - loans - expenses;
                 running += net;
-                rows.push({ date: day.date, display: day.display, collected, loans, interest, expenses, net, running, isToday: day.date === todayISO });
+                rows.push({ date: day.date, display: day.display, collected, loans, interest, expenses, staffList, net, running, isToday: day.date === todayISO });
             });
             return rows;
         }
-        function openCashFlowDrawer() {
-            fetchCashFlowExtras(() => {
-                document.getElementById('interestInput').value = cfInterestByDate[new Date().toISOString().split('T')[0]] || '';
-                renderExpenseListToday();
-                const rows = computeCashFlow();
-                const today = rows.find(r => r.isToday) || { collected: 0, loans: 0, interest: 0, expenses: 0, net: 0 };
-                const available = rows.length ? rows[rows.length - 1].running : 0;
-                document.getElementById('cfTodayCollected').textContent = today.collected.toLocaleString('en-IN');
-                document.getElementById('cfTodayLoans').textContent = today.loans.toLocaleString('en-IN');
-                document.getElementById('cfTodayNet').textContent = today.net.toLocaleString('en-IN');
-                document.getElementById('cfAvailable').textContent = available.toLocaleString('en-IN');
-                const tbody = document.getElementById('cfTableBody');
-                tbody.innerHTML = '';
-                if (rows.length === 0) {
-                    tbody.innerHTML = '<tr><td colspan="7" class="cf-empty">No cash flow data yet this month.</td></tr>';
-                } else {
-                    rows.slice().reverse().forEach(r => {
-                        const tr = document.createElement('tr');
-                        if (r.isToday) tr.className = 'cf-today';
-                        tr.innerHTML = `
-                            <td>${r.display}</td>
-                            <td>₹${r.collected.toLocaleString('en-IN')}</td>
-                            <td>₹${r.interest.toLocaleString('en-IN')}</td>
-                            <td>₹${r.loans.toLocaleString('en-IN')}</td>
-                            <td>₹${r.expenses.toLocaleString('en-IN')}</td>
-                            <td>${r.net >= 0 ? '+' : ''}₹${r.net.toLocaleString('en-IN')}</td>
-                            <td>₹${r.running.toLocaleString('en-IN')}</td>
-                        `;
-                        tbody.appendChild(tr);
-                    });
-                }
-                document.getElementById('cashFlowOverlay').classList.add('open');
+
+        function renderCfTable(rows) {
+            const tbody = document.getElementById('cfTableBody');
+            tbody.innerHTML = '';
+            if (rows.length === 0) {
+                tbody.innerHTML = '<tr><td colspan="8" class="cf-empty">No cash flow data yet this month.</td></tr>';
+                return;
+            }
+            rows.slice().reverse().forEach(r => {
+                const tr = document.createElement('tr');
+                if (r.isToday) tr.className = 'cf-today';
+                const staffText = r.staffList.length ? r.staffList.map(s => s.name).join(', ') : '—';
+                tr.innerHTML = `
+                    <td>${r.display}</td>
+                    <td>₹${r.collected.toLocaleString('en-IN')}</td>
+                    <td>₹${r.loans.toLocaleString('en-IN')}</td>
+                    <td>₹${r.interest.toLocaleString('en-IN')}</td>
+                    <td>₹${r.expenses.toLocaleString('en-IN')}</td>
+                    <td class="staff-col">${staffText}</td>
+                    <td>${r.net >= 0 ? '+' : ''}₹${r.net.toLocaleString('en-IN')}</td>
+                    <td>₹${r.running.toLocaleString('en-IN')}</td>
+                `;
+                tbody.appendChild(tr);
             });
         }
-        function renderExpenseListToday() {
-            const todayISO = new Date().toISOString().split('T')[0];
-            const list = cfExpensesByDate[todayISO] || [];
-            const el = document.getElementById('expenseListToday');
-            if (list.length === 0) { el.textContent = 'No expenses added today.'; return; }
+
+        function refreshCashFlowUI() {
+            const rows = computeCashFlow();
+            const today = rows.find(r => r.isToday) || { collected: 0, loans: 0, interest: 0, expenses: 0, net: 0 };
+            const available = rows.length ? rows[rows.length - 1].running : 0;
+
+            document.getElementById('cfTodayCollected').textContent = today.collected.toLocaleString('en-IN');
+            document.getElementById('cfTodayLoans').textContent = today.loans.toLocaleString('en-IN');
+            document.getElementById('cfTodayNet').textContent = today.net.toLocaleString('en-IN');
+            document.getElementById('cfAvailable').textContent = available.toLocaleString('en-IN');
+            renderCfTable(rows);
+        }
+
+        function getSelectedDate() {
+            return document.getElementById('entryDateInput').value || todayISO;
+        }
+
+        function onEntryDateChange() {
+            const d = getSelectedDate();
+            document.getElementById('entryDateTag').textContent = (d === todayISO) ? 'Today' : d.split('-').reverse().join('/');
+            document.getElementById('interestInput').value = cfInterestByDate[d] || '';
+            renderExpenseListForDate();
+            loadStaffSelectionForDate();
+        }
+
+        function renderExpenseListForDate() {
+            const d = getSelectedDate();
+            const list = cfExpensesByDate[d] || [];
+            const el = document.getElementById('expenseListForDate');
+            if (list.length === 0) { el.textContent = 'No expenses added for this date.'; return; }
             el.innerHTML = list.map(e =>
                 `<div style="display:flex;justify-content:space-between;padding:4px 0;">
                     <span>${e.category.replace('_',' ')}</span>
@@ -929,51 +1000,145 @@
                 </div>`).join('');
             lucide.createIcons();
         }
-        function addExpense() {
-            const category = document.getElementById('expenseCategory').value;
-            const amount = parseFloat(document.getElementById('expenseAmount').value);
-            if (!amount || amount <= 0) { alert('Enter a valid amount'); return; }
-            const todayISO = new Date().toISOString().split('T')[0];
-            const btn = document.getElementById('addExpenseBtn');
-            btn.classList.add('loading'); btn.disabled = true;
-            fetch(`/api/group/${groupId}/add-expense/`, {
+
+        /* ----- Collection Staff multi-select ----- */
+
+        function renderStaffDropdownOptions() {
+            const dropdown = document.getElementById('staffDropdown');
+            if (cfEmployees.length === 0) {
+                dropdown.innerHTML = '<div class="staff-option" style="color:var(--muted-light);cursor:default;">No employees found</div>';
+                return;
+            }
+            dropdown.innerHTML = cfEmployees.map(emp => `
+                <label class="staff-option">
+                    <input type="checkbox" value="${emp.id}" ${cfSelectedEmployeeIds.has(emp.id) ? 'checked' : ''} onchange="onStaffCheckboxChange(${emp.id}, this.checked)">
+                    <span>${emp.name}</span>
+                </label>
+            `).join('');
+        }
+
+        function updateStaffTriggerLabel() {
+            const namesEl = document.getElementById('staffSelectedNames');
+            const selectedNames = cfEmployees.filter(e => cfSelectedEmployeeIds.has(e.id)).map(e => e.name);
+            if (selectedNames.length === 0) {
+                namesEl.textContent = 'Select collectors';
+                namesEl.classList.remove('has-value');
+            } else {
+                namesEl.textContent = selectedNames.join(', ');
+                namesEl.classList.add('has-value');
+            }
+        }
+
+        function loadStaffSelectionForDate() {
+            const d = getSelectedDate();
+            const list = cfStaffByDate[d] || [];
+            cfSelectedEmployeeIds = new Set(list.map(s => s.id));
+            renderStaffDropdownOptions();
+            updateStaffTriggerLabel();
+        }
+
+        function toggleStaffDropdown() {
+            document.getElementById('staffDropdown').classList.toggle('open');
+            document.getElementById('staffSelectTrigger').classList.toggle('open');
+        }
+
+        document.addEventListener('click', function(e) {
+            const wrap = document.querySelector('.staff-select-wrap');
+            if (wrap && !wrap.contains(e.target)) {
+                document.getElementById('staffDropdown').classList.remove('open');
+                document.getElementById('staffSelectTrigger').classList.remove('open');
+            }
+        });
+
+        function onStaffCheckboxChange(employeeId, checked) {
+            if (checked) cfSelectedEmployeeIds.add(employeeId);
+            else cfSelectedEmployeeIds.delete(employeeId);
+            updateStaffTriggerLabel();
+            saveCollectionStaff();
+        }
+
+        function saveCollectionStaff() {
+            const d = getSelectedDate();
+            fetch(`/api/group/${groupId}/save-collection-staff/`, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json', 'X-CSRFToken': getCookie('csrftoken') },
-                body: JSON.stringify({ date: todayISO, category, amount }),
-            }).then(r => r.json()).then(d => {
-                btn.classList.remove('loading'); btn.disabled = false;
-                if (d.success) {
-                    document.getElementById('expenseAmount').value = '';
-                    fetchCashFlowExtras(() => { renderExpenseListToday(); openCashFlowDrawer(); });
-                } else alert('Error: ' + d.error);
+                body: JSON.stringify({ date: d, employee_ids: Array.from(cfSelectedEmployeeIds) }),
+            }).then(r => r.json()).then(res => {
+                if (res.success) {
+                    cfStaffByDate[d] = Array.from(cfSelectedEmployeeIds).map(id => {
+                        const emp = cfEmployees.find(e => e.id === id);
+                        return { id, name: emp ? emp.name : '' };
+                    });
+                    refreshCashFlowUI();
+                } else {
+                    alert('Error: ' + res.error);
+                }
             });
         }
-        function deleteExpense(id) {
-            fetch(`/api/expense/${id}/delete/`, { method: 'POST', headers: { 'X-CSRFToken': getCookie('csrftoken') } })
-                .then(r => r.json()).then(d => { if (d.success) fetchCashFlowExtras(() => { renderExpenseListToday(); openCashFlowDrawer(); }); });
-        }
-        function saveInterest() {
-            const amount = parseFloat(document.getElementById('interestInput').value) || 0;
-            const todayISO = new Date().toISOString().split('T')[0];
-            const btn = document.getElementById('saveInterestBtn');
-            btn.classList.add('loading'); btn.disabled = true;
-            fetch(`/api/group/${groupId}/update-interest/`, {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json', 'X-CSRFToken': getCookie('csrftoken') },
-                body: JSON.stringify({ date: todayISO, amount }),
-            }).then(r => r.json()).then(d => {
-                btn.classList.remove('loading'); btn.disabled = false;
-                if (d.success) { fetchCashFlowExtras(openCashFlowDrawer); } else alert('Error: ' + d.error);
+
+        function openCashFlowDrawer() {
+            const dateInput = document.getElementById('entryDateInput');
+            dateInput.max = todayISO;
+            dateInput.value = todayISO;
+            document.getElementById('entryDateTag').textContent = 'Today';
+
+            fetchCashFlowExtras(() => {
+                document.getElementById('interestInput').value = cfInterestByDate[todayISO] || '';
+                renderExpenseListForDate();
+                loadStaffSelectionForDate();
+                refreshCashFlowUI();
+                document.getElementById('cashFlowOverlay').classList.add('open');
             });
         }
 
         function closeCashFlowDrawer() {
             document.getElementById('cashFlowOverlay').classList.remove('open');
+            document.getElementById('staffDropdown').classList.remove('open');
         }
 
         document.getElementById('cashFlowOverlay').addEventListener('click', function(e) {
             if (e.target === this) closeCashFlowDrawer();
         });
+
+        function addExpense() {
+            const category = document.getElementById('expenseCategory').value;
+            const amount = parseFloat(document.getElementById('expenseAmount').value);
+            if (!amount || amount <= 0) { alert('Enter a valid amount'); return; }
+            const d = getSelectedDate();
+            const btn = document.getElementById('addExpenseBtn');
+            btn.classList.add('loading'); btn.disabled = true;
+            fetch(`/api/group/${groupId}/add-expense/`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json', 'X-CSRFToken': getCookie('csrftoken') },
+                body: JSON.stringify({ date: d, category, amount }),
+            }).then(r => r.json()).then(res => {
+                btn.classList.remove('loading'); btn.disabled = false;
+                if (res.success) {
+                    document.getElementById('expenseAmount').value = '';
+                    fetchCashFlowExtras(() => { renderExpenseListForDate(); refreshCashFlowUI(); });
+                } else alert('Error: ' + res.error);
+            });
+        }
+
+        function deleteExpense(id) {
+            fetch(`/api/expense/${id}/delete/`, { method: 'POST', headers: { 'X-CSRFToken': getCookie('csrftoken') } })
+                .then(r => r.json()).then(d => { if (d.success) fetchCashFlowExtras(() => { renderExpenseListForDate(); refreshCashFlowUI(); }); });
+        }
+
+        function saveInterest() {
+            const amount = parseFloat(document.getElementById('interestInput').value) || 0;
+            const d = getSelectedDate();
+            const btn = document.getElementById('saveInterestBtn');
+            btn.classList.add('loading'); btn.disabled = true;
+            fetch(`/api/group/${groupId}/update-interest/`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json', 'X-CSRFToken': getCookie('csrftoken') },
+                body: JSON.stringify({ date: d, amount }),
+            }).then(r => r.json()).then(res => {
+                btn.classList.remove('loading'); btn.disabled = false;
+                if (res.success) { fetchCashFlowExtras(refreshCashFlowUI); } else alert('Error: ' + res.error);
+            });
+        }
 
         /* ===== EXCEL IMPORT / EXPORT — unchanged logic ===== */
 

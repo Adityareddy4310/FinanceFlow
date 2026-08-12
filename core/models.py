@@ -26,6 +26,20 @@ class Borrower(models.Model):
     date_of_loan = models.DateField(null=True, blank=True)
     created_at = models.DateTimeField(auto_now_add=True)
 
+    # Blocker 1 — soft delete. Deleting a borrower from active records no
+    # longer hard-deletes them (and cascades away their WeeklyPayment
+    # history); it archives them instead. Historical cash-flow/reporting
+    # queries must NOT filter on this field — only "active borrower list"
+    # views should.
+    is_archived = models.BooleanField(default=False)
+
+    # Blocker 2 — same-day old-loan-clear + new-loan. Incremented once per
+    # Give New Loan call. WeeklyPayment rows are stamped with the borrower's
+    # loan_cycle at the moment they're saved, so a payment made under the
+    # old cycle is never reinterpreted as belonging to the new one, even if
+    # both happen on the same calendar date.
+    loan_cycle = models.IntegerField(default=1)
+
     def __str__(self):
         if self.name:
             return f"#{self.serial_number}. {self.name}"
@@ -41,13 +55,19 @@ class Borrower(models.Model):
 
     @property
     def total_paid(self):
+        """
+        Sums only WeeklyPayment rows stamped with this borrower's CURRENT
+        loan_cycle. A previous cycle's payments (including a same-day final
+        payment that closed the old loan) are excluded here without being
+        deleted or modified — they remain permanently queryable via
+        weekly_payments.filter(loan_cycle=<old cycle number>).
+        """
         if self.is_empty:
             return 0
-        weekly_payments = (
-            self.weekly_payments.filter(payment_date__gte=self.date_of_loan)
-            if self.date_of_loan else self.weekly_payments.all()
+        weekly_total = sum(
+            float(p.amount_paid)
+            for p in self.weekly_payments.filter(loan_cycle=self.loan_cycle)
         )
-        weekly_total = sum(float(p.amount_paid) for p in weekly_payments)
         return float(self.amount_paid) + weekly_total
 
     @property
@@ -61,15 +81,17 @@ class WeeklyPayment(models.Model):
     borrower = models.ForeignKey(Borrower, on_delete=models.CASCADE, related_name='weekly_payments')
     payment_date = models.DateField()
     amount_paid = models.DecimalField(max_digits=10, decimal_places=2, default=0)
+    loan_cycle = models.IntegerField(default=1)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
 
     def __str__(self):
-        return f"{self.borrower.name} - {self.payment_date}: ₹{self.amount_paid}"
+        return f"{self.borrower.name} - {self.payment_date}: ₹{self.amount_paid} (cycle {self.loan_cycle})"
 
     class Meta:
         ordering = ['payment_date']
-        unique_together = ('borrower', 'payment_date')
+        unique_together = ('borrower', 'payment_date', 'loan_cycle')
+
 
 class DailyExpense(models.Model):
     finance_group = models.ForeignKey(FinanceGroup, on_delete=models.CASCADE, related_name='daily_expenses')
@@ -89,3 +111,35 @@ class DailyInterest(models.Model):
 
     class Meta:
         unique_together = ('finance_group', 'date')
+
+
+class Employee(models.Model):
+    """
+    Collection staff, scoped to the account owner (not per-group) since the
+    same person may collect for multiple finance groups. Add more via
+    Django admin — no code change needed.
+    """
+    user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='employees')
+    name = models.CharField(max_length=100)
+    is_active = models.BooleanField(default=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    def __str__(self):
+        return self.name
+
+    class Meta:
+        ordering = ['name']
+
+
+class CollectionStaffEntry(models.Model):
+    """
+    One row per (finance_group, date, employee). Multiple collectors on the
+    same date = multiple rows, not duplicated cash-flow dates.
+    """
+    finance_group = models.ForeignKey(FinanceGroup, on_delete=models.CASCADE, related_name='collection_staff_entries')
+    date = models.DateField()
+    employee = models.ForeignKey(Employee, on_delete=models.CASCADE, related_name='collection_entries')
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        unique_together = ('finance_group', 'date', 'employee')

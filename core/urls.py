@@ -18,6 +18,7 @@ urlpatterns = [
     # Dashboard & Groups
     path('dashboard/', views.dashboard, name='dashboard'),
     path('group/<int:group_id>/', views.group_detail, name='group_detail'),
+    path('contact/', views.contact, name='contact'),
     
     # API Endpoints
     path('api/group/<int:group_id>/edit/', views.edit_finance_group, name='edit_finance_group'),
@@ -35,9 +36,10 @@ urlpatterns = [
     path('api/group/<int:group_id>/cash-flow/', views.cash_flow_data, name='cash_flow_data'),
     path('api/borrower/<int:borrower_id>/give-new-loan/', views.give_new_loan, name='give_new_loan'),
     path('api/group/<int:group_id>/cash-flow/', views.cash_flow_summary, name='cash_flow_summary'),
+
     path('api/group/<int:group_id>/cash-flow-extras/', views.cash_flow_extras, name='cash_flow_extras'),
     path('api/group/<int:group_id>/add-expense/', views.add_expense, name='add_expense'),
     path('api/expense/<int:expense_id>/delete/', views.delete_expense, name='delete_expense'),
     path('api/group/<int:group_id>/update-interest/', views.update_interest, name='update_interest'),
-    path('contact/', views.contact, name='contact'),
+    path('api/group/<int:group_id>/save-collection-staff/', views.save_collection_staff, name='save_collection_staff'),
 ]

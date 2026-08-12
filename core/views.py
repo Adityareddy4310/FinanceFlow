@@ -7,14 +7,17 @@ from django.views.decorators.http import require_http_methods
 from django.db import transaction
 from datetime import datetime, timedelta, date
 from django.urls import reverse_lazy
-import json
-import openpyxl
-from openpyxl.styles import Font, PatternFill
-from .models import DailyExpense, DailyInterest  
 from django.core.mail import send_mail
 from django.contrib import messages
 from django.conf import settings
-from .models import FinanceGroup, Borrower, WeeklyPayment
+import json
+import openpyxl
+from openpyxl.styles import Font, PatternFill
+
+from .models import (
+    FinanceGroup, Borrower, WeeklyPayment, DailyExpense, DailyInterest,
+    Employee, CollectionStaffEntry,
+)
 from .forms import CustomUserCreationForm
 from django.db.models import Q, Prefetch, Sum, Min
 from collections import defaultdict
@@ -90,7 +93,7 @@ def dashboard(request):
 
     finance_groups = []
     for group in groups:
-        active_borrowers = [b for b in group.borrowers.all() if b.name]
+        active_borrowers = [b for b in group.borrowers.all() if b.name and not b.is_archived]
         total_balance = sum(float(b.balance) for b in active_borrowers)
 
         finance_groups.append({
@@ -146,10 +149,11 @@ def group_detail(request, group_id):
     # Get search query
     search_query = request.GET.get('search', '').strip()
 
-    # Get borrowers with optional search filter
+    # Active (non-archived) borrowers only — this is the operational list.
     borrowers_query = Borrower.objects.filter(
         finance_group=group,
-        name__gt=''
+        name__gt='',
+        is_archived=False,
     ).prefetch_related('weekly_payments')
 
     # Apply search filter
@@ -178,17 +182,16 @@ def group_detail(request, group_id):
         })
         current += timedelta(days=1)
 
+    # Per-borrower day-grid: CURRENT loan_cycle only, so a new loan's cells
+    # start blank even if the borrower closed a previous loan on the same
+    # calendar date this month.
     borrower_data = []
-    daily_totals = {day['date']: 0 for day in days}
-
     for borrower in all_borrowers:
         payments = {day['date']: 0 for day in days}
-
-        for payment in borrower.weekly_payments.all():
+        for payment in borrower.weekly_payments.filter(loan_cycle=borrower.loan_cycle):
             payment_date_str = payment.payment_date.isoformat()
             if payment_date_str in payments:
                 payments[payment_date_str] = float(payment.amount_paid)
-                daily_totals[payment_date_str] += float(payment.amount_paid)
 
         borrower_data.append({
             'id': borrower.id,
@@ -201,6 +204,21 @@ def group_detail(request, group_id):
             'loan_date': borrower.date_of_loan.isoformat() if borrower.date_of_loan else '',
             'payments': payments
         })
+
+    # Daily collection totals: EVERY WeeklyPayment row for the group this
+    # month, across ALL loan cycles and INCLUDING archived borrowers — this
+    # is the group's actual daily collection total and must not lose a
+    # same-day old-loan payment or an archived borrower's history.
+    daily_totals = {day['date']: 0 for day in days}
+    all_payments_this_month = WeeklyPayment.objects.filter(
+        borrower__finance_group=group,
+        payment_date__gte=first_day,
+        payment_date__lte=last_day,
+    )
+    for payment in all_payments_this_month:
+        d = payment.payment_date.isoformat()
+        if d in daily_totals:
+            daily_totals[d] += float(payment.amount_paid)
 
     total_to_collect = sum(b['balance'] for b in borrower_data)
     month_name = today.strftime('%B %Y')
@@ -227,7 +245,8 @@ def search_borrowers(request, group_id):
 
     borrowers = Borrower.objects.filter(
         finance_group=group,
-        name__gt=''
+        name__gt='',
+        is_archived=False,
     ).filter(
         Q(name__icontains=search_query) |
         Q(serial_number__icontains=search_query)
@@ -286,7 +305,7 @@ def _create_or_update_borrower(group, serial_number, name, amount_given, date_of
         current = first_day
         while current <= last_day:
             payments_to_create.append(
-                WeeklyPayment(borrower=borrower, payment_date=current, amount_paid=0)
+                WeeklyPayment(borrower=borrower, payment_date=current, amount_paid=0, loan_cycle=borrower.loan_cycle)
             )
             current += timedelta(days=1)
 
@@ -339,9 +358,15 @@ def add_borrower(request, group_id):
 @login_required
 @require_http_methods(["POST"])
 def delete_borrower(request, borrower_id):
-    """Delete borrower"""
+    """
+    Archive borrower (Blocker 1 fix). No longer a hard delete — the borrower
+    disappears from active Borrower Records but their record and all
+    WeeklyPayment history remain in the database permanently for historical
+    cash-flow/reporting purposes.
+    """
     borrower = get_object_or_404(Borrower, id=borrower_id, finance_group__user=request.user)
-    borrower.delete()
+    borrower.is_archived = True
+    borrower.save()
     return JsonResponse({'success': True})
 
 
@@ -358,9 +383,13 @@ def update_payment(request, borrower_id):
 
         payment_date = datetime.fromisoformat(payment_date_str).date()
 
+        # Stamped with the borrower's CURRENT loan_cycle at write time, so
+        # this payment is permanently tied to whichever loan was active when
+        # it was actually collected.
         payment, created = WeeklyPayment.objects.get_or_create(
             borrower=borrower,
             payment_date=payment_date,
+            loan_cycle=borrower.loan_cycle,
             defaults={'amount_paid': amount}
         )
 
@@ -650,7 +679,7 @@ def export_borrowers_excel(request, group_id):
     can be re-imported with minimal effort.
     """
     group = get_object_or_404(FinanceGroup, id=group_id, user=request.user)
-    borrowers = Borrower.objects.filter(finance_group=group, name__gt='').order_by('serial_number')
+    borrowers = Borrower.objects.filter(finance_group=group, name__gt='', is_archived=False).order_by('serial_number')
 
     wb = openpyxl.Workbook()
     sheet = wb.active
@@ -688,9 +717,56 @@ def export_borrowers_excel(request, group_id):
     wb.save(response)
     return response
 
+
+@login_required
+@require_http_methods(["POST"])
+def give_new_loan(request, borrower_id):
+    """
+    Start a new loan cycle for a borrower (typically one who has fully repaid).
+    Increments loan_cycle and resets amount_paid/date_of_loan. Does NOT touch
+    any existing WeeklyPayment row — the old cycle's payments (including a
+    same-day final payment that closed the previous loan) remain in the
+    database exactly as recorded, permanently, and keep counting toward the
+    group's daily collection total. Borrower.total_paid now excludes them
+    automatically because it filters by the (now incremented) loan_cycle.
+    """
+    borrower = get_object_or_404(Borrower, id=borrower_id, finance_group__user=request.user)
+    try:
+        data = json.loads(request.body)
+        new_amount = float(data.get('amount_given', 0))
+        new_date_str = data.get('date_of_loan')
+
+        if new_amount <= 0:
+            return JsonResponse({'error': 'Amount must be greater than 0'}, status=400)
+
+        new_date = datetime.fromisoformat(new_date_str).date() if new_date_str else date.today()
+
+        borrower.amount_given = new_amount
+        borrower.amount_paid = 0
+        borrower.date_of_loan = new_date
+        borrower.loan_cycle = borrower.loan_cycle + 1
+        borrower.save()
+
+        return JsonResponse({
+            'success': True,
+            'borrower': {
+                'id': borrower.id,
+                'amount_given': float(borrower.amount_given),
+                'date_of_loan': borrower.date_of_loan.isoformat(),
+                'total_paid': borrower.total_paid,
+                'balance': borrower.balance,
+            }
+        })
+    except Exception as e:
+        return JsonResponse({'error': str(e)}, status=400)
+
+
 @login_required
 def cash_flow_data(request, group_id):
-    """Read-only daily cash flow, derived entirely from existing WeeklyPayment/Borrower data."""
+    """Read-only daily cash flow, derived entirely from existing WeeklyPayment/Borrower data.
+    NOTE: shadowed by cash_flow_summary at the same URL in urls.py (both map to
+    api/group/<id>/cash-flow/, cash_flow_summary is registered second and wins).
+    Left as-is — previously flagged, not touched, since urls.py still imports it."""
     group = get_object_or_404(FinanceGroup, id=group_id, user=request.user)
 
     earliest_loan = Borrower.objects.filter(finance_group=group, name__gt='').aggregate(Min('date_of_loan'))['date_of_loan__min']
@@ -744,49 +820,6 @@ def cash_flow_data(request, group_id):
     }
 
     return JsonResponse({'success': True, 'entries': entries, 'summary': summary})
-@login_required
-@require_http_methods(["POST"])
-def give_new_loan(request, borrower_id):
-    """
-    Start a new loan cycle for a borrower (typically one who has fully repaid).
-    Resets amount_paid to 0 and moves date_of_loan forward — total_paid/balance
-    (see models.py) only count payments from date_of_loan onward, so old
-    payment history is preserved for View History but no longer affects balance.
-    """
-    borrower = get_object_or_404(Borrower, id=borrower_id, finance_group__user=request.user)
-    try:
-        data = json.loads(request.body)
-        new_amount = float(data.get('amount_given', 0))
-        new_date_str = data.get('date_of_loan')
-
-        if new_amount <= 0:
-            return JsonResponse({'error': 'Amount must be greater than 0'}, status=400)
-
-        new_date = datetime.fromisoformat(new_date_str).date() if new_date_str else date.today()
-
-        borrower.amount_given = new_amount
-        borrower.amount_paid = 0
-        borrower.date_of_loan = new_date
-    
-        borrower.save()
-
-        # Same-day edge case: any payment already recorded on the new loan's
-        # date belongs to the PREVIOUS cycle (e.g. old loan cleared earlier
-        # same day). total_paid's __gte filter would otherwise include it.
-        WeeklyPayment.objects.filter(borrower=borrower, payment_date=new_date).update(amount_paid=0)
-
-        return JsonResponse({
-            'success': True,
-            'borrower': {
-                'id': borrower.id,
-                'amount_given': float(borrower.amount_given),
-                'date_of_loan': borrower.date_of_loan.isoformat(),
-                'total_paid': borrower.total_paid,
-                'balance': borrower.balance,
-            }
-        })
-    except Exception as e:
-        return JsonResponse({'error': str(e)}, status=400)
 
 
 @login_required
@@ -795,7 +828,9 @@ def cash_flow_summary(request, group_id):
     Daily cash flow ledger. Read-only aggregation over existing data.
     Collections: WeeklyPayment grouped by payment_date, across all borrowers in group.
     Loans issued: Borrower.amount_given grouped by date_of_loan.
-    """
+    NOTE: this is the one actually reachable at api/group/<id>/cash-flow/ (registered
+    second in urls.py). group_detail.html doesn't call it — Cash Flow drawer computes
+    client-side. Left as-is, previously flagged."""
     group = get_object_or_404(FinanceGroup, id=group_id, user=request.user)
 
     payments = WeeklyPayment.objects.filter(
@@ -833,12 +868,29 @@ def cash_flow_summary(request, group_id):
         'current_available_cash': running_balance,
     })
 
+
+# ============================================================
+# CASH FLOW — Interest, Expenses, Collection Staff (date-selectable)
+# ============================================================
+
 @login_required
 def cash_flow_extras(request, group_id):
-    """Returns expenses + interest for the group's current month (for the drawer)."""
+    """
+    Returns expenses + interest + collection staff for the group's current
+    month, plus the full active employee list (for populating the
+    multi-select). Auto-seeds 3 default employees on first use per account,
+    same pattern as dashboard()'s auto-seed of default groups.
+    """
     group = get_object_or_404(FinanceGroup, id=group_id, user=request.user)
     today = date.today()
     first_day = today.replace(day=1)
+
+    if not Employee.objects.filter(user=request.user).exists():
+        Employee.objects.bulk_create([
+            Employee(user=request.user, name='Srikanth'),
+            Employee(user=request.user, name='Rama Reddy'),
+            Employee(user=request.user, name='Adi'),
+        ])
 
     expenses = DailyExpense.objects.filter(finance_group=group, date__gte=first_day, date__lte=today)
     expenses_by_date = defaultdict(list)
@@ -848,7 +900,22 @@ def cash_flow_extras(request, group_id):
     interest = DailyInterest.objects.filter(finance_group=group, date__gte=first_day, date__lte=today)
     interest_by_date = {i.date.isoformat(): float(i.amount) for i in interest}
 
-    return JsonResponse({'success': True, 'expenses': expenses_by_date, 'interest': interest_by_date})
+    staff_entries = CollectionStaffEntry.objects.filter(
+        finance_group=group, date__gte=first_day, date__lte=today
+    ).select_related('employee')
+    staff_by_date = defaultdict(list)
+    for s in staff_entries:
+        staff_by_date[s.date.isoformat()].append({'id': s.employee_id, 'name': s.employee.name})
+
+    employees = list(Employee.objects.filter(user=request.user, is_active=True).values('id', 'name'))
+
+    return JsonResponse({
+        'success': True,
+        'expenses': expenses_by_date,
+        'interest': interest_by_date,
+        'collection_staff': staff_by_date,
+        'employees': employees,
+    })
 
 
 @login_required
@@ -891,6 +958,42 @@ def update_interest(request, group_id):
         return JsonResponse({'success': True, 'amount': float(obj.amount)})
     except Exception as e:
         return JsonResponse({'error': str(e)}, status=400)
+
+
+@login_required
+@require_http_methods(["POST"])
+def save_collection_staff(request, group_id):
+    """
+    Replace-all-for-date: given a date and a list of employee_ids, sets the
+    collection staff for that (group, date) to exactly that set. Informational
+    only — never touches Borrower/WeeklyPayment/DailyExpense/DailyInterest or
+    any cash-flow calculation.
+    """
+    group = get_object_or_404(FinanceGroup, id=group_id, user=request.user)
+    try:
+        data = json.loads(request.body)
+        entry_date = datetime.fromisoformat(data.get('date')).date()
+        employee_ids = data.get('employee_ids', [])
+
+        valid_employee_ids = set(
+            Employee.objects.filter(user=request.user, id__in=employee_ids).values_list('id', flat=True)
+        )
+
+        with transaction.atomic():
+            CollectionStaffEntry.objects.filter(finance_group=group, date=entry_date).delete()
+            CollectionStaffEntry.objects.bulk_create([
+                CollectionStaffEntry(finance_group=group, date=entry_date, employee_id=eid)
+                for eid in valid_employee_ids
+            ])
+
+        names = list(
+            Employee.objects.filter(id__in=valid_employee_ids).values_list('name', flat=True)
+        )
+        return JsonResponse({'success': True, 'staff': names})
+    except Exception as e:
+        return JsonResponse({'error': str(e)}, status=400)
+
+
 @login_required
 def contact(request):
     if request.method == 'POST':
