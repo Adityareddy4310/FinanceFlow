@@ -368,6 +368,9 @@
             <div class="page-eyebrow">Dashboard</div>
             <h1 class="page-title">Welcome back, {{ user.username }}</h1>
             <p class="page-sub">Here's what's happening across your collection groups.</p>
+            <button type="button" class="modal-btn save" style="margin-top:16px; width:auto; padding:11px 22px; display:inline-flex; align-items:center; gap:8px;" onclick="openNewFinanceModal()">
+                <i data-lucide="plus"></i> New Finance
+            </button>
         </div>
 
         <div class="stats">
@@ -471,6 +474,36 @@
         </div>
     </div>
 
+    <div class="modal-overlay" id="newFinanceModalOverlay">
+        <div class="modal">
+            <h3>New Finance</h3>
+            <div class="modal-error" id="newFinanceError"></div>
+            <label for="newFinanceName">Finance Name</label>
+            <input type="text" id="newFinanceName" placeholder="e.g. Rajahmundry Finance">
+            <label>Finance Type</label>
+            <div style="display:flex; gap:10px; margin-bottom:16px;">
+                <button type="button" class="modal-btn" id="typeDailyBtn" style="background:var(--accent); color:#15130F;" onclick="selectFinanceType('daily')">Daily</button>
+                <button type="button" class="modal-btn" id="typeWeeklyBtn" style="background:var(--box-alt); color:var(--text-on-light);" onclick="selectFinanceType('weekly')">Weekly</button>
+            </div>
+            <div id="collectionDayField" style="display:none;">
+                <label for="newFinanceDay">Collection Day</label>
+                <select id="newFinanceDay" style="width:100%; padding:12px 14px; background:#fff; border:1.5px solid #DED2BB; border-radius:10px; color:var(--text-on-light); font-size:0.95rem; margin-bottom:16px;">
+                    <option value="monday">Monday</option>
+                    <option value="tuesday">Tuesday</option>
+                    <option value="wednesday">Wednesday</option>
+                    <option value="thursday">Thursday</option>
+                    <option value="friday">Friday</option>
+                    <option value="saturday">Saturday</option>
+                    <option value="sunday">Sunday</option>
+                </select>
+            </div>
+            <div class="modal-actions">
+                <button type="button" class="modal-btn cancel" onclick="closeNewFinanceModal()">Cancel</button>
+                <button type="button" class="modal-btn save" onclick="submitNewFinance()">Create</button>
+            </div>
+        </div>
+    </div>
+
     <div class="toast" id="toast"></div>
     {% csrf_token %}
 
@@ -513,6 +546,68 @@
         function getCSRFToken() {
             return document.querySelector('[name=csrfmiddlewaretoken]').value;
         }
+
+        let selectedFinanceType = 'daily';
+
+        function openNewFinanceModal() {
+            document.getElementById('newFinanceName').value = '';
+            document.getElementById('newFinanceError').style.display = 'none';
+            selectFinanceType('daily');
+            document.getElementById('newFinanceModalOverlay').classList.add('open');
+        }
+
+        function closeNewFinanceModal() {
+            document.getElementById('newFinanceModalOverlay').classList.remove('open');
+        }
+
+        function selectFinanceType(type) {
+            selectedFinanceType = type;
+            document.getElementById('typeDailyBtn').style.background = type === 'daily' ? 'var(--accent)' : 'var(--box-alt)';
+            document.getElementById('typeDailyBtn').style.color = type === 'daily' ? '#15130F' : 'var(--text-on-light)';
+            document.getElementById('typeWeeklyBtn').style.background = type === 'weekly' ? 'var(--accent)' : 'var(--box-alt)';
+            document.getElementById('typeWeeklyBtn').style.color = type === 'weekly' ? '#15130F' : 'var(--text-on-light)';
+            document.getElementById('collectionDayField').style.display = type === 'weekly' ? 'block' : 'none';
+        }
+
+        async function submitNewFinance() {
+            const name = document.getElementById('newFinanceName').value.trim();
+            const errorEl = document.getElementById('newFinanceError');
+
+            if (!name) {
+                errorEl.textContent = 'Finance name is required.';
+                errorEl.style.display = 'block';
+                return;
+            }
+
+            const payload = { name, finance_type: selectedFinanceType };
+            if (selectedFinanceType === 'weekly') {
+                payload.collection_day = document.getElementById('newFinanceDay').value;
+            }
+
+            try {
+                const res = await fetch('/api/finance-group/create/', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json', 'X-CSRFToken': getCSRFToken() },
+                    body: JSON.stringify(payload)
+                });
+                const data = await res.json();
+
+                if (data.success) {
+                    closeNewFinanceModal();
+                    location.reload();
+                } else {
+                    errorEl.textContent = data.error || 'Something went wrong.';
+                    errorEl.style.display = 'block';
+                }
+            } catch (err) {
+                errorEl.textContent = 'Network error. Please try again.';
+                errorEl.style.display = 'block';
+            }
+        }
+
+        document.getElementById('newFinanceModalOverlay').addEventListener('click', function(e) {
+            if (e.target === this) closeNewFinanceModal();
+        });
 
         let currentEditGroupId = null;
 

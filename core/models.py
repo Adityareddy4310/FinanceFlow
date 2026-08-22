@@ -4,11 +4,38 @@ from datetime import date
 
 
 class FinanceGroup(models.Model):
+    FINANCE_TYPE_CHOICES = [
+        ('daily', 'Daily'),
+        ('weekly', 'Weekly'),
+    ]
+
+    COLLECTION_DAY_CHOICES = [
+        ('monday', 'Monday'),
+        ('tuesday', 'Tuesday'),
+        ('wednesday', 'Wednesday'),
+        ('thursday', 'Thursday'),
+        ('friday', 'Friday'),
+        ('saturday', 'Saturday'),
+        ('sunday', 'Sunday'),
+    ]
+
     user = models.ForeignKey(User, on_delete=models.CASCADE)
     name = models.CharField(max_length=100)
     day = models.CharField(max_length=50)
     location = models.CharField(max_length=100)
     created_at = models.DateTimeField(auto_now_add=True)
+
+    finance_type = models.CharField(
+        max_length=10,
+        choices=FINANCE_TYPE_CHOICES,
+        default='daily'
+    )
+
+    collection_day = models.CharField(
+        max_length=10,
+        choices=COLLECTION_DAY_CHOICES,
+        default='monday'
+    )
 
     def __str__(self):
         return self.name

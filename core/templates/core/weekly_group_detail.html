@@ -31,9 +31,9 @@
         .bg-layer { position: fixed; inset: 0; z-index: 0; pointer-events: none; overflow: hidden; }
         .bg-dots { position: absolute; inset: 0; background-image: radial-gradient(rgba(237,230,216,0.05) 1px, transparent 1px); background-size: 26px 26px; }
         .bg-blob { position: absolute; border-radius: 50%; filter: blur(90px); opacity: 0.3; animation: drift 24s ease-in-out infinite; }
-        .bg-blob.b1 { width: 480px; height: 480px; background: radial-gradient(circle, var(--gold-1), transparent); top: -10%; left: -8%; }
+        .bg-blob.b1 { width: 480px; height: 480px; background: radial-gradient(circle, var(--indigo-1), transparent); top: -10%; left: -8%; }
         .bg-blob.b2 { width: 420px; height: 420px; background: radial-gradient(circle, var(--forest), transparent); bottom: -12%; right: -6%; animation-delay: 6s; }
-        .bg-blob.b3 { width: 340px; height: 340px; background: radial-gradient(circle, var(--indigo-1), transparent); top: 40%; right: 20%; opacity: 0.14; animation-delay: 12s; }
+        .bg-blob.b3 { width: 340px; height: 340px; background: radial-gradient(circle, var(--gold-1), transparent); top: 40%; right: 20%; opacity: 0.14; animation-delay: 12s; }
         @keyframes drift { 0%,100% { transform: translate(0,0) scale(1); } 50% { transform: translate(30px,-30px) scale(1.08); } }
 
         .nav { display: flex; align-items: center; justify-content: space-between; padding: 16px 48px; border-bottom: 1px solid rgba(237,230,216,0.08); position: sticky; top: 0; z-index: 50; background: rgba(21,19,15,0.72); backdrop-filter: blur(16px); -webkit-backdrop-filter: blur(16px); }
@@ -51,21 +51,30 @@
 
         .workspace-header { display: flex; align-items: flex-start; justify-content: space-between; gap: 20px; margin-bottom: 32px; flex-wrap: wrap; }
         .header-left { display: flex; align-items: flex-start; gap: 16px; }
-        .header-icon { width: 52px; height: 52px; border-radius: 14px; background: linear-gradient(135deg, var(--gold-1), var(--glow)); display: flex; align-items: center; justify-content: center; flex-shrink: 0; box-shadow: 0 8px 22px rgba(184,134,59,0.3); }
-        .header-icon i { width: 24px; height: 24px; color: #15130F; }
+        .header-icon { width: 52px; height: 52px; border-radius: 14px; background: linear-gradient(135deg, var(--indigo-1), var(--indigo-2)); display: flex; align-items: center; justify-content: center; flex-shrink: 0; box-shadow: 0 8px 22px rgba(79,70,229,0.3); }
+        .header-icon i { width: 24px; height: 24px; color: #fff; }
         .header-title { font-family: 'Space Grotesk', sans-serif; font-size: 1.8rem; font-weight: 600; letter-spacing: -0.015em; margin-bottom: 8px; }
         .header-meta { display: flex; align-items: center; gap: 18px; flex-wrap: wrap; }
         .header-meta-item { display: flex; align-items: center; gap: 6px; font-size: 0.85rem; color: var(--muted-dark); }
         .header-meta-item i { width: 14px; height: 14px; }
+        .weekly-tag { display: inline-flex; align-items: center; gap: 5px; background: rgba(79,70,229,0.14); border: 1px solid rgba(79,70,229,0.3); color: #C3BEFF; padding: 3px 10px; border-radius: 20px; font-size: 0.68rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.04em; }
         .header-right-group { display: flex; align-items: center; gap: 12px; flex-wrap: wrap; }
-        .month-pill { display: flex; align-items: center; gap: 8px; background: rgba(217,168,87,0.1); border: 1px solid rgba(217,168,87,0.25); color: var(--glow); padding: 10px 18px; border-radius: 12px; font-size: 0.85rem; font-weight: 600; }
-        .month-pill i { width: 15px; height: 15px; }
         .btn-cashflow { display: flex; align-items: center; gap: 8px; padding: 10px 18px; border-radius: 12px; background: linear-gradient(135deg, var(--indigo-1), var(--indigo-2)); color: #fff; border: none; cursor: pointer; font-size: 0.85rem; font-weight: 600; box-shadow: 0 6px 18px rgba(79,70,229,0.3); transition: all 0.25s ease; }
         .btn-cashflow i { width: 15px; height: 15px; }
         .btn-cashflow:hover { transform: translateY(-2px); box-shadow: 0 10px 26px rgba(79,70,229,0.4); }
 
-        .info-box { display: flex; align-items: center; gap: 10px; background: rgba(217,168,87,0.09); border: 1px solid rgba(217,168,87,0.22); padding: 13px 16px; border-radius: 12px; color: var(--glow); font-size: 0.85rem; margin-bottom: 28px; }
+        .info-box { display: flex; align-items: center; gap: 10px; background: rgba(217,168,87,0.09); border: 1px solid rgba(217,168,87,0.22); padding: 13px 16px; border-radius: 12px; color: var(--glow); font-size: 0.85rem; margin-bottom: 20px; }
         .info-box i { width: 17px; height: 17px; flex-shrink: 0; }
+
+        /* ===== WEEK WINDOW / PAGINATION BAR ===== */
+        .window-bar { display: flex; align-items: center; justify-content: space-between; gap: 16px; background: var(--box); border: 1px solid rgba(36,31,27,0.08); border-radius: 16px; padding: 14px 20px; margin-bottom: 28px; flex-wrap: wrap; }
+        .window-label { display: flex; align-items: center; gap: 10px; color: var(--text-on-light); font-weight: 600; font-size: 0.92rem; }
+        .window-label i { width: 17px; height: 17px; color: var(--accent-hover); }
+        .window-nav { display: flex; align-items: center; gap: 8px; }
+        .window-nav-btn { display: flex; align-items: center; gap: 6px; padding: 9px 16px; border-radius: 10px; border: 1.5px solid #DED2BB; background: #fff; color: var(--text-on-light); font-size: 0.82rem; font-weight: 600; cursor: pointer; text-decoration: none; transition: all 0.2s ease; }
+        .window-nav-btn:hover { border-color: var(--accent); background: rgba(184,134,59,0.06); }
+        .window-nav-btn.disabled { opacity: 0.4; pointer-events: none; }
+        .window-nav-btn i { width: 15px; height: 15px; }
 
         .stats { display: grid; grid-template-columns: repeat(4, 1fr); gap: 20px; margin-bottom: 40px; }
         .stat-card { position: relative; border-radius: 20px; padding: 24px; overflow: hidden; isolation: isolate; border: 1px solid rgba(255,255,255,0.08); backdrop-filter: blur(4px); transition: transform 0.35s cubic-bezier(0.22,1,0.36,1), box-shadow 0.35s ease; }
@@ -103,8 +112,8 @@
 
         .section-header { display: flex; align-items: center; justify-content: space-between; gap: 16px; margin-bottom: 18px; flex-wrap: wrap; }
         .section-title-row { display: flex; align-items: center; gap: 10px; }
-        .section-title-icon { width: 34px; height: 34px; border-radius: 10px; background: linear-gradient(135deg, var(--gold-1), var(--glow)); display: flex; align-items: center; justify-content: center; }
-        .section-title-icon i { width: 17px; height: 17px; color: #15130F; }
+        .section-title-icon { width: 34px; height: 34px; border-radius: 10px; background: linear-gradient(135deg, var(--indigo-1), var(--indigo-2)); display: flex; align-items: center; justify-content: center; }
+        .section-title-icon i { width: 17px; height: 17px; color: #fff; }
         .section-title { font-family: 'Space Grotesk', sans-serif; font-size: 1.2rem; font-weight: 600; }
 
         .search-wrap { position: relative; width: 300px; }
@@ -113,6 +122,7 @@
         .search-box { width: 100%; padding: 11px 14px 11px 40px; border: 1px solid rgba(237,230,216,0.14); border-radius: 11px; background: rgba(237,230,216,0.04); color: var(--text-on-dark); font-size: 0.88rem; }
         .search-box::placeholder { color: var(--muted-dark); }
         .search-box:focus { outline: none; border-color: var(--accent); background: rgba(237,230,216,0.07); box-shadow: 0 0 0 3px rgba(184,134,59,0.15); }
+
 
         .excel-toolbar { display: flex; gap: 12px; margin-bottom: 22px; flex-wrap: wrap; }
         .btn-toolbar { display: inline-flex; align-items: center; gap: 8px; padding: 11px 18px; border-radius: 11px; font-size: 0.85rem; font-weight: 600; cursor: pointer; border: 1px solid transparent; text-decoration: none; transition: all 0.25s ease; min-height: 42px; }
@@ -135,9 +145,6 @@
         table { width: max-content; min-width: 100%; border-collapse: collapse; font-size: 0.8rem; }
         th { background: var(--text-on-light); color: var(--box); padding: 14px 10px; text-align: center; font-weight: 600; white-space: nowrap; position: sticky; top: 0; z-index: 10; font-size: 0.71rem; text-transform: uppercase; letter-spacing: 0.04em; }
         th.align-right { text-align: right; }
-        /* Each frozen column gets its own cumulative left offset (set inline per
-           column below) instead of all sharing left:0 — sharing left:0 was the
-           root cause of frozen columns stacking/overlapping instead of cascading. */
         th.sticky-left { position: sticky; z-index: 11; }
         .freeze-divider { box-shadow: 3px 0 8px -3px rgba(0,0,0,0.28); }
         td { padding: 12px 10px; border-bottom: 1px solid rgba(36,31,27,0.06); color: var(--text-on-light); font-variant-numeric: tabular-nums; }
@@ -169,6 +176,8 @@
         .payment-cell.has-payment:hover { background: rgba(47,82,51,0.2) !important; }
         .payment-cell.empty { color: var(--muted-light); font-weight: 400; }
         .payment-cell.empty:hover { background: rgba(184,134,59,0.14) !important; color: var(--accent-hover); }
+        .payment-cell.unavailable { color: #C7BEAE; font-weight: 400; cursor: default; background: repeating-linear-gradient(135deg, rgba(36,31,27,0.025), rgba(36,31,27,0.025) 4px, transparent 4px, transparent 8px); }
+        .payment-cell.unavailable:hover { background: repeating-linear-gradient(135deg, rgba(36,31,27,0.025), rgba(36,31,27,0.025) 4px, transparent 4px, transparent 8px) !important; }
 
         .icon-btn { width: 34px; height: 34px; border-radius: 9px; border: none; display: flex; align-items: center; justify-content: center; cursor: pointer; transition: all 0.2s ease; }
         .icon-btn i { width: 15px; height: 15px; }
@@ -201,6 +210,8 @@
         .btn-add:hover { transform: translateY(-2px); box-shadow: 0 10px 22px rgba(47,82,51,0.4); }
         .btn-add.loading { color: transparent; pointer-events: none; position: relative; }
         .btn-add.loading::after { content:''; position:absolute; width:16px; height:16px; top:50%; left:50%; margin:-8px 0 0 -8px; border:2px solid rgba(255,255,255,0.3); border-top-color:#fff; border-radius:50%; animation: spin 0.8s linear infinite; }
+        @keyframes spin { to { transform: rotate(360deg); } }
+
 
         .import-modal-overlay { position: fixed; inset: 0; background: rgba(21,19,15,0.75); backdrop-filter: blur(5px); display: none; align-items: center; justify-content: center; z-index: 500; padding: 20px; }
         .import-modal-overlay.open { display: flex; }
@@ -215,7 +226,6 @@
         .import-modal-controls label { font-size: 0.78rem; color: var(--muted-light); font-weight: 600; }
         #duplicateActionSelect { padding: 9px 12px; border-radius: 9px; background: #fff; border: 1.5px solid #DED2BB; color: var(--text-on-light); font-size: 0.8rem; }
         .import-modal-actions { display: flex; justify-content: flex-end; gap: 12px; }
-        .btn-modal-cancel { background: var(--box-alt); color: var(--muted-light); border: none; padding: 11px 22px; border-radius: 10px; cursor: pointer; font-weight: 600; font-size: 0.85rem; }
         .btn-modal-confirm { background: linear-gradient(135deg, var(--indigo-1), var(--indigo-2)); color: white; border: none; padding: 11px 22px; border-radius: 10px; cursor: pointer; font-weight: 600; font-size: 0.85rem; position: relative; }
         .btn-modal-confirm.loading { color: transparent; pointer-events: none; }
         .btn-modal-confirm.loading::after { content:''; position:absolute; width:16px; height:16px; top:50%; left:50%; margin:-8px 0 0 -8px; border:2px solid rgba(255,255,255,0.3); border-top-color:#fff; border-radius:50%; animation: spin 0.8s linear infinite; }
@@ -234,6 +244,7 @@
         .modal-field label { display: block; font-size: 0.72rem; font-weight: 600; color: var(--muted-light); margin-bottom: 6px; text-transform: uppercase; letter-spacing: 0.05em; }
         .confirm-modal-actions { display: flex; gap: 10px; margin-top: 8px; }
         .confirm-modal-actions button { flex: 1; padding: 12px; border-radius: 10px; font-size: 0.85rem; font-weight: 600; cursor: pointer; border: none; position: relative; }
+        .btn-modal-cancel { background: var(--box-alt); color: var(--muted-light); border: none; padding: 11px 22px; border-radius: 10px; cursor: pointer; font-weight: 600; font-size: 0.85rem; }
         .btn-modal-delete { background: var(--rust); color: #fff; }
         .btn-modal-delete:hover { background: #8E3538; }
         .btn-modal-confirm-positive { background: var(--forest); color: #fff; }
@@ -241,7 +252,7 @@
         .btn-loading.loading { color: transparent; pointer-events: none; }
         .btn-loading.loading::after { content:''; position:absolute; width:16px; height:16px; top:50%; left:50%; margin:-8px 0 0 -8px; border:2px solid rgba(255,255,255,0.3); border-top-color:#fff; border-radius:50%; animation: spin 0.8s linear infinite; }
 
-        /* ===== CASH FLOW DRAWER ===== */
+        /* ===== CASH FLOW DRAWER (identical to Daily) ===== */
         .drawer-overlay { position: fixed; inset: 0; background: rgba(21,19,15,0.6); backdrop-filter: blur(3px); display: none; justify-content: flex-end; z-index: 700; }
         .drawer-overlay.open { display: flex; }
         .drawer-panel { width: 460px; max-width: 92vw; height: 100%; background: var(--box); box-shadow: -20px 0 60px rgba(0,0,0,0.4); display: flex; flex-direction: column; transform: translateX(100%); animation: slideIn 0.3s cubic-bezier(0.22,1,0.36,1) forwards; }
@@ -270,7 +281,6 @@
         .mini-btn { padding: 9px 14px; border-radius: 9px; border: none; font-weight: 600; font-size: 0.8rem; cursor: pointer; position: relative; }
         #expenseListForDate { padding: 0 24px 16px; font-size: 0.78rem; color: var(--muted-light); }
 
-        /* Collection staff multi-select */
         .staff-select-wrap { position: relative; padding: 0 24px 16px; }
         .staff-select-trigger { width: 100%; display: flex; align-items: center; justify-content: space-between; gap: 8px; padding: 10px 14px; border: 1.5px solid #DED2BB; border-radius: 9px; background: #fff; cursor: pointer; font-size: 0.83rem; color: var(--text-on-light); }
         .staff-select-trigger i { width: 15px; height: 15px; color: var(--muted-light); transition: transform 0.2s ease; }
@@ -302,11 +312,11 @@
             .section-header { flex-direction: column; align-items: flex-start; }
             .search-wrap { width: 100%; }
             .add-form { grid-template-columns: 1fr 1fr; }
+            .window-bar { flex-direction: column; align-items: flex-start; }
         }
         @media (max-width: 640px) {
             .stats { grid-template-columns: 1fr; }
             .add-form { grid-template-columns: 1fr; }
-            .excel-toolbar { flex-direction: column; }
             .header-title { font-size: 1.5rem; }
             .drawer-stats { grid-template-columns: 1fr 1fr; }
             .drawer-panel { width: 100%; max-width: 100vw; }
@@ -336,24 +346,31 @@
     <main class="main">
         <div class="workspace-header">
             <div class="header-left">
-                <div class="header-icon"><i data-lucide="folder-open"></i></div>
+                <div class="header-icon"><i data-lucide="calendar-clock"></i></div>
                 <div>
                     <h1 class="header-title">{{ group.name }}</h1>
                     <div class="header-meta">
-                        <div class="header-meta-item"><i data-lucide="calendar"></i>{{ group.day }}</div>
-                        <div class="header-meta-item"><i data-lucide="map-pin"></i>{{ group.location }}</div>
+                        <span class="weekly-tag"><i data-lucide="repeat" style="width:11px;height:11px;"></i> Weekly</span>
+                        <div class="header-meta-item"><i data-lucide="calendar"></i>Collects every {{ group.get_collection_day_display }}</div>
                     </div>
                 </div>
             </div>
             <div class="header-right-group">
                 <button class="btn-cashflow" onclick="openCashFlowDrawer()"><i data-lucide="line-chart"></i> Cash Flow</button>
-                <div class="month-pill"><i data-lucide="calendar-days"></i>{{ month_name }}</div>
             </div>
         </div>
 
         <div class="info-box">
             <i data-lucide="lightbulb"></i>
-            <span>Click any field to edit inline. Paid borrowers are pinned to the top with a softer highlight.</span>
+            <span>Columns are this group's weekly collection dates. A borrower's cells before they joined are greyed out and not editable.</span>
+        </div>
+
+        <div class="window-bar">
+            <div class="window-label"><i data-lucide="calendar-range"></i> {{ window_label }}</div>
+            <div class="window-nav">
+                <a class="window-nav-btn {% if window == 0 %}disabled{% endif %}" href="?window={{ window|add:"-1" }}"><i data-lucide="chevron-left"></i> Previous 25</a>
+                <a class="window-nav-btn" href="?window={{ window|add:"1" }}">Next 25 <i data-lucide="chevron-right"></i></a>
+            </div>
         </div>
 
         <div class="stats">
@@ -389,6 +406,7 @@
                 <input type="text" id="searchInput" class="search-box" placeholder="Search by name or Sr#..." onkeyup="filterBorrowers()">
             </div>
         </div>
+
 
         <div class="excel-toolbar">
             <button class="btn-toolbar import" id="importExcelBtn" onclick="triggerFileSelect()">
@@ -442,6 +460,7 @@
         </div>
     </main>
 
+    
     <!-- IMPORT PREVIEW MODAL -->
     <div class="import-modal-overlay" id="importModalOverlay">
         <div class="import-modal">
@@ -586,6 +605,113 @@
     </div>
 
     <script>
+        
+        let pendingImportRows = [];
+
+        function triggerFileSelect() {
+            document.getElementById('excelFileInput').click();
+        }
+
+        function handleFileSelect(event) {
+            const file = event.target.files[0];
+            if (!file) return;
+
+            const formData = new FormData();
+            formData.append('file', file);
+
+            const importBtn = document.getElementById('importExcelBtn');
+            importBtn.classList.add('loading');
+            importBtn.disabled = true;
+
+            fetch(`/api/group/${groupId}/import-excel/preview/`, {
+                method: 'POST',
+                headers: { 'X-CSRFToken': getCookie('csrftoken') },
+                body: formData,
+            }).then(r => r.json()).then(d => {
+                importBtn.classList.remove('loading');
+                importBtn.disabled = false;
+                event.target.value = '';
+                if (d.error) { alert('Error: ' + d.error); return; }
+                showImportPreview(d);
+            }).catch(() => {
+                importBtn.classList.remove('loading');
+                importBtn.disabled = false;
+                alert('Upload failed. Please try again.');
+            });
+        }
+
+        function showImportPreview(data) {
+            pendingImportRows = data.valid_rows;
+
+            document.getElementById('importSummary').innerHTML = `
+                <strong>${data.total_detected}</strong> rows detected —
+                <span style="color:#2F5233">${data.valid_count} valid</span>,
+                <span style="color:#A63D40">${data.error_count} errors</span>,
+                <span style="color:#8C6529">${data.duplicate_count} duplicates</span>
+            `;
+
+            const tbody = document.getElementById('previewTableBody');
+            tbody.innerHTML = '';
+
+            data.valid_rows.forEach(row => {
+                const tr = document.createElement('tr');
+                tr.innerHTML = `
+                    <td>${row.serial_number}</td><td>${row.name}</td><td>${row.date_of_loan}</td><td>₹${row.amount_given}</td>
+                    <td>${row.is_duplicate ? '<span style="color:#8C6529">Duplicate</span>' : '<span style="color:#2F5233">New</span>'}</td>
+                `;
+                tbody.appendChild(tr);
+            });
+
+            data.error_rows.forEach(row => {
+                const tr = document.createElement('tr');
+                tr.style.opacity = '0.6';
+                tr.innerHTML = `
+                    <td>${row.serial_number ?? '-'}</td><td>${row.name || '-'}</td><td>${row.date_of_loan || '-'}</td><td>${row.amount_given ?? '-'}</td>
+                    <td style="color:#A63D40">${row.error}</td>
+                `;
+                tbody.appendChild(tr);
+            });
+
+            document.getElementById('confirmImportBtn').style.display = data.valid_count > 0 ? 'inline-block' : 'none';
+            document.getElementById('importModalOverlay').classList.add('open');
+        }
+
+        function closeImportModal() {
+            document.getElementById('importModalOverlay').classList.remove('open');
+            pendingImportRows = [];
+        }
+
+        function confirmImport() {
+            const duplicateAction = document.getElementById('duplicateActionSelect').value;
+            const confirmBtn = document.getElementById('confirmImportBtn');
+            confirmBtn.classList.add('loading');
+            confirmBtn.disabled = true;
+
+            fetch(`/api/group/${groupId}/import-excel/confirm/`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json', 'X-CSRFToken': getCookie('csrftoken') },
+                body: JSON.stringify({ rows: pendingImportRows, duplicate_action: duplicateAction }),
+            }).then(r => r.json()).then(d => {
+                if (d.success) {
+                    alert(`Import complete — ${d.created} added, ${d.updated} updated, ${d.skipped} skipped.`);
+                    location.reload();
+                } else {
+                    confirmBtn.classList.remove('loading');
+                    confirmBtn.disabled = false;
+                    alert('Error: ' + d.error);
+                }
+            }).catch(() => {
+                confirmBtn.classList.remove('loading');
+                confirmBtn.disabled = false;
+                alert('Import failed. Please try again.');
+            });
+        }
+
+        document.getElementById('importModalOverlay').addEventListener('click', function(e) {
+            if (e.target === this) closeImportModal();
+        });
+
+
         lucide.createIcons();
 
         const borrowersData = {{ borrowers|safe }};
@@ -663,10 +789,15 @@
                 html += `<td class="sticky-col freeze-divider" style="text-align: center; left:520px;">${badge}</td>`;
 
                 daysData.forEach(day => {
-                    const amt = borrower.payments[day.date] || 0;
-                    const hasPayment = amt > 0;
-                    const display = hasPayment ? `₹${amt}` : '—';
-                    html += `<td class="payment-cell ${hasPayment ? 'has-payment' : 'empty'}" data-raw-amount="${amt}" onclick="editPayment(this, ${borrower.id}, '${day.date}')">${display}</td>`;
+                    const isUnavailable = borrower.unavailable && borrower.unavailable.includes(day.date);
+                    if (isUnavailable) {
+                        html += `<td class="payment-cell unavailable" title="Not yet joined">·</td>`;
+                    } else {
+                        const amt = borrower.payments[day.date] || 0;
+                        const hasPayment = amt > 0;
+                        const display = hasPayment ? `₹${amt}` : '—';
+                        html += `<td class="payment-cell ${hasPayment ? 'has-payment' : 'empty'}" data-raw-amount="${amt}" onclick="editPayment(this, ${borrower.id}, '${day.date}')">${display}</td>`;
+                    }
                 });
 
                 html += `<td>
@@ -690,7 +821,7 @@
 
             const totalRow = document.createElement('tr');
             totalRow.className = 'total-row';
-            let totalHtml = `<td colspan="7" class="sticky-col" style="left:0; text-align: right; padding-right: 12px;">DAILY TOTALS</td>`;
+            let totalHtml = `<td colspan="7" class="sticky-col" style="left:0; text-align: right; padding-right: 12px;">WEEKLY TOTALS</td>`;
             daysData.forEach(day => {
                 const total = dailyTotalsData[day.date] || 0;
                 const count = dailyCountsData[day.date] || 0;
@@ -737,9 +868,6 @@
         }
 
         function editField(cell, borrowerId, fieldType) {
-            // Paid cell displays the combined total_paid; editing must operate on the
-            // raw manual amount_paid field (stashed in data-raw-paid), never the
-            // displayed total — otherwise saving would double-count collections.
             const val = fieldType === 'paid'
                 ? (cell.dataset.rawPaid || '0')
                 : cell.innerText.replace('₹', '').trim();
@@ -969,7 +1097,7 @@
             return cookieValue;
         }
 
-        /* ===== CASH FLOW — date-selectable interest/expenses/collection staff ===== */
+        /* ===== CASH FLOW — date-selectable interest/expenses/collection staff (identical to Daily) ===== */
 
         let cfExpensesByDate = {};
         let cfInterestByDate = {};
@@ -1019,7 +1147,7 @@
             const tbody = document.getElementById('cfTableBody');
             tbody.innerHTML = '';
             if (rows.length === 0) {
-                tbody.innerHTML = '<tr><td colspan="8" class="cf-empty">No cash flow data yet this month.</td></tr>';
+                tbody.innerHTML = '<tr><td colspan="8" class="cf-empty">No cash flow data yet in this window.</td></tr>';
                 return;
             }
             rows.slice().reverse().forEach(r => {
@@ -1076,8 +1204,6 @@
                 </div>`).join('');
             lucide.createIcons();
         }
-
-        /* ----- Collection Staff multi-select ----- */
 
         function renderStaffDropdownOptions() {
             const dropdown = document.getElementById('staffDropdown');
@@ -1215,113 +1341,6 @@
                 if (res.success) { fetchCashFlowExtras(refreshCashFlowUI); } else alert('Error: ' + res.error);
             });
         }
-
-        /* ===== EXCEL IMPORT / EXPORT — unchanged logic ===== */
-
-        let pendingImportRows = [];
-
-        function triggerFileSelect() {
-            document.getElementById('excelFileInput').click();
-        }
-
-        function handleFileSelect(event) {
-            const file = event.target.files[0];
-            if (!file) return;
-
-            const formData = new FormData();
-            formData.append('file', file);
-
-            const importBtn = document.getElementById('importExcelBtn');
-            importBtn.classList.add('loading');
-            importBtn.disabled = true;
-
-            fetch(`/api/group/${groupId}/import-excel/preview/`, {
-                method: 'POST',
-                headers: { 'X-CSRFToken': getCookie('csrftoken') },
-                body: formData,
-            }).then(r => r.json()).then(d => {
-                importBtn.classList.remove('loading');
-                importBtn.disabled = false;
-                event.target.value = '';
-                if (d.error) { alert('Error: ' + d.error); return; }
-                showImportPreview(d);
-            }).catch(() => {
-                importBtn.classList.remove('loading');
-                importBtn.disabled = false;
-                alert('Upload failed. Please try again.');
-            });
-        }
-
-        function showImportPreview(data) {
-            pendingImportRows = data.valid_rows;
-
-            document.getElementById('importSummary').innerHTML = `
-                <strong>${data.total_detected}</strong> rows detected —
-                <span style="color:#2F5233">${data.valid_count} valid</span>,
-                <span style="color:#A63D40">${data.error_count} errors</span>,
-                <span style="color:#8C6529">${data.duplicate_count} duplicates</span>
-            `;
-
-            const tbody = document.getElementById('previewTableBody');
-            tbody.innerHTML = '';
-
-            data.valid_rows.forEach(row => {
-                const tr = document.createElement('tr');
-                tr.innerHTML = `
-                    <td>${row.serial_number}</td><td>${row.name}</td><td>${row.date_of_loan}</td><td>₹${row.amount_given}</td>
-                    <td>${row.is_duplicate ? '<span style="color:#8C6529">Duplicate</span>' : '<span style="color:#2F5233">New</span>'}</td>
-                `;
-                tbody.appendChild(tr);
-            });
-
-            data.error_rows.forEach(row => {
-                const tr = document.createElement('tr');
-                tr.style.opacity = '0.6';
-                tr.innerHTML = `
-                    <td>${row.serial_number ?? '-'}</td><td>${row.name || '-'}</td><td>${row.date_of_loan || '-'}</td><td>${row.amount_given ?? '-'}</td>
-                    <td style="color:#A63D40">${row.error}</td>
-                `;
-                tbody.appendChild(tr);
-            });
-
-            document.getElementById('confirmImportBtn').style.display = data.valid_count > 0 ? 'inline-block' : 'none';
-            document.getElementById('importModalOverlay').classList.add('open');
-        }
-
-        function closeImportModal() {
-            document.getElementById('importModalOverlay').classList.remove('open');
-            pendingImportRows = [];
-        }
-
-        function confirmImport() {
-            const duplicateAction = document.getElementById('duplicateActionSelect').value;
-            const confirmBtn = document.getElementById('confirmImportBtn');
-            confirmBtn.classList.add('loading');
-            confirmBtn.disabled = true;
-
-            fetch(`/api/group/${groupId}/import-excel/confirm/`, {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json', 'X-CSRFToken': getCookie('csrftoken') },
-                body: JSON.stringify({ rows: pendingImportRows, duplicate_action: duplicateAction }),
-            }).then(r => r.json()).then(d => {
-                if (d.success) {
-                    alert(`Import complete — ${d.created} added, ${d.updated} updated, ${d.skipped} skipped.`);
-                    location.reload();
-                } else {
-                    confirmBtn.classList.remove('loading');
-                    confirmBtn.disabled = false;
-                    alert('Error: ' + d.error);
-                }
-            }).catch(() => {
-                confirmBtn.classList.remove('loading');
-                confirmBtn.disabled = false;
-                alert('Import failed. Please try again.');
-            });
-        }
-
-        document.getElementById('importModalOverlay').addEventListener('click', function(e) {
-            if (e.target === this) closeImportModal();
-        });
     </script>
 </body>
 </html>

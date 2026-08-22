@@ -1,3 +1,5 @@
+from tokenize import group
+
 from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib.auth import login
 from django.contrib.auth.decorators import login_required
@@ -21,6 +23,59 @@ from .models import (
 from .forms import CustomUserCreationForm
 from django.db.models import Q, Prefetch, Sum, Min
 from collections import defaultdict
+
+
+WEEKDAY_MAP = {
+    'monday': 0, 'tuesday': 1, 'wednesday': 2, 'thursday': 3,
+    'friday': 4, 'saturday': 5, 'sunday': 6,
+}
+
+
+def _next_weekday_on_or_after(start_date, weekday_int):
+    """First date >= start_date whose Python weekday() == weekday_int."""
+    days_ahead = (weekday_int - start_date.weekday()) % 7
+    return start_date + timedelta(days=days_ahead)
+
+
+def _get_weekly_window_dates(group, window=0):
+    """
+    25 collection dates for the given 25-week window.
+
+    Anchor is the FinanceGroup creation date (not any borrower's loan date).
+    The first column is the next occurrence of group.collection_day on or after
+    that creation date — e.g. group created Friday 21/08/2026 with collection
+    day Wednesday → first column 26/08/2026, then +7 days for 25 weeks.
+    """
+    weekday_int = WEEKDAY_MAP.get(group.collection_day, 0)
+
+    if getattr(group, 'created_at', None):
+        anchor = group.created_at.date() if hasattr(group.created_at, 'date') else group.created_at
+    else:
+        anchor = date.today()
+
+    first_date = _next_weekday_on_or_after(anchor, weekday_int)
+
+    window = max(int(window or 0), 0)
+    window_start = first_date + timedelta(weeks=window * 25)
+
+    return [
+        window_start + timedelta(weeks=i)
+        for i in range(25)
+    ]
+
+
+def _borrower_first_collection_date(borrower, weekday_int):
+    """
+    First applicable collection date for this borrower.
+    """
+    if not borrower.date_of_loan:
+        return None
+
+    return _next_weekday_on_or_after(
+        borrower.date_of_loan,
+        weekday_int
+    )
+
 
 def home(request):
     if request.user.is_authenticated:
@@ -103,6 +158,7 @@ def dashboard(request):
             'location': group.location,
             'active_borrowers': len(active_borrowers),
             'total_balance': int(total_balance),
+            'finance_type': group.finance_type,
         })
 
     return render(request, 'core/dashboard.html', {
@@ -140,11 +196,51 @@ def edit_finance_group(request, group_id):
     except Exception as e:
         return JsonResponse({'error': str(e)}, status=400)
 
+@login_required
+@require_http_methods(["POST"])
+def create_finance_group(request):
+    """Create a new Finance Group — Daily or Weekly. Existing groups/data untouched."""
+    try:
+        data = json.loads(request.body)
+        name = data.get('name', '').strip()
+        finance_type = data.get('finance_type', 'daily')
+        collection_day = (data.get('collection_day') or '').strip().lower()
+        valid_days = {'monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday', 'sunday'}
+
+        if not name:
+            return JsonResponse({'error': 'Finance name is required'}, status=400)
+        if finance_type not in ('daily', 'weekly'):
+            return JsonResponse({'error': 'Invalid finance type'}, status=400)
+        if finance_type == 'weekly' and collection_day not in valid_days:
+            return JsonResponse({'error': 'Please select a valid collection day'}, status=400)
+
+        group = FinanceGroup.objects.create(
+            user=request.user,
+            name=name,
+            day=collection_day.capitalize() + ' Collection' if finance_type == 'weekly' else 'Daily Collection',
+            location='',
+            finance_type=finance_type,
+            collection_day=collection_day if finance_type == 'weekly' else None,
+        )
+
+        return JsonResponse({
+            'success': True,
+            'group': {
+                'id': group.id, 'name': group.name, 'day': group.day,
+                'location': group.location, 'finance_type': group.finance_type,
+                'active_borrowers': 0, 'total_balance': 0,
+            }
+        })
+    except Exception as e:
+        return JsonResponse({'error': str(e)}, status=400)
 
 @login_required
 def group_detail(request, group_id):
     """Group detail with search support"""
     group = get_object_or_404(FinanceGroup, id=group_id, user=request.user)
+
+    if group.finance_type == 'weekly':
+        return _weekly_group_detail(request, group)
 
     # Get search query
     search_query = request.GET.get('search', '').strip()
@@ -183,6 +279,12 @@ def group_detail(request, group_id):
 
     borrower_data = []
     daily_totals = {day['date']: 0 for day in days}
+    # Borrowers-who-paid count per date (Issue 3). Kept separate from daily_totals
+    # (rupee sum, unchanged above) — derived from each borrower's own collapsed
+    # `payments` dict so a borrower is never counted twice for the same date even
+    # if they have more than one WeeklyPayment row on that date (e.g. across a
+    # same-day loan-cycle change).
+    daily_counts = {day['date']: 0 for day in days}
 
     for borrower in all_borrowers:
         payments = {day['date']: 0 for day in days}
@@ -190,8 +292,14 @@ def group_detail(request, group_id):
         for payment in borrower.weekly_payments.all():
             payment_date_str = payment.payment_date.isoformat()
             if payment_date_str in payments:
-                payments[payment_date_str] = float(payment.amount_paid)
+                # Sum across loan cycles so a same-day final payment of the
+                # previous cycle remains visible alongside any new-cycle amount.
+                payments[payment_date_str] += float(payment.amount_paid)
                 daily_totals[payment_date_str] += float(payment.amount_paid)
+
+        for d, amt in payments.items():
+            if amt > 0:
+                daily_counts[d] += 1
 
         borrower_data.append({
             'id': borrower.id,
@@ -213,11 +321,164 @@ def group_detail(request, group_id):
         'borrowers': borrower_data,
         'days': days,
         'daily_totals': daily_totals,
+        'daily_counts': daily_counts,
         'total_to_collect': total_to_collect,
         'month_name': month_name,
         'search_query': search_query,
     })
 
+def _weekly_group_detail(request, group):
+    """
+    Weekly Finance ledger. Mirrors group_detail()'s Daily logic exactly
+    (same payment/balance/status computation) -- only the collection-date
+    schedule and pagination differ.
+    """
+    search_query = request.GET.get('search', '').strip()
+
+    try:
+        window = int(request.GET.get('window', 0))
+    except (TypeError, ValueError):
+        window = 0
+
+    window = max(window, 0)
+
+    weekday_int = WEEKDAY_MAP.get(
+        group.collection_day,
+        0
+    )
+
+    borrowers_query = Borrower.objects.filter(
+        finance_group=group,
+        name__gt=''
+    ).prefetch_related('weekly_payments')
+
+    if search_query:
+        borrowers_query = borrowers_query.filter(
+            Q(name__icontains=search_query) |
+            Q(serial_number__icontains=search_query)
+        )
+
+    all_borrowers = list(
+        borrowers_query.order_by('serial_number')
+    )
+
+    week_dates = _get_weekly_window_dates(
+        group,
+        window
+    )
+
+    days = [
+        {
+            'date': d.isoformat(),
+            'display': d.strftime('%d/%m')
+        }
+        for d in week_dates
+    ]
+
+    borrower_data = []
+
+    daily_totals = {
+        day['date']: 0
+        for day in days
+    }
+    daily_counts = {
+        day['date']: 0
+        for day in days
+    }
+
+    for borrower in all_borrowers:
+
+        first_date = _borrower_first_collection_date(
+            borrower,
+            weekday_int
+        )
+
+        payments = {
+            day['date']: 0
+            for day in days
+        }
+
+        unavailable = []
+
+        for day in days:
+            d_obj = date.fromisoformat(
+                day['date']
+            )
+
+            if first_date and d_obj < first_date:
+                unavailable.append(
+                    day['date']
+                )
+
+        for payment in borrower.weekly_payments.all():
+
+            payment_date_str = (
+                payment.payment_date.isoformat()
+            )
+
+            if payment_date_str in payments:
+
+                payments[payment_date_str] += float(
+                    payment.amount_paid
+                )
+
+                daily_totals[payment_date_str] += float(
+                    payment.amount_paid
+                )
+
+        for d, amt in payments.items():
+            if amt > 0:
+                daily_counts[d] += 1
+
+        borrower_data.append({
+            'id': borrower.id,
+            'serial': borrower.serial_number,
+            'name': borrower.name,
+            'amount_given': float(
+                borrower.amount_given
+            ),
+            'amount_paid': float(
+                borrower.amount_paid
+            ),
+            'total_paid': borrower.total_paid,
+            'balance': borrower.balance,
+            'loan_date': (
+                borrower.date_of_loan.isoformat()
+                if borrower.date_of_loan
+                else ''
+            ),
+            'payments': payments,
+            'unavailable': unavailable,
+        })
+
+    total_to_collect = sum(
+        b['balance']
+        for b in borrower_data
+    )
+
+    if week_dates:
+        window_label = (
+            f"{week_dates[0].strftime('%d %b')} - "
+            f"{week_dates[-1].strftime('%d %b %Y')}"
+        )
+    else:
+        window_label = ''
+
+    return render(
+        request,
+        'core/weekly_group_detail.html',
+        {
+            'group': group,
+            'borrowers': borrower_data,
+            'days': days,
+            'daily_totals': daily_totals,
+            'daily_counts': daily_counts,
+            'total_to_collect': total_to_collect,
+            'window_label': window_label,
+            'window': window,
+            'search_query': search_query,
+        }
+    )
 
 @login_required
 def search_borrowers(request, group_id):
@@ -321,7 +582,12 @@ def add_borrower(request, group_id):
         date_of_loan = datetime.fromisoformat(date_of_loan_str).date() if date_of_loan_str else date.today()
 
         borrower, created, error = _create_or_update_borrower(
-            group, serial_number, name, amount_given, date_of_loan
+            group,
+            serial_number,
+            name,
+            amount_given,
+            date_of_loan,
+            seed_month_payments=(group.finance_type == 'daily')
         )
 
         if error:
@@ -364,6 +630,7 @@ def update_payment(request, borrower_id):
         payment, created = WeeklyPayment.objects.get_or_create(
             borrower=borrower,
             payment_date=payment_date,
+            loan_cycle=borrower.loan_cycle,
             defaults={'amount_paid': amount}
         )
 
@@ -516,7 +783,9 @@ def _parse_excel_row(row_cells, row_index):
 def import_borrowers_preview(request, group_id):
     """
     Parse an uploaded Excel file and return a validated preview.
-    Writes nothing to the database — confirmation happens in import_borrowers_confirm.
+    Supports identity columns (Serial, Name, Loan Date, Amount) plus optional
+    collection-date columns (DD/MM/YYYY headers) with payment amounts.
+    Writes nothing — confirmation is import_borrowers_confirm.
     """
     group = get_object_or_404(FinanceGroup, id=group_id, user=request.user)
 
@@ -533,9 +802,19 @@ def import_borrowers_preview(request, group_id):
     except Exception:
         return JsonResponse({'error': 'Could not read the Excel file. Please check the format.'}, status=400)
 
-    rows = list(sheet.iter_rows(min_row=2, values_only=True))  # row 1 assumed header
-    if not rows:
+    all_rows = list(sheet.iter_rows(values_only=True))
+    if len(all_rows) < 2:
         return JsonResponse({'error': 'No data rows found in the file'}, status=400)
+
+    header = list(all_rows[0]) if all_rows[0] else []
+    # Map column index -> payment date for date-like headers beyond the first 4 cols
+    payment_cols = []  # list of (col_index, date)
+    for col_idx, cell in enumerate(header):
+        if col_idx < 4:
+            continue
+        d = _parse_excel_header_date(cell)
+        if d is not None:
+            payment_cols.append((col_idx, d))
 
     existing_serials = set(
         Borrower.objects.filter(finance_group=group, name__gt='').values_list('serial_number', flat=True)
@@ -545,10 +824,28 @@ def import_borrowers_preview(request, group_id):
     error_rows = []
     seen_serials_in_file = set()
 
-    for idx, row in enumerate(rows, start=2):
-        parsed, error = _parse_excel_row(list(row), idx)
+    for idx, row in enumerate(all_rows[1:], start=2):
+        cells = list(row) if row else []
+        parsed, error = _parse_excel_row(cells, idx)
         if parsed is None:
-            continue  # empty row, skip silently
+            continue
+
+        # Attach payment map from date columns (even if identity had errors)
+        payments = {}
+        for col_idx, pdate in payment_cols:
+            if col_idx >= len(cells):
+                continue
+            raw = cells[col_idx]
+            if raw is None or str(raw).strip() == '':
+                continue
+            try:
+                amt = float(raw)
+            except (TypeError, ValueError):
+                continue
+            if amt < 0:
+                continue
+            payments[pdate.isoformat()] = amt
+        parsed['payments'] = payments
 
         if error:
             error_rows.append({**parsed, 'error': error})
@@ -568,19 +865,24 @@ def import_borrowers_preview(request, group_id):
         'valid_count': len(valid_rows),
         'error_count': len(error_rows),
         'duplicate_count': sum(1 for r in valid_rows if r['is_duplicate']),
+        'payment_columns': len(payment_cols),
         'valid_rows': valid_rows,
         'error_rows': error_rows,
     })
+
 
 
 @login_required
 @require_http_methods(["POST"])
 def import_borrowers_confirm(request, group_id):
     """
-    Commit previously-previewed rows to the database.
-    Wrapped in a single atomic transaction — reuses the same borrower creation
-    helper as manual add, so imported borrowers behave identically (same
-    WeeklyPayment seeding, same calculations).
+    Persist rows previously validated by import_borrowers_preview.
+
+    Uses the same shared borrower helper as manual add. When a row includes a
+    `payments` map (date ISO → amount), those WeeklyPayment values are
+    upserted for the borrower's CURRENT loan_cycle without deleting other
+    dates or other cycles — so an export/import round-trip restores entered
+    collections without wiping later data the client may already have typed.
     """
     group = get_object_or_404(FinanceGroup, id=group_id, user=request.user)
 
@@ -595,6 +897,7 @@ def import_borrowers_confirm(request, group_id):
         created_count = 0
         updated_count = 0
         skipped_count = 0
+        payments_written = 0
         row_errors = []
 
         with transaction.atomic():
@@ -622,6 +925,7 @@ def import_borrowers_confirm(request, group_id):
 
                 borrower, created, error = _create_or_update_borrower(
                     group, serial_number, name, amount_given, date_of_loan,
+                    seed_month_payments=(group.finance_type == 'daily'),
                     allow_overwrite=(duplicate_action == 'replace')
                 )
 
@@ -634,11 +938,35 @@ def import_borrowers_confirm(request, group_id):
                 else:
                     created_count += 1
 
+                # Restore collection amounts (upsert per date for current cycle)
+                payments = row.get('payments') or {}
+                if isinstance(payments, dict) and payments:
+                    for date_str, amt in payments.items():
+                        try:
+                            pdate = datetime.fromisoformat(str(date_str)).date()
+                            amount = float(amt)
+                        except (TypeError, ValueError):
+                            continue
+                        if amount < 0:
+                            continue
+                        payment, was_created = WeeklyPayment.objects.get_or_create(
+                            borrower=borrower,
+                            payment_date=pdate,
+                            loan_cycle=borrower.loan_cycle,
+                            defaults={'amount_paid': amount},
+                        )
+                        if not was_created:
+                            if float(payment.amount_paid) != amount:
+                                payment.amount_paid = amount
+                                payment.save(update_fields=['amount_paid', 'updated_at'])
+                        payments_written += 1
+
         return JsonResponse({
             'success': True,
             'created': created_count,
             'updated': updated_count,
             'skipped': skipped_count,
+            'payments_written': payments_written,
             'row_errors': row_errors,
         })
     except Exception as e:
@@ -646,21 +974,104 @@ def import_borrowers_confirm(request, group_id):
 
 
 @login_required
+
+def _collection_dates_for_export(group):
+    """
+    Date columns for Excel export — mirrors the active borrower-table axis.
+    Daily: all days in the current calendar month.
+    Weekly: the current 25-week window for the group's collection day.
+    Additionally include any payment dates that already have amount > 0 so
+    entered client data outside the default window is never dropped.
+    """
+    if group.finance_type == 'weekly':
+        base = list(_get_weekly_window_dates(group, window=0))
+    else:
+        today = date.today()
+        first_day = today.replace(day=1)
+        if today.month == 12:
+            last_day = today.replace(year=today.year + 1, month=1, day=1) - timedelta(days=1)
+        else:
+            last_day = today.replace(month=today.month + 1, day=1) - timedelta(days=1)
+        base = []
+        current = first_day
+        while current <= last_day:
+            base.append(current)
+            current += timedelta(days=1)
+
+    extra = set()
+    for d in WeeklyPayment.objects.filter(
+        borrower__finance_group=group,
+        amount_paid__gt=0,
+    ).values_list('payment_date', flat=True).distinct():
+        if d not in base:
+            extra.add(d)
+
+    if not extra:
+        return base
+
+    merged = sorted(set(base) | extra)
+    return merged
+
+
+def _parse_excel_header_date(value):
+    """Return a date if the header cell is a collection-date column, else None."""
+    if value is None:
+        return None
+    if isinstance(value, datetime):
+        return value.date()
+    if isinstance(value, date):
+        return value
+    s = str(value).strip()
+    if not s:
+        return None
+    # Skip known non-date summary headers from older exports
+    if s.lower() in {
+        'serial number', 'borrower name', 'loan date', 'loan amount',
+        'amount paid', 'outstanding balance', 'status', 'sr#', 'name', 'amount',
+    }:
+        return None
+    formats = (
+        '%d/%m/%Y', '%Y-%m-%d', '%d-%m-%Y', '%d/%m/%y', '%d-%m-%y',
+        '%d/%m', '%d-%m',
+        '%d %b %Y', '%d %B %Y', '%d %b %y', '%d %B %y',
+        '%d-%b-%Y', '%d-%B-%Y', '%d-%b-%y',
+        '%d %b', '%d %B',
+    )
+    for fmt in formats:
+        try:
+            parsed = datetime.strptime(s, fmt)
+            if fmt in ('%d/%m', '%d-%m', '%d %b', '%d %B'):
+                return parsed.replace(year=date.today().year).date()
+            return parsed.date()
+        except ValueError:
+            continue
+    return None
+
+
 def export_borrowers_excel(request, group_id):
     """
     Generate a real .xlsx backup of all borrowers in this group.
-    First 4 columns match the import format exactly, so an exported file
-    can be re-imported with minimal effort.
+
+    Columns 1–4 match the import identity format (Serial, Name, Loan Date,
+    Loan Amount). Subsequent columns are collection dates (DD/MM/YYYY) with
+    the payment amounts entered for each borrower — so a later import can
+    restore both borrower identity and collection history.
     """
     group = get_object_or_404(FinanceGroup, id=group_id, user=request.user)
-    borrowers = Borrower.objects.filter(finance_group=group, name__gt='').order_by('serial_number')
+    borrowers = list(
+        Borrower.objects.filter(finance_group=group, name__gt='')
+        .prefetch_related('weekly_payments')
+        .order_by('serial_number')
+    )
+
+    collection_dates = _collection_dates_for_export(group)
 
     wb = openpyxl.Workbook()
     sheet = wb.active
     sheet.title = 'Borrowers'
 
-    headers = ['Serial Number', 'Borrower Name', 'Loan Date', 'Loan Amount',
-               'Amount Paid', 'Outstanding Balance', 'Status']
+    headers = ['Serial Number', 'Borrower Name', 'Loan Date', 'Loan Amount']
+    headers += [d.strftime('%d/%m/%Y') for d in collection_dates]
     sheet.append(headers)
 
     for cell in sheet[1]:
@@ -668,20 +1079,26 @@ def export_borrowers_excel(request, group_id):
         cell.fill = PatternFill(start_color='667EEA', end_color='667EEA', fill_type='solid')
 
     for b in borrowers:
-        status = 'Cleared' if b.balance <= 0 else 'Active'
-        sheet.append([
+        # Sum payments per date across cycles so historical collections export.
+        pay_by_date = {}
+        for p in b.weekly_payments.all():
+            key = p.payment_date
+            pay_by_date[key] = pay_by_date.get(key, 0.0) + float(p.amount_paid)
+
+        row = [
             b.serial_number,
             b.name,
             b.date_of_loan.strftime('%d/%m/%Y') if b.date_of_loan else '',
             float(b.amount_given),
-            float(b.total_paid),
-            float(b.balance),
-            status,
-        ])
+        ]
+        for d in collection_dates:
+            amt = pay_by_date.get(d, 0.0)
+            row.append(amt if amt else '')
+        sheet.append(row)
 
     for col_cells in sheet.columns:
         length = max((len(str(c.value)) if c.value is not None else 0) for c in col_cells)
-        sheet.column_dimensions[col_cells[0].column_letter].width = max(12, length + 2)
+        sheet.column_dimensions[col_cells[0].column_letter].width = max(12, min(length + 2, 18))
 
     response = HttpResponse(
         content_type='application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'
@@ -692,22 +1109,19 @@ def export_borrowers_excel(request, group_id):
     return response
 
 
+
 @login_required
 @require_http_methods(["POST"])
 def give_new_loan(request, borrower_id):
     """
-    Start a new loan cycle for a borrower (typically one who has fully repaid).
-    Resets amount_paid to 0 and moves date_of_loan forward — total_paid/balance
-    (see models.py) only count payments from date_of_loan onward. Any payment
-    already recorded on the new loan's exact date (same-day old-loan-clear +
-    new-loan case) belongs to the previous cycle and is zeroed so it can't
-    bleed into the new cycle's Paid/Balance, while remaining part of that
-    day's Daily Collection total (dailyTotalsData is computed independently
-    in group_detail's payments dict from the raw amount at collection time).
+    Start a new loan cycle for a borrower who has fully repaid (balance == 0).
 
-    Before any of that, the closing cycle's final numbers are snapshotted to
-    LoanHistory so the previous loan amount/paid/balance remain permanently
-    visible even after this function overwrites Borrower's fields.
+    Backend enforces zero outstanding balance — UI hide is not sufficient.
+    Snapshots the closing cycle to LoanHistory, increments loan_cycle so that
+    total_paid/balance only count the new cycle, and leaves all prior
+    WeeklyPayment rows intact (including a same-day final payment). Those old
+    rows keep their original loan_cycle stamp and remain visible in the ledger
+    and cash-flow totals.
     """
     borrower = get_object_or_404(Borrower, id=borrower_id, finance_group__user=request.user)
     try:
@@ -718,10 +1132,16 @@ def give_new_loan(request, borrower_id):
         if new_amount <= 0:
             return JsonResponse({'error': 'Amount must be greater than 0'}, status=400)
 
+        # Require fully paid current cycle. Use a small tolerance for float noise.
+        if float(borrower.balance) > 0.001:
+            return JsonResponse({
+                'error': 'Cannot give a new loan while outstanding balance is greater than zero. '
+                         'Record the final payment first.'
+            }, status=400)
+
         new_date = datetime.fromisoformat(new_date_str).date() if new_date_str else date.today()
 
-        # Snapshot the closing cycle's final state BEFORE the existing reset
-        # logic below (unchanged) overwrites amount_given/amount_paid/date_of_loan.
+        # Snapshot closing cycle BEFORE overwriting Borrower fields.
         LoanHistory.objects.create(
             borrower=borrower,
             loan_amount=borrower.amount_given,
@@ -731,12 +1151,13 @@ def give_new_loan(request, borrower_id):
             closed_on=new_date,
         )
 
+        # Advance cycle so existing WeeklyPayment rows (old cycle) no longer
+        # count toward total_paid/balance. Do NOT delete or zero those rows.
+        borrower.loan_cycle = int(borrower.loan_cycle or 1) + 1
         borrower.amount_given = new_amount
         borrower.amount_paid = 0
         borrower.date_of_loan = new_date
         borrower.save()
-
-        WeeklyPayment.objects.filter(borrower=borrower, payment_date=new_date).update(amount_paid=0)
 
         return JsonResponse({
             'success': True,
@@ -746,6 +1167,7 @@ def give_new_loan(request, borrower_id):
                 'date_of_loan': borrower.date_of_loan.isoformat(),
                 'total_paid': borrower.total_paid,
                 'balance': borrower.balance,
+                'loan_cycle': borrower.loan_cycle,
             }
         })
     except Exception as e:

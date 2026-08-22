@@ -22,13 +22,13 @@ urlpatterns = [
     
     # API Endpoints
     path('api/group/<int:group_id>/edit/', views.edit_finance_group, name='edit_finance_group'),
+    path('api/finance-group/create/', views.create_finance_group, name='create_finance_group'),
     path('api/group/<int:group_id>/search/', views.search_borrowers, name='search_borrowers'),
     path('api/group/<int:group_id>/add-borrower/', views.add_borrower, name='add_borrower'),
     path('api/borrower/<int:borrower_id>/delete/', views.delete_borrower, name='delete_borrower'),
     path('api/borrower/<int:borrower_id>/update-payment/', views.update_payment, name='update_payment'),
     path('api/borrower/<int:borrower_id>/update-amount-paid/', views.update_amount_paid, name='update_amount_paid'),
     path('api/borrower/<int:borrower_id>/update/', views.update_borrower, name='update_borrower'),
-
 
     path('api/group/<int:group_id>/import-excel/preview/', views.import_borrowers_preview, name='import_borrowers_preview'),
     path('api/group/<int:group_id>/import-excel/confirm/', views.import_borrowers_confirm, name='import_borrowers_confirm'),
@@ -43,4 +43,7 @@ urlpatterns = [
     path('api/expense/<int:expense_id>/delete/', views.delete_expense, name='delete_expense'),
     path('api/group/<int:group_id>/update-interest/', views.update_interest, name='update_interest'),
     path('api/group/<int:group_id>/save-collection-staff/', views.save_collection_staff, name='save_collection_staff'),
+    path('api/group/<int:group_id>/edit/', views.edit_finance_group, name='edit_finance_group'),
+    path('api/finance-group/create/', views.create_finance_group, name='create_finance_group'),
+    path('api/group/<int:group_id>/search/', views.search_borrowers, name='search_borrowers'),
 ]
